@@ -150,4 +150,11 @@ export const DATA_BAR_METRICS = [
     prefix: "",
     suffix: " min avg",
   },
+  {
+    label: "New Filings",
+    value: 12,
+    decimals: 0,
+    prefix: "",
+    suffix: " this week",
+  },
 ];

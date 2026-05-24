@@ -33,8 +33,8 @@ export default function Hero() {
           }}
           aria-hidden="true"
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-deep/70 via-navy/50 to-navy/90" />
+        {/* Gradient overlay — 0.35-0.4 opacity top/mid, retains dark base for text */}
+        <div className="absolute inset-0 bg-gradient-to-b from-navy-deep/40 via-navy/30 to-navy/85" />
       </ParallaxLayer>
 
       {/* Layer 2 — ambient shapes (0.6x) */}
@@ -57,16 +57,20 @@ export default function Hero() {
         <h1
           className="hero-title font-display font-extrabold text-warm-white opacity-0 mb-6"
           style={{
-            fontSize: "clamp(2.5rem, 6vw, 4rem)",
-            lineHeight: 1.15,
+            fontSize: "clamp(3rem, 6vw, 4.5rem)",
+            lineHeight: 1.12,
+            textShadow: "0 2px 20px rgba(0,0,0,0.5)",
           }}
         >
           Lo que se mueve en el Valle
         </h1>
 
         <p
-          className="hero-tagline font-editorial text-slate-light opacity-0 mb-10 max-w-2xl mx-auto leading-relaxed"
-          style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)" }}
+          className="hero-tagline font-body text-slate-light opacity-0 mb-10 max-w-2xl mx-auto leading-relaxed"
+          style={{
+            fontSize: "clamp(1.05rem, 2vw, 1.25rem)",
+            textShadow: "0 1px 12px rgba(0,0,0,0.4)",
+          }}
         >
           Every Monday, we deliver the 30 stories that matter most to your
           business — scored, summarized, and ready to act on.

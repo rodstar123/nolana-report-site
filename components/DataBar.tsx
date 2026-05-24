@@ -22,9 +22,9 @@ export default function DataBar() {
   }, []);
 
   return (
-    <div ref={ref} className="bg-teal relative card-stack">
-      <div className="max-w-6xl mx-auto px-6 py-6">
-        <div className="grid grid-cols-3 gap-4 divide-x divide-teal-light/30">
+    <div ref={ref} className="bar-shimmer relative card-stack">
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 divide-x divide-teal-light/30">
           {DATA_BAR_METRICS.map((metric, i) => (
             <div
               key={metric.label}
@@ -33,7 +33,7 @@ export default function DataBar() {
             >
               <div
                 className="font-mono font-bold text-gold"
-                style={{ fontSize: "clamp(1.4rem, 3vw, 2rem)" }}
+                style={{ fontSize: "clamp(2.25rem, 3vw, 2.75rem)" }}
               >
                 {metric.prefix}
                 <span data-count={metric.value} data-decimals={metric.decimals}>
@@ -41,11 +41,14 @@ export default function DataBar() {
                     ? metric.value.toFixed(metric.decimals)
                     : metric.value}
                 </span>
-                <span className="text-base font-normal text-gold/70 ml-1">
+                <span
+                  className="font-normal text-gold/70 ml-1"
+                  style={{ fontSize: "clamp(0.85rem, 1.5vw, 1rem)" }}
+                >
                   {metric.suffix}
                 </span>
               </div>
-              <div className="font-body text-teal-light/80 text-xs uppercase tracking-widest mt-1">
+              <div className="font-body text-warm-white/85 text-sm font-semibold uppercase tracking-widest mt-2">
                 {metric.label}
               </div>
             </div>

@@ -80,6 +80,37 @@ const ICONS: Record<string, JSX.Element> = {
   ),
 };
 
+const CARD_ACCENT: Record<
+  string,
+  { color: string; iconBg: string; iconColor: string }
+> = {
+  "New Business Pulse": {
+    color: "#0d7377",
+    iconBg: "rgba(13,115,119,0.1)",
+    iconColor: "#0d7377",
+  },
+  "Gov & Economic Watch": {
+    color: "#6366f1",
+    iconBg: "rgba(99,102,241,0.1)",
+    iconColor: "#6366f1",
+  },
+  "Cross-Border & Trade": {
+    color: "#10a3a8",
+    iconBg: "rgba(16,163,168,0.1)",
+    iconColor: "#10a3a8",
+  },
+  "Community Buzz": {
+    color: "#718096",
+    iconBg: "rgba(113,128,150,0.1)",
+    iconColor: "#718096",
+  },
+  "Industrial & Investment Watch": {
+    color: "#d4a843",
+    iconBg: "rgba(212,168,67,0.18)",
+    iconColor: "#b8860b",
+  },
+};
+
 export default function WhatYouGet() {
   return (
     <section className="bg-cream card-stack py-24">
@@ -100,24 +131,56 @@ export default function WhatYouGet() {
         </SectionReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {AGENT_CARDS.map((card, i) => (
-            <SectionReveal key={card.title} delay={i * 0.08}>
-              <div className="bg-warm-white border border-cream-dark rounded-xl p-6 hover:shadow-lg hover:-translate-y-1 hover:border-teal/30 transition-all duration-300 group h-full">
+          {AGENT_CARDS.map((card, i) => {
+            const isGold = card.title === "Industrial & Investment Watch";
+            const accent = CARD_ACCENT[card.title] ?? {
+              color: "#0d7377",
+              iconBg: "rgba(13,115,119,0.1)",
+              iconColor: "#0d7377",
+            };
+            return (
+              <SectionReveal key={card.title} delay={i * 0.08}>
                 <div
-                  className="w-12 h-12 rounded-lg bg-teal/10 text-teal flex items-center justify-center mb-4 group-hover:bg-teal/20 group-hover:text-teal-light transition-colors"
-                  aria-hidden="true"
+                  className="rounded-xl p-8 border border-l-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group h-full"
+                  style={{
+                    background: isGold
+                      ? "rgba(212,168,67,0.05)"
+                      : "var(--warm-white)",
+                    borderColor: "var(--cream-dark)",
+                    borderLeftColor: accent.color,
+                  }}
                 >
-                  {ICONS[card.title]}
+                  <div
+                    className="w-12 h-12 rounded-lg flex items-center justify-center mb-5 transition-colors duration-300"
+                    style={{
+                      background: isGold
+                        ? "rgba(212,168,67,0.18)"
+                        : accent.iconBg,
+                      color: accent.iconColor,
+                    }}
+                    aria-hidden="true"
+                  >
+                    {ICONS[card.title]}
+                  </div>
+                  <h3
+                    className="font-display font-bold text-charcoal text-xl mb-2"
+                    style={isGold ? { color: "#b8860b" } : {}}
+                  >
+                    {card.title}
+                  </h3>
+                  <p className="font-body text-slate text-[15px] leading-relaxed">
+                    {card.description}
+                  </p>
+                  {isGold && (
+                    <div className="mt-4 inline-flex items-center gap-1.5 text-xs font-body font-bold uppercase tracking-widest text-gold/80">
+                      <span className="w-2 h-2 rounded-full bg-gold inline-block" />
+                      Intel Exclusive
+                    </div>
+                  )}
                 </div>
-                <h3 className="font-display font-bold text-charcoal text-lg mb-2">
-                  {card.title}
-                </h3>
-                <p className="font-editorial text-slate text-sm leading-relaxed">
-                  {card.description}
-                </p>
-              </div>
-            </SectionReveal>
-          ))}
+              </SectionReveal>
+            );
+          })}
         </div>
       </div>
     </section>
