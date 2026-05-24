@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeSubscriber } from "@/lib/notion";
+import { lookupSubscriber, writeSubscriber } from "@/lib/notion";
 import { sendConfirmationEmail } from "@/lib/resend";
 
 function isValidEmail(email: string): boolean {
@@ -22,14 +22,28 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const normalized = email.toLowerCase().trim();
+
   try {
-    await writeSubscriber(email.toLowerCase().trim());
-    await sendConfirmationEmail(email.toLowerCase().trim());
-    return NextResponse.json({ success: true, message: "Check your inbox." });
+    const existing = await lookupSubscriber(normalized);
+
+    if (existing?.status === "active") {
+      return NextResponse.json({ ok: false, reason: "already_subscribed" });
+    }
+
+    if (existing?.status === "pending") {
+      await sendConfirmationEmail(normalized);
+      return NextResponse.json({ ok: false, reason: "pending_confirmation" });
+    }
+
+    // New subscriber
+    await writeSubscriber(normalized);
+    await sendConfirmationEmail(normalized);
+    return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[subscribe] error:", err);
     return NextResponse.json(
-      { error: "Subscription failed — try again." },
+      { ok: false, error: "Subscription failed — try again." },
       { status: 500 },
     );
   }
