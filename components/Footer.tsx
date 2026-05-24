@@ -4,7 +4,12 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-navy-deep border-t border-white/5 py-16">
+    <footer
+      className="border-t border-white/5 py-16"
+      style={{
+        background: "linear-gradient(to bottom, #0f1722 0%, #2d3748 100%)",
+      }}
+    >
       <div className="max-w-6xl mx-auto px-6">
         {/* SmartBook ad slot */}
         <div className="bg-teal/10 border border-teal/20 rounded-xl p-6 mb-12 flex flex-col sm:flex-row items-center justify-between gap-4">

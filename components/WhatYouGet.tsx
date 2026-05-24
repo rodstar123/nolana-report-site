@@ -1,5 +1,7 @@
 "use client";
+import { useRef, useEffect } from "react";
 import SectionReveal from "./SectionReveal";
+import { whatYouGetRows } from "@/lib/animations";
 
 type Section = {
   num: string;
@@ -180,7 +182,7 @@ function SectionRow({ section, isLast }: RowProps) {
 
   return (
     <div
-      className={`group relative ${!isLast ? "border-b" : ""}`}
+      className={`group relative whatyouget-row ${!isLast ? "border-b" : ""}`}
       style={{
         borderLeftWidth: "4px",
         borderLeftStyle: "solid",
@@ -189,7 +191,7 @@ function SectionRow({ section, isLast }: RowProps) {
         background: ex ? "rgba(212,168,67,0.038)" : "var(--warm-white)",
       }}
     >
-      {/* Watermark number — anchored, never translates */}
+      {/* Watermark number */}
       <span
         className="absolute top-1/2 -translate-y-1/2 left-4 font-display font-bold pointer-events-none select-none"
         style={{
@@ -209,9 +211,8 @@ function SectionRow({ section, isLast }: RowProps) {
         className="relative z-10 flex flex-col md:flex-row w-full transition-transform duration-200 ease-out group-hover:translate-x-[4px]"
         style={{ willChange: "transform" }}
       >
-        {/* ── Left: icon + title + tagline ── */}
+        {/* Left: icon + title + tagline */}
         <div className="flex items-center gap-5 flex-1 py-6 pl-10 pr-6 md:py-8 md:pl-16 md:pr-10">
-          {/* Icon circle */}
           <div
             className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
             style={{ background: section.accentSoft, color: accentColor }}
@@ -219,7 +220,6 @@ function SectionRow({ section, isLast }: RowProps) {
             {section.icon}
           </div>
 
-          {/* Text block */}
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
               <h3
@@ -266,7 +266,7 @@ function SectionRow({ section, isLast }: RowProps) {
           </div>
         </div>
 
-        {/* ── Right: mini story card ── */}
+        {/* Right: mini story card */}
         <div
           className="flex-shrink-0 w-full md:w-72 lg:w-80 px-6 py-5 md:py-8 border-t md:border-t-0 md:border-l flex flex-col justify-center gap-2.5"
           style={{
@@ -274,7 +274,6 @@ function SectionRow({ section, isLast }: RowProps) {
             background: ex ? "rgba(212,168,67,0.05)" : "transparent",
           }}
         >
-          {/* Score badge + source */}
           <div className="flex items-center gap-2.5 flex-wrap">
             <span
               className="inline-flex items-center gap-1 font-mono font-bold rounded"
@@ -296,12 +295,11 @@ function SectionRow({ section, isLast }: RowProps) {
             </span>
           </div>
 
-          {/* Italic sample headline */}
           <p
             className="font-editorial italic leading-snug"
             style={{
               fontSize: "13.5px",
-              color: ex ? "var(--charcoal)" : "var(--charcoal)",
+              color: "var(--charcoal)",
               opacity: ex ? 1 : 0.85,
             }}
           >
@@ -314,9 +312,64 @@ function SectionRow({ section, isLast }: RowProps) {
 }
 
 export default function WhatYouGet() {
+  const rowContainerRef = useRef<HTMLDivElement>(null);
+  const fired = useRef(false);
+
+  useEffect(() => {
+    const el = rowContainerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !fired.current) {
+          fired.current = true;
+          observer.disconnect();
+          whatYouGetRows(el);
+        }
+      },
+      { threshold: 0.1 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="bg-cream card-stack py-24">
-      <div className="max-w-6xl mx-auto px-6">
+    <section
+      className="bg-cream card-stack py-24 relative overflow-hidden"
+      style={{
+        background: "linear-gradient(to bottom, #f4f1ec 0%, #e8e3db 100%)",
+      }}
+    >
+      {/* Ambient teal orbs */}
+      <div
+        className="ambient-orb"
+        style={
+          {
+            width: "60px",
+            height: "60px",
+            top: "12%",
+            left: "5%",
+            "--float-duration": "16s",
+            "--float-delay": "0s",
+          } as React.CSSProperties
+        }
+        aria-hidden="true"
+      />
+      <div
+        className="ambient-orb"
+        style={
+          {
+            width: "40px",
+            height: "40px",
+            top: "68%",
+            right: "7%",
+            "--float-duration": "12s",
+            "--float-delay": "-5s",
+          } as React.CSSProperties
+        }
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 max-w-6xl mx-auto px-6">
         {/* Header */}
         <SectionReveal>
           <div className="text-center mb-16">
@@ -339,6 +392,7 @@ export default function WhatYouGet() {
         {/* Magazine TOC rows */}
         <SectionReveal>
           <div
+            ref={rowContainerRef}
             className="rounded-xl overflow-hidden"
             style={{ border: "1px solid var(--cream-dark)" }}
           >

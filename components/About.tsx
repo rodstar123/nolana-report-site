@@ -3,8 +3,28 @@ import SectionReveal from "./SectionReveal";
 
 export default function About() {
   return (
-    <section className="bg-cream py-24">
-      <div className="max-w-3xl mx-auto px-6">
+    <section
+      className="py-24 relative overflow-hidden"
+      style={{
+        background: "linear-gradient(to bottom, #f4f1ec 0%, #e8e3db 100%)",
+      }}
+    >
+      {/* Ambient orb */}
+      <div
+        className="ambient-orb"
+        style={
+          {
+            width: "50px",
+            height: "50px",
+            top: "30%",
+            right: "10%",
+            "--float-duration": "18s",
+            "--float-delay": "-3s",
+          } as React.CSSProperties
+        }
+        aria-hidden="true"
+      />
+      <div className="relative z-10 max-w-3xl mx-auto px-6">
         <SectionReveal>
           <span className="section-label mb-6">About</span>
           <h2 className="font-display font-bold text-navy text-4xl mt-4 mb-8">

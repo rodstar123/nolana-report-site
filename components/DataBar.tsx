@@ -22,7 +22,7 @@ export default function DataBar() {
   }, []);
 
   return (
-    <div ref={ref} className="bar-shimmer relative card-stack">
+    <div id="data-bar" ref={ref} className="bar-shimmer relative card-stack">
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {DATA_BAR_METRICS.map((metric, i) => (

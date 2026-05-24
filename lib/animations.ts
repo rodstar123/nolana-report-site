@@ -8,15 +8,23 @@ export function heroEntrance() {
       .add({
         targets: ".hero-brand",
         opacity: [0, 1],
-        translateY: [16, 0],
-        duration: 500,
+        translateY: [30, 0],
+        duration: 700,
       })
+      .add(
+        {
+          targets: ".hero-gold-line",
+          scaleX: [0, 1],
+          duration: 500,
+        },
+        "-=300",
+      )
       .add(
         {
           targets: ".hero-label",
           opacity: [0, 1],
           translateY: [20, 0],
-          duration: 600,
+          duration: 500,
         },
         "-=200",
       )
@@ -24,8 +32,8 @@ export function heroEntrance() {
         {
           targets: ".hero-title",
           opacity: [0, 1],
-          translateY: [40, 0],
-          duration: 800,
+          translateY: [50, 0],
+          duration: 900,
         },
         "-=300",
       )
@@ -36,7 +44,7 @@ export function heroEntrance() {
           translateY: [20, 0],
           duration: 600,
         },
-        "-=400",
+        "-=500",
       )
       .add(
         {
@@ -45,11 +53,11 @@ export function heroEntrance() {
           translateY: [30, 0],
           duration: 700,
         },
-        "-=300",
+        "-=200",
       )
       .add(
-        { targets: ".hero-social-proof", opacity: [0, 1], duration: 500 },
-        "-=200",
+        { targets: ".hero-social-proof", opacity: [0, 1], duration: 400 },
+        "-=300",
       );
   });
 }
@@ -65,7 +73,8 @@ export function countUpNumbers(containerEl: HTMLElement) {
         targets: obj,
         value: target,
         easing: "easeInOutQuad",
-        duration: 1200,
+        duration: 1500,
+        delay: anime.stagger(200),
         update: () => {
           el.textContent =
             decimals > 0
@@ -82,9 +91,11 @@ export function scoreBadgePop(el: HTMLElement) {
   import("animejs").then(({ default: anime }) => {
     anime({
       targets: el,
-      scale: [0, 1.15, 1.0],
+      scale: [0, 1.2, 1],
+      opacity: [0, 1],
       easing: "easeOutBack",
       duration: 500,
+      delay: anime.stagger(150),
     });
   });
 }
@@ -94,10 +105,56 @@ export function paywallPulse(el: HTMLElement) {
   import("animejs").then(({ default: anime }) => {
     anime({
       targets: el,
-      scale: [1, 1.02, 1],
+      scale: [1, 1.03, 1],
       easing: "easeInOutSine",
-      duration: 4000,
+      duration: 3000,
       loop: true,
     });
+  });
+}
+
+export function whatYouGetRows(containerEl: HTMLElement) {
+  if (typeof window === "undefined") return;
+  import("animejs").then(({ default: anime }) => {
+    anime({
+      targets: containerEl.querySelectorAll(".whatyouget-row"),
+      translateX: [-40, 0],
+      opacity: [0, 1],
+      easing: "easeOutCubic",
+      duration: 600,
+      delay: anime.stagger(120, { start: 100 }),
+    });
+  });
+}
+
+export function pricingEntrance() {
+  if (typeof window === "undefined") return;
+  import("animejs").then(({ default: anime }) => {
+    anime
+      .timeline({ easing: "easeOutQuad" })
+      .add({
+        targets: ".price-card-free",
+        opacity: [0, 1],
+        translateY: [60, 0],
+        duration: 500,
+      })
+      .add(
+        {
+          targets: ".price-card-pro",
+          opacity: [0, 1],
+          translateY: [80, 0],
+          duration: 700,
+        },
+        "-=300",
+      )
+      .add(
+        {
+          targets: ".price-card-intel",
+          opacity: [0, 1],
+          translateY: [60, 0],
+          duration: 500,
+        },
+        "-=300",
+      );
   });
 }

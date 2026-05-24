@@ -31,8 +31,11 @@ const FAQS = [
 export default function FAQ() {
   return (
     <section
-      className="bg-cream py-24 card-stack"
+      className="py-24 card-stack"
       aria-label="Frequently asked questions"
+      style={{
+        background: "linear-gradient(to bottom, #f4f1ec 0%, #e8e3db 100%)",
+      }}
     >
       <div className="max-w-3xl mx-auto px-6">
         <SectionReveal>

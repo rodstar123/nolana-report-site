@@ -192,7 +192,7 @@ label[for] {
   }
 }
 
-/* DataBar shimmer animation */
+/* DataBar shimmer animation — left-to-right dark-teal → navy */
 @keyframes bar-shimmer {
   0% {
     background-position: 0% 50%;
@@ -207,21 +207,173 @@ label[for] {
 
 .bar-shimmer {
   background: linear-gradient(
-    135deg,
-    #0a5c60 0%,
-    #0d7377 30%,
+    90deg,
+    #0a5c5f 0%,
+    #0d7377 25%,
     #10a3a8 50%,
     #0d7377 70%,
-    #0a5c60 100%
+    #1a2332 100%
   );
-  background-size: 300% 300%;
+  background-size: 300% 100%;
   animation: bar-shimmer 6s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .bar-shimmer {
     animation: none;
-    background: #0d7377;
+    background: linear-gradient(90deg, #0a5c5f 0%, #1a2332 100%);
+  }
+}
+
+/* ─── Hero animated gradient ─────────────────────────── */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.hero-animated-bg {
+  background: linear-gradient(135deg, #1a2332, #0d3a3c, #0f1722, #1a2332);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+}
+
+/* ─── Ambient floating orbs (cream sections) ─────────── */
+@keyframes floatOrb {
+  0%,
+  100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(-18px) translateX(8px);
+  }
+  50% {
+    transform: translateY(8px) translateX(-12px);
+  }
+  75% {
+    transform: translateY(-12px) translateX(15px);
+  }
+}
+
+.ambient-orb {
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(13, 115, 119, 0.06),
+    transparent 70%
+  );
+  position: absolute;
+  pointer-events: none;
+  will-change: transform;
+  animation: floatOrb var(--float-duration, 14s) ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+}
+
+/* ─── Gold diagonal drift lines (pricing section) ───── */
+@keyframes goldLineDrift {
+  0% {
+    transform: translateX(-200px) rotate(-45deg);
+  }
+  100% {
+    transform: translateX(calc(100vw + 400px)) rotate(-45deg);
+  }
+}
+
+.pricing-gold-line {
+  position: absolute;
+  width: 1px;
+  height: 160px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(212, 168, 67, 0.03),
+    transparent
+  );
+  pointer-events: none;
+  animation: goldLineDrift var(--drift-duration, 22s) linear infinite;
+  animation-delay: var(--drift-delay, 0s);
+}
+
+/* ─── Pro card pulsing glow ──────────────────────────── */
+@keyframes pricingGlow {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 0.28;
+  }
+}
+
+.pro-glow {
+  position: absolute;
+  inset: -30px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(13, 115, 119, 0.35),
+    transparent 65%
+  );
+  animation: pricingGlow 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 50%;
+}
+
+/* ─── Pricing cards — initial hidden state ───────────── */
+.price-card-free,
+.price-card-pro,
+.price-card-intel {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* ─── WhatYouGet rows — initial hidden state ─────────── */
+.whatyouget-row {
+  opacity: 0;
+  transform: translateX(-40px);
+  will-change: transform, opacity;
+}
+
+/* ─── Paywall pulse animation ────────────────────────── */
+@keyframes paywallPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+/* ─── Reduced motion overrides ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .hero-animated-bg {
+    animation: none;
+    background: #1a2332;
+  }
+  .ambient-orb {
+    animation: none;
+  }
+  .pricing-gold-line {
+    display: none;
+  }
+  .pro-glow {
+    animation: none;
+    opacity: 0.15;
+  }
+  /* Reveal initial states — show immediately if motion disabled */
+  .price-card-free,
+  .price-card-pro,
+  .price-card-intel,
+  .whatyouget-row {
+    opacity: 1;
+    transform: none;
   }
 }
 

@@ -10,7 +10,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center bg-navy grain-overlay overflow-hidden">
+    <section className="relative min-h-screen flex items-center hero-animated-bg grain-overlay overflow-hidden">
       {/* Layer 1 — video background (slowest parallax 0.3x) */}
       <ParallaxLayer speed={0.3} className="absolute inset-0 z-0">
         <video
@@ -60,8 +60,14 @@ export default function Hero() {
             The Nolana Report
           </span>
           <div
-            className="rounded-full"
-            style={{ width: "60px", height: "2px", backgroundColor: "#d4a843" }}
+            className="hero-gold-line rounded-full"
+            style={{
+              width: "60px",
+              height: "2px",
+              backgroundColor: "#d4a843",
+              transformOrigin: "center",
+              transform: "scaleX(0)",
+            }}
             aria-hidden="true"
           />
         </div>
@@ -94,7 +100,7 @@ export default function Hero() {
           business — scored, summarized, and ready to act on.
         </p>
 
-        <div className="flex justify-center mb-8">
+        <div className="hero-form opacity-0 flex justify-center mb-8">
           <SignupForm />
         </div>
 
@@ -106,8 +112,21 @@ export default function Hero() {
 
       {/* Scroll chevron */}
       <div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce"
-        aria-hidden="true"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce cursor-pointer"
+        aria-label="Scroll to data bar"
+        role="button"
+        tabIndex={0}
+        onClick={() => {
+          document
+            .getElementById("data-bar")
+            ?.scrollIntoView({ behavior: "smooth" });
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ")
+            document
+              .getElementById("data-bar")
+              ?.scrollIntoView({ behavior: "smooth" });
+        }}
       >
         <svg
           className="w-5 h-5 text-teal-light"

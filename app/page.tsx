@@ -6,6 +6,7 @@ import Pricing from "@/components/Pricing";
 import About from "@/components/About";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
+import SectionReveal from "@/components/SectionReveal";
 
 const faqSchema = {
   "@context": "https://schema.org",
@@ -62,7 +63,9 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       <Hero />
-      <DataBar />
+      <SectionReveal>
+        <DataBar />
+      </SectionReveal>
       <WhatYouGet />
       <SampleBriefing />
       <Pricing />
