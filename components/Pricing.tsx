@@ -81,7 +81,7 @@ export default function Pricing() {
 
                 <a
                   href={tier.id === "free" ? "#" : "#"}
-                  className={`block text-center py-3 px-6 rounded-xl font-body font-bold text-sm transition-colors duration-200 min-h-[44px] leading-[28px] ${
+                  className={`block text-center py-3 px-6 rounded-xl font-body font-bold text-sm transition-colors duration-200 min-h-[44px] leading-[28px] cursor-pointer ${
                     tier.highlight
                       ? "bg-warm-white text-navy hover:bg-cream"
                       : "border border-white/20 text-warm-white hover:border-teal hover:text-teal-light"

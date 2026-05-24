@@ -171,3 +171,38 @@ h4 {
 html {
   scroll-behavior: smooth;
 }
+
+/* Focus states — visible ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Cursor pointer on all interactive non-button elements */
+a,
+[role="button"],
+label[for] {
+  cursor: pointer;
+}
+
+/* Ensure body text minimum 16px on mobile */
+@media (max-width: 640px) {
+  .font-editorial {
+    font-size: 16px;
+  }
+}
+
+/* Typography line length guard */
+.prose-nolana {
+  max-width: 68ch;
+}
+
+/* Prevent horizontal overflow */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+}
