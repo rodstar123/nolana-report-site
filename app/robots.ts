@@ -10,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "PerplexityBot", allow: "/" },
       { userAgent: "Google-Extended", allow: "/" },
     ],
-    sitemap: "https://nolanareport.com/sitemap.xml",
+    sitemap: "https://www.nolanareport.com/sitemap.xml",
   };
 }

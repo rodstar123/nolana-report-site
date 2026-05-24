@@ -13,13 +13,13 @@ export const metadata: Metadata = {
   publisher: "National Bookkeeping Company®",
   creator: "The Nolana Report",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://nolanareport.com",
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.nolanareport.com",
   ),
-  alternates: { canonical: "https://nolanareport.com" },
+  alternates: { canonical: "https://www.nolanareport.com" },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://nolanareport.com",
+    url: "https://www.nolanareport.com",
     siteName: "The Nolana Report",
     title: "The Nolana Report — Lo que se mueve en el Valle",
     description:
@@ -53,33 +53,57 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "The Nolana Report",
+  url: "https://www.nolanareport.com",
+  logo: "https://www.nolanareport.com/images/og-social-card.png",
+  description:
+    "Weekly business intelligence briefing for the Rio Grande Valley. 30 stories scored and summarized every Monday.",
+  foundingDate: "2026",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "315 W Nolana Ave",
+    addressLocality: "McAllen",
+    addressRegion: "TX",
+    postalCode: "78504",
+    addressCountry: "US",
+  },
+  parentOrganization: {
+    "@type": "Organization",
+    name: "National Bookkeeping Company",
+    url: "https://nationalboco.com",
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "info@nationalboco.com",
+    contactType: "customer service",
+  },
+  sameAs: [],
+};
+
 const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "The Nolana Report",
-  url: "https://nolanareport.com",
+  alternateName: "Nolana Report",
+  url: "https://www.nolanareport.com",
   description:
-    "Weekly business intelligence briefing for the Rio Grande Valley",
+    "Weekly briefing covering new businesses, government moves, cross-border trade, and industrial investment across McAllen, Edinburg, Brownsville, and the RGV.",
   publisher: {
     "@type": "Organization",
-    name: "National Bookkeeping Company",
-    url: "https://nationalboco.com",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "315 W Nolana Ave",
-      addressLocality: "McAllen",
-      addressRegion: "TX",
-      postalCode: "78504",
-      addressCountry: "US",
-    },
+    name: "The Nolana Report",
+    url: "https://www.nolanareport.com",
   },
+  inLanguage: "en-US",
 };
 
 const periodicalSchema = {
   "@context": "https://schema.org",
   "@type": "Periodical",
   name: "The Nolana Report",
-  url: "https://nolanareport.com",
+  url: "https://www.nolanareport.com",
   publisher: {
     "@type": "Organization",
     name: "National Bookkeeping Company",
@@ -146,6 +170,13 @@ export default function RootLayout({
         <meta name="geo.placename" content="McAllen, Texas" />
         <meta name="geo.position" content="26.2034;-98.2300" />
         <meta name="ICBM" content="26.2034, -98.2300" />
+        {/* Structured data — Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
+        />
         {/* Structured data — WebSite */}
         <script
           type="application/ld+json"
