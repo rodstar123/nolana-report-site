@@ -48,6 +48,24 @@ export default function Hero() {
 
       {/* Layer 3 — foreground content (1x normal) */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-28 pb-24 text-center w-full">
+        {/* Brand name — first visual anchor */}
+        <div className="hero-brand opacity-0 mb-4 flex flex-col items-center gap-2">
+          <span
+            className="font-display font-bold text-warm-white"
+            style={{
+              fontSize: "clamp(1.125rem, 3vw, 1.625rem)",
+              textShadow: "0 1px 12px rgba(0,0,0,0.4)",
+            }}
+          >
+            The Nolana Report
+          </span>
+          <div
+            className="rounded-full"
+            style={{ width: "60px", height: "2px", backgroundColor: "#d4a843" }}
+            aria-hidden="true"
+          />
+        </div>
+
         <div className="hero-label opacity-0 mb-6 flex justify-center">
           <span className="section-label text-teal-light">
             Business Intelligence for the RGV
@@ -57,7 +75,7 @@ export default function Hero() {
         <h1
           className="hero-title font-display font-extrabold text-warm-white opacity-0 mb-6"
           style={{
-            fontSize: "clamp(3rem, 6vw, 4.5rem)",
+            fontSize: "clamp(2rem, 8vw, 4rem)",
             lineHeight: 1.12,
             textShadow: "0 2px 20px rgba(0,0,0,0.5)",
           }}
@@ -68,7 +86,7 @@ export default function Hero() {
         <p
           className="hero-tagline font-body text-slate-light opacity-0 mb-10 max-w-2xl mx-auto leading-relaxed"
           style={{
-            fontSize: "clamp(1.05rem, 2vw, 1.25rem)",
+            fontSize: "clamp(1rem, 2vw, 1.2rem)",
             textShadow: "0 1px 12px rgba(0,0,0,0.4)",
           }}
         >

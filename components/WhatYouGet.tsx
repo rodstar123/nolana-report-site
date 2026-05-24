@@ -141,7 +141,7 @@ export default function WhatYouGet() {
             return (
               <SectionReveal key={card.title} delay={i * 0.08}>
                 <div
-                  className="rounded-xl p-8 border border-l-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group h-full"
+                  className="rounded-xl p-6 md:p-8 border border-l-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group h-full"
                   style={{
                     background: isGold
                       ? "rgba(212,168,67,0.05)"

@@ -20,9 +20,9 @@ export default function Navigation() {
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link
           href="/"
-          className="font-display font-bold text-gold text-base tracking-widest uppercase"
+          className="font-display font-bold text-gold text-sm sm:text-base tracking-wide sm:tracking-widest uppercase"
         >
-          The Nolana Report
+          The Nolana<span className="hidden sm:inline"> Report</span>
         </Link>
         <a
           href="#pricing"

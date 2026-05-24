@@ -55,12 +55,12 @@ export default function SignupForm() {
         placeholder="your@email.com"
         required
         aria-label="Email address"
-        className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-warm-white placeholder-slate-light font-body text-sm focus:outline-none focus:border-teal focus:ring-1 focus:ring-teal backdrop-blur-sm min-h-[44px]"
+        className="flex-1 w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-warm-white placeholder-slate-light font-body text-[16px] focus:outline-none focus:border-teal focus:ring-1 focus:ring-teal backdrop-blur-sm min-h-[44px]"
       />
       <button
         type="submit"
         disabled={status === "loading"}
-        className="px-6 py-3 bg-teal hover:bg-teal-light text-white font-body font-bold text-sm rounded-lg transition-colors duration-200 disabled:opacity-60 whitespace-nowrap min-h-[44px]"
+        className="w-full sm:w-auto px-6 py-3 bg-teal hover:bg-teal-light text-white font-body font-bold text-base rounded-lg transition-colors duration-200 disabled:opacity-60 whitespace-nowrap min-h-[44px]"
       >
         {status === "loading" ? "Subscribing…" : "Subscribe Free"}
       </button>

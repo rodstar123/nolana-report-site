@@ -21,7 +21,7 @@ export default function PaywallBlur() {
         <a
           ref={ctaRef}
           href="#pricing"
-          className="inline-block bg-teal text-warm-white font-body font-bold px-10 py-4 rounded-xl text-base hover:bg-teal-light transition-colors duration-200 min-h-[52px] leading-[24px] shadow-lg shadow-teal/25"
+          className="block w-full sm:inline-block sm:w-auto bg-teal text-warm-white font-body font-bold px-8 py-4 rounded-xl text-base hover:bg-teal-light transition-colors duration-200 min-h-[52px] leading-[24px] shadow-lg shadow-teal/25"
         >
           Get the full brief every Monday →
         </a>

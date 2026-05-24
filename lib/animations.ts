@@ -6,11 +6,20 @@ export function heroEntrance() {
     anime
       .timeline({ easing: "easeOutExpo" })
       .add({
-        targets: ".hero-label",
+        targets: ".hero-brand",
         opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 600,
+        translateY: [16, 0],
+        duration: 500,
       })
+      .add(
+        {
+          targets: ".hero-label",
+          opacity: [0, 1],
+          translateY: [20, 0],
+          duration: 600,
+        },
+        "-=200",
+      )
       .add(
         {
           targets: ".hero-title",
