@@ -117,12 +117,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Font performance — preconnect before CSS load */}
+        {/* Font performance — preconnect + stylesheet link avoids @import waterfall */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;1,400;1,700&family=DM+Sans:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        />
+        {/* Hero image preload — reduces LCP */}
+        <link
+          rel="preload"
+          as="image"
+          href="/images/hero-rgv-golden-hour.webp"
         />
         {/* RSS — reserved for Phase 2 feed */}
         <link

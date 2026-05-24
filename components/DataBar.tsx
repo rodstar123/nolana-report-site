@@ -32,7 +32,7 @@ export default function DataBar() {
               style={{ transitionDelay: `${i * 150}ms` }}
             >
               <div
-                className="font-mono font-bold text-gold"
+                className="font-mono font-bold text-warm-white"
                 style={{ fontSize: "clamp(2.25rem, 3vw, 2.75rem)" }}
               >
                 {metric.prefix}
@@ -42,13 +42,13 @@ export default function DataBar() {
                     : metric.value}
                 </span>
                 <span
-                  className="font-normal text-gold/70 ml-1"
+                  className="font-normal text-warm-white/65 ml-1"
                   style={{ fontSize: "clamp(0.85rem, 1.5vw, 1rem)" }}
                 >
                   {metric.suffix}
                 </span>
               </div>
-              <div className="font-body text-warm-white/85 text-sm font-semibold uppercase tracking-widest mt-2">
+              <div className="font-body text-warm-white text-sm font-semibold uppercase tracking-widest mt-2">
                 {metric.label}
               </div>
             </div>
