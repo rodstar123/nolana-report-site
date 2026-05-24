@@ -35,40 +35,38 @@ export default function About() {
         <SectionReveal delay={0.1}>
           <div className="font-editorial text-slate text-lg leading-relaxed space-y-5">
             <p>
-              <strong className="font-semibold text-charcoal">
-                The Nolana Report
-              </strong>{" "}
-              is published by{" "}
+              Published by{" "}
               <a
                 href={PUBLISHER_URL}
                 className="text-teal hover:text-teal-light underline underline-offset-2 transition-colors"
               >
                 {PUBLISHER}
-              </a>{" "}
-              — the bookkeeping and tax coordination firm that has worked
-              alongside Valley businesses for years. We see the numbers that
-              don&apos;t make the news.
-            </p>
-            <p>
-              We built this briefing because our clients kept asking the same
-              question:{" "}
-              <em>
-                &ldquo;What&apos;s happening in the Valley this week that I
-                should know about?&rdquo;
-              </em>{" "}
-              Now we answer it every Monday, for everyone.
-            </p>
-            <p>
-              The name? Nolana Avenue runs through the heart of every major
-              business district in the Valley — from Mission to Pharr, through
-              McAllen. It&apos;s the road that connects the Valley&apos;s
-              commerce. That felt right.
+              </a>
+              , a McAllen-based bookkeeping and tax coordination firm that works
+              closely with Valley business owners. We built The Nolana Report to
+              turn public business signals into a weekly briefing owners can
+              actually use.
             </p>
           </div>
         </SectionReveal>
 
         <SectionReveal delay={0.2}>
-          <div className="mt-10 p-6 bg-warm-white border border-cream-dark rounded-xl">
+          <div className="mt-10 p-6 bg-warm-white border border-teal/20 rounded-xl">
+            <p className="font-body text-sm text-teal uppercase tracking-wider font-semibold mb-3">
+              Our Method
+            </p>
+            <p className="font-editorial text-slate text-base leading-relaxed">
+              Every week, we review public sources including city agendas,
+              business filings, economic development updates, bridge wait data,
+              FX movement, local media, and regional announcements. Stories are
+              scored by local business relevance, urgency, and potential market
+              impact.
+            </p>
+          </div>
+        </SectionReveal>
+
+        <SectionReveal delay={0.3}>
+          <div className="mt-6 p-6 bg-warm-white border border-cream-dark rounded-xl">
             <p className="font-body text-sm text-slate-light mb-2 uppercase tracking-wider font-semibold">
               Published by
             </p>

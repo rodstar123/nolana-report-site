@@ -1,5 +1,6 @@
 import Hero from "@/components/Hero";
 import DataBar from "@/components/DataBar";
+import WhoItsFor from "@/components/WhoItsFor";
 import WhatYouGet from "@/components/WhatYouGet";
 import SampleBriefing from "@/components/SampleBriefing";
 import Pricing from "@/components/Pricing";
@@ -66,6 +67,7 @@ export default function Home() {
       <SectionReveal>
         <DataBar />
       </SectionReveal>
+      <WhoItsFor />
       <WhatYouGet />
       <SampleBriefing />
       <Pricing />

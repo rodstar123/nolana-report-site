@@ -24,6 +24,9 @@ export default function DataBar() {
   return (
     <div id="data-bar" ref={ref} className="bar-shimmer relative card-stack">
       <div className="max-w-6xl mx-auto px-6 py-10">
+        <p className="font-body text-warm-white/60 text-xs uppercase tracking-widest text-center mb-6">
+          This week&apos;s intelligence snapshot
+        </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {DATA_BAR_METRICS.map((metric, i) => (
             <div
@@ -54,6 +57,9 @@ export default function DataBar() {
             </div>
           ))}
         </div>
+        <p className="font-mono text-warm-white/35 text-xs text-center mt-6">
+          Updated Monday, May 19, 2026 at 6:45 AM
+        </p>
       </div>
     </div>
   );

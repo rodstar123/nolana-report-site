@@ -4,9 +4,9 @@ import Navigation from "@/components/Navigation";
 import LenisProvider from "@/components/LenisProvider";
 
 export const metadata: Metadata = {
-  title: "The Nolana Report — Business Intelligence for the Rio Grande Valley",
+  title: "The Nolana Report | RGV Business Intelligence & Weekly Business News",
   description:
-    "Weekly briefing covering new businesses, government moves, cross-border trade, and industrial investment across McAllen, Edinburg, Brownsville, and the RGV. Scored, summarized, ready to act on. Every Monday.",
+    "Get the weekly Rio Grande Valley business intelligence briefing covering new businesses, permits, trade, bridge waits, government moves, and industrial investment across McAllen and the RGV.",
   keywords:
     "Rio Grande Valley, RGV, McAllen, Edinburg, Brownsville, Pharr, Harlingen, business news, business intelligence, cross-border trade, economic development, South Texas, Hidalgo County, Cameron County",
   authors: [{ name: "National Bookkeeping Company" }],

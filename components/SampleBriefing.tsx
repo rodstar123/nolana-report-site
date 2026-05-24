@@ -8,7 +8,7 @@ export default function SampleBriefing() {
   const blurredStories = MOCK_STORIES.slice(2);
 
   return (
-    <section className="bg-cream py-24">
+    <section id="sample-issue" className="bg-cream py-24">
       <div className="max-w-4xl mx-auto px-6">
         <SectionReveal>
           <div className="mb-12">
@@ -21,6 +21,11 @@ export default function SampleBriefing() {
             <p className="font-editorial text-slate text-lg leading-relaxed">
               47 stories scored this week. Here are the top stories — Pro
               subscribers get all 30.
+            </p>
+            <p className="font-body text-slate-light text-sm mt-4 italic">
+              Sample format shown for demonstration. Real issues include direct
+              source links to public records, city agendas, filings, and local
+              media.
             </p>
           </div>
         </SectionReveal>

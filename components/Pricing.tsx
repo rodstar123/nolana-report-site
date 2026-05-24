@@ -79,11 +79,11 @@ export default function Pricing() {
               <span className="text-teal-light">Pricing</span>
             </span>
             <h2 className="font-display font-bold text-warm-white text-4xl mt-4 mb-4">
-              Intelligence pays for itself.
+              One early signal can pay for the whole year.
             </h2>
             <p className="font-editorial text-slate-light text-lg max-w-xl mx-auto leading-relaxed">
-              One call you make faster, one deal you close sooner — the briefing
-              covers itself.
+              A new facility, permit, grant, zoning move, or trade shift can
+              create opportunities before your competitors notice.
             </p>
           </div>
         </SectionReveal>
@@ -113,6 +113,9 @@ export default function Pricing() {
                 <h3 className="font-display font-bold text-warm-white text-2xl mb-1">
                   {tier.name}
                 </h3>
+                <p className="font-body text-xs text-teal-light/80 font-semibold mb-3 leading-snug">
+                  {tier.tagline}
+                </p>
                 <div className="flex items-baseline gap-2 mb-3">
                   <span className="font-mono font-bold text-gold text-4xl">
                     {tier.priceLabel}

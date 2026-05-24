@@ -6,6 +6,7 @@ interface Props {
   source: string;
   summary: string;
   tag: string;
+  whyItMatters?: string;
 }
 
 const TAG_COLORS: Record<string, { bg: string; color: string }> = {
@@ -21,6 +22,7 @@ export default function BriefingCard({
   source,
   summary,
   tag,
+  whyItMatters,
 }: Props) {
   const tagStyle = TAG_COLORS[tag] ?? {
     bg: "rgba(74,85,104,0.1)",
@@ -44,7 +46,15 @@ export default function BriefingCard({
       <p className="font-body text-slate text-[15px] mb-4 leading-relaxed">
         {summary}
       </p>
-      <p className="font-body text-xs text-slate-light uppercase tracking-wide">
+      {whyItMatters && (
+        <div className="mt-3 pt-3 border-t border-cream-dark">
+          <p className="font-body text-[13px] text-slate leading-relaxed">
+            <span className="font-semibold text-charcoal">Why it matters:</span>{" "}
+            {whyItMatters}
+          </p>
+        </div>
+      )}
+      <p className="font-body text-xs text-slate-light uppercase tracking-wide mt-3">
         {source}
       </p>
     </article>

@@ -74,7 +74,7 @@ export default function Hero() {
 
         <div className="hero-label opacity-0 mb-6 flex justify-center">
           <span className="section-label text-teal-light">
-            Business Intelligence for the RGV
+            RGV Business Intelligence
           </span>
         </div>
 
@@ -96,17 +96,24 @@ export default function Hero() {
             textShadow: "0 1px 12px rgba(0,0,0,0.4)",
           }}
         >
-          Every Monday, we deliver the 30 stories that matter most to your
-          business — scored, summarized, and ready to act on.
+          Every Monday, get the business openings, permits, government moves,
+          trade signals, and investment stories shaping the Rio Grande Valley —
+          scored, summarized, and ready to act on.
         </p>
 
-        <div className="hero-form opacity-0 flex justify-center mb-8">
+        <div className="hero-form opacity-0 flex flex-col items-center gap-4 mb-8">
           <SignupForm />
+          <a
+            href="#sample-issue"
+            className="font-body text-sm text-slate-light hover:text-teal-light transition-colors underline underline-offset-2"
+          >
+            View Sample Issue →
+          </a>
         </div>
 
         <p className="hero-social-proof font-body text-slate-light text-sm opacity-0">
-          Join <span className="text-gold font-semibold">18 subscribers</span>{" "}
-          already getting the Valley&apos;s sharpest brief
+          Join the founding reader list for the Valley&apos;s weekly business
+          intelligence briefing.
         </p>
       </div>
 

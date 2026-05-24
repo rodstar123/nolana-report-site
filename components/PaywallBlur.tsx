@@ -23,7 +23,8 @@ export default function PaywallBlur() {
           href="#pricing"
           className="block w-full sm:inline-block sm:w-auto bg-teal text-warm-white font-body font-bold px-8 py-4 rounded-xl text-base hover:bg-teal-light transition-colors duration-200 min-h-[52px] leading-[24px] shadow-lg shadow-teal/25"
         >
-          Get the full brief every Monday →
+          Start with the free Monday Brief. Upgrade only when the full 30-story
+          intelligence report becomes useful to you.
         </a>
         <p className="font-body text-slate-light text-xs mt-4">
           First month free · Cancel anytime

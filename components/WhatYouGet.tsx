@@ -380,7 +380,7 @@ export default function WhatYouGet() {
               className="font-display font-bold text-navy mt-4 mb-4"
               style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)" }}
             >
-              Everything that moves the needle
+              The signals Valley business owners usually notice too late.
             </h2>
             <p className="font-body text-slate max-w-xl mx-auto text-lg leading-relaxed">
               Every Monday, five sections cover every angle of Valley business —

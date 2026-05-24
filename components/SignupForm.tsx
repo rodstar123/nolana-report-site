@@ -17,7 +17,7 @@ type FormStatus =
 const copy = {
   en: {
     placeholder: "your@email.com",
-    submitIdle: "Subscribe Free",
+    submitIdle: "Get the Free Monday Brief",
     submitLoading: "Subscribing…",
     checkbox: "I agree to receive The Nolana Report weekly via email",
     // new subscriber
