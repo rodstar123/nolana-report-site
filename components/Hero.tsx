@@ -53,7 +53,7 @@ export default function Hero() {
           <span
             className="font-display font-bold text-warm-white"
             style={{
-              fontSize: "clamp(1.125rem, 3vw, 1.625rem)",
+              fontSize: "clamp(1.375rem, 3vw, 1.875rem)",
               textShadow: "0 1px 12px rgba(0,0,0,0.4)",
             }}
           >
