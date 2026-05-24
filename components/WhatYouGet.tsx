@@ -6,8 +6,11 @@ type Section = {
   title: string;
   accent: string;
   accentSoft: string;
+  scoreBg: string;
   tagline: string;
   sample: string;
+  score: number;
+  sourceLabel: string;
   exclusive: boolean;
   icon: React.ReactNode;
 };
@@ -18,8 +21,11 @@ const SECTIONS: Section[] = [
     title: "New Business Pulse",
     accent: "#0d7377",
     accentSoft: "rgba(13,115,119,0.10)",
+    scoreBg: "rgba(13,115,119,0.12)",
     tagline: "Who's opening, expanding, or closing — before the signs go up.",
     sample: "HEB breaks ground on third Valley store — 400 jobs expected",
+    score: 87,
+    sourceLabel: "RGV Business Monitor",
     exclusive: false,
     icon: (
       <svg
@@ -42,8 +48,11 @@ const SECTIONS: Section[] = [
     title: "Gov & Economic Watch",
     accent: "#1a2332",
     accentSoft: "rgba(26,35,50,0.10)",
+    scoreBg: "rgba(26,35,50,0.12)",
     tagline: "Permits, grants, and zoning moves that shape your market.",
     sample: "McAllen approves $2.3M downtown streetscape grant",
+    score: 74,
+    sourceLabel: "City Hall",
     exclusive: false,
     icon: (
       <svg
@@ -68,11 +77,14 @@ const SECTIONS: Section[] = [
   {
     num: "03",
     title: "Cross-Border & Trade",
-    accent: "#d4a843",
-    accentSoft: "rgba(212,168,67,0.12)",
+    accent: "#c49a30",
+    accentSoft: "rgba(196,154,48,0.12)",
+    scoreBg: "rgba(196,154,48,0.15)",
     tagline:
       "Bridge waits, FX shifts, and tariff changes — the numbers that move the Valley.",
     sample: "USD/MXN hits 19.85 — cross-border shoppers surge at La Plaza",
+    score: 82,
+    sourceLabel: "Border Report",
     exclusive: false,
     icon: (
       <svg
@@ -96,8 +108,11 @@ const SECTIONS: Section[] = [
     title: "Community Buzz",
     accent: "#6366f1",
     accentSoft: "rgba(99,102,241,0.10)",
+    scoreBg: "rgba(99,102,241,0.12)",
     tagline: "Events, sentiment, and the stories everyone's talking about.",
     sample: "SpaceX 12th launch draws thousands to Isla Blanca Park",
+    score: 68,
+    sourceLabel: "SpaceX | Isla Blanca",
     exclusive: false,
     icon: (
       <svg
@@ -122,9 +137,12 @@ const SECTIONS: Section[] = [
     title: "Industrial & Investment Watch",
     accent: "#d4a843",
     accentSoft: "rgba(212,168,67,0.18)",
+    scoreBg: "rgba(212,168,67,0.20)",
     tagline:
       "Manufacturing moves, corporate relocations, and the big money bets.",
     sample: "Monterrey auto supplier announces $14M Edinburg FTZ facility",
+    score: 91,
+    sourceLabel: "FTZ Filing",
     exclusive: true,
     icon: (
       <svg
@@ -149,95 +167,143 @@ const SECTIONS: Section[] = [
   },
 ];
 
-function SectionCard({ section }: { section: Section }) {
+interface RowProps {
+  section: Section;
+  isLast: boolean;
+}
+
+function SectionRow({ section, isLast }: RowProps) {
+  const ex = section.exclusive;
+  const accentColor = ex ? "#b8860b" : section.accent;
+  const scoreColor = ex ? "#b8860b" : section.accent;
+  const scoreBg = ex ? "rgba(212,168,67,0.22)" : section.scoreBg;
+
   return (
     <div
-      className="group rounded-xl overflow-hidden border border-cream-dark hover:-translate-y-1 hover:shadow-xl transition-all duration-300 h-full flex flex-col"
+      className={`group relative ${!isLast ? "border-b" : ""}`}
       style={{
-        background: section.exclusive
-          ? "rgba(212,168,67,0.04)"
-          : "var(--warm-white)",
+        borderLeftWidth: "4px",
+        borderLeftStyle: "solid",
+        borderLeftColor: accentColor,
+        borderBottomColor: "var(--cream-dark)",
+        background: ex ? "rgba(212,168,67,0.038)" : "var(--warm-white)",
       }}
     >
-      {/* Top accent bar */}
+      {/* Watermark number — anchored, never translates */}
+      <span
+        className="absolute top-1/2 -translate-y-1/2 left-4 font-display font-bold pointer-events-none select-none"
+        style={{
+          fontSize: "clamp(72px, 8.5vw, 96px)",
+          lineHeight: 1,
+          color: "var(--charcoal)",
+          opacity: 0.07,
+          zIndex: 0,
+        }}
+        aria-hidden="true"
+      >
+        {section.num}
+      </span>
+
+      {/* Translating content shell */}
       <div
-        className="h-1 w-full flex-shrink-0"
-        style={{ background: section.accent }}
-      />
-
-      {/* Intel Exclusive banner */}
-      {section.exclusive && (
-        <div
-          className="flex items-center gap-2 px-5 py-2"
-          style={{ background: "rgba(212,168,67,0.14)" }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-3.5 h-3.5 flex-shrink-0"
-            style={{ color: "#b8860b" }}
-            aria-hidden="true"
-          >
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-          </svg>
-          <span
-            className="font-body font-bold uppercase tracking-widest text-xs"
-            style={{ color: "#b8860b" }}
-          >
-            Intel Exclusive
-          </span>
-        </div>
-      )}
-
-      {/* Card body */}
-      <div className="p-6 flex flex-col flex-1">
-        {/* Icon row */}
-        <div className="flex items-start justify-between mb-5">
+        className="relative z-10 flex flex-col md:flex-row w-full transition-transform duration-200 ease-out group-hover:translate-x-[4px]"
+        style={{ willChange: "transform" }}
+      >
+        {/* ── Left: icon + title + tagline ── */}
+        <div className="flex items-center gap-5 flex-1 py-6 pl-10 pr-6 md:py-8 md:pl-16 md:pr-10">
+          {/* Icon circle */}
           <div
             className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{
-              background: section.accentSoft,
-              color: section.accent === "#d4a843" ? "#b8860b" : section.accent,
-            }}
+            style={{ background: section.accentSoft, color: accentColor }}
           >
             {section.icon}
           </div>
-          <span
-            className="font-mono text-xs font-semibold mt-1"
-            style={{ color: section.accent, opacity: 0.7 }}
-          >
-            {section.num}
-          </span>
+
+          {/* Text block */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+              <h3
+                className="font-display font-bold leading-tight"
+                style={{
+                  fontSize: "clamp(1.05rem, 1.7vw, 1.3rem)",
+                  color: accentColor,
+                }}
+              >
+                {section.title}
+              </h3>
+
+              {ex && (
+                <span
+                  className="inline-flex items-center gap-1.5 font-body font-bold uppercase tracking-widest flex-shrink-0 cursor-default"
+                  style={{
+                    fontSize: "9.5px",
+                    padding: "2px 7px",
+                    borderRadius: "3px",
+                    background: "rgba(212,168,67,0.18)",
+                    color: "#b8860b",
+                    border: "1px solid rgba(212,168,67,0.42)",
+                  }}
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-2.5 h-2.5 flex-shrink-0"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Intel Exclusive
+                </span>
+              )}
+            </div>
+
+            <p
+              className="font-body text-[15px] leading-relaxed"
+              style={{ color: "var(--slate)" }}
+            >
+              {section.tagline}
+            </p>
+          </div>
         </div>
 
-        {/* Title + tagline */}
-        <h3
-          className="font-display font-bold mb-2 leading-snug"
+        {/* ── Right: mini story card ── */}
+        <div
+          className="flex-shrink-0 w-full md:w-72 lg:w-80 px-6 py-5 md:py-8 border-t md:border-t-0 md:border-l flex flex-col justify-center gap-2.5"
           style={{
-            fontSize: "1.2rem",
-            color: section.exclusive ? "#b8860b" : "var(--charcoal)",
+            borderColor: "var(--cream-dark)",
+            background: ex ? "rgba(212,168,67,0.05)" : "transparent",
           }}
         >
-          {section.title}
-        </h3>
-        <p className="font-body text-slate text-[15px] leading-relaxed mb-5 flex-1">
-          {section.tagline}
-        </p>
+          {/* Score badge + source */}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span
+              className="inline-flex items-center gap-1 font-mono font-bold rounded"
+              style={{
+                fontSize: "11px",
+                padding: "2px 7px",
+                background: scoreBg,
+                color: scoreColor,
+                letterSpacing: "0.02em",
+              }}
+            >
+              ▲ {section.score}
+            </span>
+            <span
+              className="font-mono uppercase tracking-wider"
+              style={{ fontSize: "10px", color: "var(--slate-light)" }}
+            >
+              {section.sourceLabel}
+            </span>
+          </div>
 
-        {/* Sample headline — teaser preview */}
-        <div
-          className="border-t pt-4"
-          style={{ borderColor: "var(--cream-dark)" }}
-        >
+          {/* Italic sample headline */}
           <p
-            className="font-body text-xs uppercase tracking-widest mb-1.5"
-            style={{ color: section.accent, opacity: 0.75 }}
-          >
-            This week
-          </p>
-          <p
-            className="font-editorial italic text-[13px] leading-snug"
-            style={{ color: "var(--slate-light)" }}
+            className="font-editorial italic leading-snug"
+            style={{
+              fontSize: "13.5px",
+              color: ex ? "var(--charcoal)" : "var(--charcoal)",
+              opacity: ex ? 1 : 0.85,
+            }}
           >
             &ldquo;{section.sample}&rdquo;
           </p>
@@ -248,12 +314,10 @@ function SectionCard({ section }: { section: Section }) {
 }
 
 export default function WhatYouGet() {
-  const top = SECTIONS.slice(0, 3);
-  const bottom = SECTIONS.slice(3);
-
   return (
     <section className="bg-cream card-stack py-24">
       <div className="max-w-6xl mx-auto px-6">
+        {/* Header */}
         <SectionReveal>
           <div className="text-center mb-16">
             <span className="section-label justify-center mb-4">
@@ -272,24 +336,21 @@ export default function WhatYouGet() {
           </div>
         </SectionReveal>
 
-        {/* Top row — 3 cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {top.map((section, i) => (
-            <SectionReveal key={section.title} delay={i * 0.08}>
-              <SectionCard section={section} />
-            </SectionReveal>
-          ))}
-        </div>
-
-        {/* Bottom row — 2 cards centered */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="hidden md:block" aria-hidden="true" />
-          {bottom.map((section, i) => (
-            <SectionReveal key={section.title} delay={(i + 3) * 0.08}>
-              <SectionCard section={section} />
-            </SectionReveal>
-          ))}
-        </div>
+        {/* Magazine TOC rows */}
+        <SectionReveal>
+          <div
+            className="rounded-xl overflow-hidden"
+            style={{ border: "1px solid var(--cream-dark)" }}
+          >
+            {SECTIONS.map((section, i) => (
+              <SectionRow
+                key={section.num}
+                section={section}
+                isLast={i === SECTIONS.length - 1}
+              />
+            ))}
+          </div>
+        </SectionReveal>
       </div>
     </section>
   );
