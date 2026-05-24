@@ -1,20 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { lookupSubscriber, writeSubscriber } from "@/lib/notion";
-import { sendConfirmationEmail } from "@/lib/resend";
+import { createClient } from "@supabase/supabase-js";
+import { sendWelcomeEmail } from "@/lib/email/welcome";
 
-function isValidEmail(email: string): boolean {
+function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 export async function POST(req: NextRequest) {
-  let body: { email?: string };
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+  let body: { email?: string; referral_code?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { email } = body;
+  const { email, referral_code } = body;
   if (!email || !isValidEmail(email)) {
     return NextResponse.json(
       { error: "Valid email required" },
@@ -24,27 +28,52 @@ export async function POST(req: NextRequest) {
 
   const normalized = email.toLowerCase().trim();
 
-  try {
-    const existing = await lookupSubscriber(normalized);
+  // Check for existing subscriber
+  const { data: existing } = await supabase
+    .from("subscribers")
+    .select("id, unsubscribed")
+    .eq("email", normalized)
+    .single();
 
-    if (existing?.status === "active") {
-      return NextResponse.json({ ok: false, reason: "already_subscribed" });
-    }
+  if (existing && !existing.unsubscribed) {
+    return NextResponse.json({ ok: false, reason: "already_subscribed" });
+  }
 
-    if (existing?.status === "pending") {
-      await sendConfirmationEmail(normalized);
-      return NextResponse.json({ ok: false, reason: "pending_confirmation" });
-    }
+  // Resolve referrer
+  let referredBy: string | null = null;
+  if (referral_code) {
+    const { data: referrer } = await supabase
+      .from("subscribers")
+      .select("id")
+      .eq("referral_code", referral_code)
+      .single();
+    referredBy = referrer?.id ?? null;
+  }
 
-    // New subscriber
-    await writeSubscriber(normalized);
-    await sendConfirmationEmail(normalized);
-    return NextResponse.json({ ok: true });
-  } catch (err) {
-    console.error("[subscribe] error:", err);
+  // Upsert subscriber
+  const { error } = await supabase.from("subscribers").upsert(
+    {
+      email: normalized,
+      tier: "free",
+      email_verified: true,
+      unsubscribed: false,
+      referred_by: referredBy,
+    },
+    { onConflict: "email" },
+  );
+
+  if (error) {
+    console.error("[subscribe] supabase error:", error);
     return NextResponse.json(
       { ok: false, error: "Subscription failed — try again." },
       { status: 500 },
     );
   }
+
+  // Send welcome email (non-blocking)
+  sendWelcomeEmail(normalized).catch((e) =>
+    console.error("[subscribe] welcome email failed:", e),
+  );
+
+  return NextResponse.json({ ok: true });
 }

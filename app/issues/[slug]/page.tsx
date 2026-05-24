@@ -1,0 +1,179 @@
+import { createClient } from "@supabase/supabase-js";
+import { getSubscriber } from "@/lib/get-subscriber";
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { StoryCard, type StoryData } from "@/components/StoryCard";
+import { UpgradeBanner } from "@/components/UpgradeBanner";
+
+export const revalidate = 3600;
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+}
+
+export async function generateStaticParams() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from("issues")
+    .select("slug")
+    .eq("is_published", true);
+  return (data ?? []).map((issue: { slug: string }) => ({ slug: issue.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return {};
+  const supabase = getSupabase();
+  const { data: issue } = await supabase
+    .from("issues")
+    .select("title")
+    .eq("slug", params.slug)
+    .single();
+
+  if (!issue) return {};
+  return {
+    title: `${issue.title} | The Nolana Report`,
+    description: `RGV business intelligence briefing — ${issue.title}. Business openings, permits, trade signals, and investment stories scored and summarized.`,
+  };
+}
+
+export default async function IssuePage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) notFound();
+
+  const supabase = getSupabase();
+  const subscriber = await getSubscriber();
+  const canSeePro = subscriber?.tier === "pro" || subscriber?.tier === "intel";
+
+  const { data: issue } = await supabase
+    .from("issues")
+    .select("*")
+    .eq("slug", params.slug)
+    .eq("is_published", true)
+    .single();
+
+  if (!issue) notFound();
+
+  const { data: stories } = await supabase
+    .from("stories")
+    .select("*")
+    .eq("issue_id", issue.id)
+    .order("position", { ascending: true });
+
+  const allStories = (stories ?? []) as StoryData[];
+  const freeStories = allStories.filter((s) => s.is_free);
+  const proStories = allStories.filter((s) => !s.is_free);
+
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: `The Nolana Report — ${issue.title}`,
+    datePublished: issue.published_at,
+    publisher: {
+      "@type": "Organization",
+      name: "The Nolana Report",
+      url: "https://www.nolanareport.com",
+    },
+    description: `${issue.stories_count} stories scored this week.`,
+    isAccessibleForFree: false,
+    hasPart: proStories.map(() => ({
+      "@type": "WebPageElement",
+      isAccessibleForFree: false,
+      cssSelector: ".pro-story",
+    })),
+  };
+
+  return (
+    <main
+      className="min-h-screen py-24 px-4"
+      style={{ background: "linear-gradient(to bottom, #f4f1ec, #e8e3db)" }}
+    >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8 flex items-center gap-4">
+          <Link
+            href="/issues"
+            className="font-body text-sm text-teal hover:text-teal-light transition-colors"
+          >
+            ← All Issues
+          </Link>
+        </div>
+
+        <span className="section-label mb-4 block">
+          Week of{" "}
+          {new Date(issue.published_at).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </span>
+        <h1 className="font-display font-bold text-navy text-4xl mt-2 mb-2">
+          {issue.title}
+        </h1>
+        <p className="font-body text-slate-light text-sm mb-12">
+          {issue.stories_count} stories scored
+          {canSeePro ? " · Full access" : " · 5 free stories"}
+        </p>
+
+        {/* Free stories */}
+        <h2 className="font-display font-bold text-navy text-2xl mb-6">
+          Top Stories This Week
+        </h2>
+        <div className="space-y-4 mb-8">
+          {freeStories.map((story) => (
+            <StoryCard key={story.id} story={story} />
+          ))}
+        </div>
+
+        {/* Upgrade banner */}
+        {!canSeePro && proStories.length > 0 && (
+          <UpgradeBanner
+            remaining={proStories.length}
+            email={subscriber?.email}
+          />
+        )}
+
+        {/* Pro stories */}
+        {canSeePro && proStories.length > 0 && (
+          <>
+            <h2 className="font-display font-bold text-navy text-2xl mb-6 mt-12">
+              Full Briefing
+            </h2>
+            <div className="space-y-4">
+              {proStories.map((story) => (
+                <div key={story.id} className="pro-story">
+                  <StoryCard story={story} />
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Locked preview for free users */}
+        {!canSeePro && proStories.length > 0 && (
+          <div className="mt-4 space-y-4 pointer-events-none select-none opacity-40">
+            {proStories.slice(0, 2).map((story) => (
+              <div key={story.id} className="pro-story">
+                <StoryCard story={story} locked />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}

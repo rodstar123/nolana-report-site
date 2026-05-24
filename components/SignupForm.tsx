@@ -21,11 +21,11 @@ const copy = {
     submitLoading: "Subscribing…",
     checkbox: "I agree to receive The Nolana Report weekly via email",
     // new subscriber
-    confirmHeading: "Check your inbox 📬",
+    confirmHeading: "You're on the list",
     confirmBody: (email: string) =>
-      `We just sent a confirmation email to ${email}. You must click the confirmation link inside to start receiving The Nolana Report. If you don't see it, check your spam or promotions folder.`,
+      `Welcome! We just sent a welcome note to ${email}. Your first Monday brief arrives this Monday before 7 AM.`,
     confirmSmall:
-      "Didn't get it? Wait a minute and check spam, or try subscribing again.",
+      "Didn't get the welcome email? Check spam, or sign in at nolanareport.com/login.",
     // already active
     alreadyHeading: "You're already subscribed! ✅",
     alreadyBody:
