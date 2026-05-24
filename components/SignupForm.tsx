@@ -239,7 +239,11 @@ export default function SignupForm({ lang = "en" }: Props) {
           onChange={(e) => setAgreed(e.target.checked)}
           className="w-5 h-5 flex-shrink-0 cursor-pointer accent-teal"
         />
-        <span className="font-body text-slate-light text-base leading-snug group-hover:text-warm-white transition-colors duration-150">
+        <span
+          className={`font-body text-base leading-snug transition-colors duration-200 ${
+            agreed ? "text-warm-white" : "text-slate-light"
+          }`}
+        >
           {t.checkbox}
         </span>
       </label>
