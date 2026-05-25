@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
               : stories.length;
 
           const { data, error } = await resend.emails.send({
-            from: "The Nolana Report <briefing@nolanareport.com>",
+            from: "The Nolana Report <briefing@mail.nationalboco.com>",
             to: sub.email,
             subject: `${issue.title} — ${storyCount} stories scored | The Nolana Report`,
             html,

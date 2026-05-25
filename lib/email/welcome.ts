@@ -4,7 +4,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendWelcomeEmail(email: string) {
   await resend.emails.send({
-    from: "The Nolana Report <briefing@nolanareport.com>",
+    from: "The Nolana Report <briefing@mail.nationalboco.com>",
     to: email,
     subject: "Welcome to The Nolana Report",
     html: `
