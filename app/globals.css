@@ -351,6 +351,22 @@ label[for] {
   }
 }
 
+/* ─── Briefing preview float ─────────────────────────── */
+@keyframes briefingFloat {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.briefing-float {
+  animation: briefingFloat 7s ease-in-out infinite;
+  will-change: transform;
+}
+
 /* ─── Reduced motion overrides ───────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .hero-animated-bg {
@@ -366,6 +382,9 @@ label[for] {
   .pro-glow {
     animation: none;
     opacity: 0.15;
+  }
+  .briefing-float {
+    animation: none;
   }
   /* Reveal initial states — show immediately if motion disabled */
   .price-card-free,

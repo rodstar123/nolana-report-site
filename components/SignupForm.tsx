@@ -208,51 +208,44 @@ export default function SignupForm({ lang = "en" }: Props) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col items-center gap-3 max-w-md w-full"
-    >
-      <div className="flex flex-col sm:flex-row gap-3 w-full">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder={t.placeholder}
-          required
-          aria-label="Email address"
-          className="flex-1 w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-warm-white placeholder-slate-light font-body text-[16px] focus:outline-none focus:border-teal focus:ring-1 focus:ring-teal backdrop-blur-sm min-h-[44px]"
-        />
-        <button
-          type="submit"
-          disabled={status === "loading" || !agreed}
-          className="w-full sm:w-auto px-6 py-3 bg-teal hover:bg-teal-light text-white font-body font-bold text-base rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap min-h-[44px]"
-        >
-          {status === "loading" ? t.submitLoading : t.submitIdle}
-        </button>
-      </div>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full">
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder={t.placeholder}
+        required
+        aria-label="Email address"
+        className="w-full px-5 py-4 rounded-xl bg-white/8 border border-white/15 text-warm-white placeholder-slate-light font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[52px]"
+      />
 
-      {/* Consent checkbox — centered, full width, readable */}
-      <label className="flex items-center gap-3 cursor-pointer group w-full justify-center">
+      {/* Consent checkbox */}
+      <label className="flex items-center gap-3 cursor-pointer group">
         <input
           type="checkbox"
           checked={agreed}
           onChange={(e) => setAgreed(e.target.checked)}
-          className="w-5 h-5 flex-shrink-0 cursor-pointer accent-teal"
+          className="w-4 h-4 flex-shrink-0 cursor-pointer accent-teal"
         />
         <span
-          className={`font-body text-base leading-snug transition-colors duration-200 ${
-            agreed ? "text-warm-white" : "text-slate-light"
+          className={`font-body text-sm leading-snug transition-colors duration-200 ${
+            agreed ? "text-slate-light" : "text-slate-light/60"
           }`}
         >
           {t.checkbox}
         </span>
       </label>
 
+      <button
+        type="submit"
+        disabled={status === "loading" || !agreed}
+        className="w-full bg-teal hover:bg-teal-light text-white font-body font-bold text-base py-4 px-8 rounded-xl transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed min-h-[52px]"
+      >
+        {status === "loading" ? t.submitLoading : t.submitIdle}
+      </button>
+
       {status === "error" && (
-        <p
-          className="text-red-400 text-sm font-body w-full text-center"
-          role="alert"
-        >
+        <p className="text-red-400 text-sm font-body" role="alert">
           {errorMsg}
         </p>
       )}

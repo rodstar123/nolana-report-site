@@ -58,6 +58,16 @@ export function heroEntrance() {
       .add(
         { targets: ".hero-social-proof", opacity: [0, 1], duration: 400 },
         "-=300",
+      )
+      .add(
+        {
+          targets: ".hero-preview",
+          opacity: [0, 1],
+          translateX: [40, 0],
+          duration: 1000,
+          easing: "easeOutCubic",
+        },
+        "-=1200",
       );
   });
 }

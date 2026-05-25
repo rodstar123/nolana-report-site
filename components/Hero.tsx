@@ -1,8 +1,9 @@
 "use client";
 import { useEffect } from "react";
 import { heroEntrance } from "@/lib/animations";
-import ParallaxLayer from "./ParallaxLayer";
+import { BrandMark } from "./BrandMark";
 import SignupForm from "./SignupForm";
+import PhoneEmailMockup from "./PhoneEmailMockup";
 
 export default function Hero() {
   useEffect(() => {
@@ -10,111 +11,106 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center hero-animated-bg grain-overlay overflow-hidden">
-      {/* Layer 1 — video background (slowest parallax 0.3x) */}
-      <ParallaxLayer speed={0.3} className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="w-full h-full object-cover opacity-30 hidden sm:block"
-          poster="/images/hero-rgv-golden-hour.webp"
-          preload="none"
-          aria-hidden="true"
-        >
-          <source src="/videos/hero-rgv-aerial.mp4" type="video/mp4" />
-        </video>
-        {/* Mobile: static image instead of video */}
-        <div
-          className="absolute inset-0 sm:hidden bg-cover bg-center opacity-30"
-          style={{
-            backgroundImage: "url('/images/hero-rgv-golden-hour.webp')",
-          }}
-          aria-hidden="true"
-        />
-        {/* Gradient overlay — 0.35-0.4 opacity top/mid, retains dark base for text */}
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-deep/40 via-navy/30 to-navy/85" />
-      </ParallaxLayer>
+    <section
+      id="signup"
+      className="relative min-h-screen flex items-center grain-overlay overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(150deg, #0a1628 0%, #0b1e22 30%, #0f1722 65%, #111d2e 100%)",
+      }}
+    >
+      {/* Teal ambient — right side, frames the phone */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at 80% 55%, rgba(13,115,119,0.13) 0%, transparent 50%)",
+        }}
+      />
+      {/* Gold ambient — top left, frames the headline */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at 5% 15%, rgba(212,168,67,0.07) 0%, transparent 40%)",
+        }}
+      />
 
-      {/* Layer 2 — ambient shapes (0.6x) */}
-      <ParallaxLayer
-        speed={0.6}
-        className="absolute inset-0 z-0 pointer-events-none"
-      >
-        <div className="absolute top-1/4 right-1/4 w-72 h-72 rounded-full bg-teal/5 blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/6 w-52 h-52 rounded-full bg-gold/5 blur-2xl" />
-      </ParallaxLayer>
+      <div className="relative z-10 max-w-6xl mx-auto px-6 py-28 w-full">
+        <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-20">
+          {/* ── Left column ── */}
+          <div className="flex-1 w-full max-w-xl lg:max-w-none">
+            {/* Brand lockup */}
+            <div className="hero-brand opacity-0 flex items-center gap-2.5 mb-7">
+              <BrandMark size={20} color="#d4a843" />
+              <span className="font-body font-bold text-gold text-xs tracking-[0.22em] uppercase">
+                The Nolana Report
+              </span>
+            </div>
 
-      {/* Layer 3 — foreground content (1x normal) */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 pt-28 pb-24 text-center w-full">
-        {/* Brand name — first visual anchor */}
-        <div className="hero-brand opacity-0 mb-4 flex flex-col items-center gap-2">
-          <span
-            className="font-display font-bold text-warm-white"
-            style={{
-              fontSize: "clamp(1.375rem, 3vw, 1.875rem)",
-              textShadow: "0 1px 12px rgba(0,0,0,0.4)",
-            }}
-          >
-            The Nolana Report
-          </span>
-          <div
-            className="hero-gold-line rounded-full"
-            style={{
-              width: "60px",
-              height: "2px",
-              backgroundColor: "#d4a843",
-              transformOrigin: "center",
-              transform: "scaleX(0)",
-            }}
-            aria-hidden="true"
-          />
+            {/* Section label */}
+            <div className="hero-label opacity-0 mb-5">
+              <span className="section-label text-teal-light">
+                RGV Business Intelligence
+              </span>
+            </div>
+
+            {/* Main headline */}
+            <h1
+              className="hero-title font-display font-extrabold text-warm-white opacity-0 mb-5"
+              style={{
+                fontSize: "clamp(2.25rem, 5.5vw, 3.75rem)",
+                lineHeight: 1.08,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Lo que se mueve
+              <br />
+              en el Valle
+            </h1>
+
+            {/* Subhead */}
+            <p
+              className="hero-tagline font-body text-slate-light opacity-0 mb-9 leading-relaxed"
+              style={{
+                fontSize: "clamp(1rem, 1.6vw, 1.125rem)",
+                maxWidth: "36rem",
+              }}
+            >
+              Every Monday, get 30 business stories scored by relevance —
+              openings, permits, government moves, trade signals, and investment
+              activity shaping the Valley.{" "}
+              <span className="text-warm-white/70 font-semibold">
+                In your inbox by 7 AM.
+              </span>
+            </p>
+
+            {/* CTA form */}
+            <div className="hero-form opacity-0 mb-5 max-w-sm">
+              <SignupForm />
+            </div>
+
+            {/* Supporting links */}
+            <div className="hero-social-proof opacity-0 flex items-center gap-1 flex-wrap">
+              <span className="font-body text-slate-light/60 text-sm">
+                Free forever —
+              </span>
+              <a
+                href="#sample-issue"
+                className="font-body text-sm text-teal-light hover:text-warm-white transition-colors underline underline-offset-2"
+              >
+                View Sample Issue →
+              </a>
+            </div>
+          </div>
+
+          {/* ── Right column: phone mockup ── */}
+          <div className="flex-shrink-0 flex justify-center w-full lg:w-auto">
+            <PhoneEmailMockup />
+          </div>
         </div>
-
-        <div className="hero-label opacity-0 mb-6 flex justify-center">
-          <span className="section-label text-teal-light">
-            RGV Business Intelligence
-          </span>
-        </div>
-
-        <h1
-          className="hero-title font-display font-extrabold text-warm-white opacity-0 mb-6"
-          style={{
-            fontSize: "clamp(2rem, 8vw, 4rem)",
-            lineHeight: 1.12,
-            textShadow: "0 2px 20px rgba(0,0,0,0.5)",
-          }}
-        >
-          Lo que se mueve en el Valle
-        </h1>
-
-        <p
-          className="hero-tagline font-body text-slate-light opacity-0 mb-10 max-w-2xl mx-auto leading-relaxed"
-          style={{
-            fontSize: "clamp(1rem, 2vw, 1.2rem)",
-            textShadow: "0 1px 12px rgba(0,0,0,0.4)",
-          }}
-        >
-          Every Monday, get the business openings, permits, government moves,
-          trade signals, and investment stories shaping the Rio Grande Valley —
-          scored, summarized, and ready to act on.
-        </p>
-
-        <div className="hero-form opacity-0 flex flex-col items-center gap-4 mb-8">
-          <SignupForm />
-          <a
-            href="#sample-issue"
-            className="font-body text-sm text-slate-light hover:text-teal-light transition-colors underline underline-offset-2"
-          >
-            View Sample Issue →
-          </a>
-        </div>
-
-        <p className="hero-social-proof font-body text-slate-light text-sm opacity-0">
-          Join the founding reader list for the Valley&apos;s weekly business
-          intelligence briefing.
-        </p>
       </div>
 
       {/* Scroll chevron */}

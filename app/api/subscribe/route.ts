@@ -70,10 +70,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Send welcome email (non-blocking)
-  sendWelcomeEmail(normalized).catch((e) =>
-    console.error("[subscribe] welcome email failed:", e),
-  );
+  // Send welcome email
+  try {
+    await sendWelcomeEmail(normalized);
+  } catch (e) {
+    console.error("[subscribe] welcome email failed:", e);
+    // Don't fail the subscription if email fails
+  }
 
   return NextResponse.json({ ok: true });
 }

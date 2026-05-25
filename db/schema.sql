@@ -90,6 +90,8 @@ CREATE TABLE tips (
   subscriber_id UUID REFERENCES subscribers(id),
   what_happened TEXT NOT NULL,
   location TEXT,
+  when_observed DATE,
+  submitter_name TEXT,
   submitted_at TIMESTAMPTZ DEFAULT now()
 );
 

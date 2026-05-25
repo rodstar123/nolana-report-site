@@ -2,16 +2,18 @@
 
 interface Props {
   label: string;
-  priceId: string;
   email: string;
+  plan?: string;
+  priceId?: string;
 }
 
-export function UpgradeButton({ label, priceId, email }: Props) {
+export function UpgradeButton({ label, plan, priceId, email }: Props) {
   const handleClick = async () => {
+    const payload = plan ? { plan, email } : { priceId, email };
     const res = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ priceId, email }),
+      body: JSON.stringify(payload),
     });
     const data = (await res.json()) as { url?: string };
     if (data.url) window.location.href = data.url;
