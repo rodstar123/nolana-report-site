@@ -1,6 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 interface Props {
   lang?: "en" | "es";
@@ -143,6 +145,44 @@ export default function SignupForm({ lang = "en" }: Props) {
   const [errorMsg, setErrorMsg] = useState("");
   const t = copy[lang];
 
+  const turnstileToken = useRef("");
+  const widgetContainerRef = useRef<HTMLDivElement>(null);
+  const widgetId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !widgetContainerRef.current || widgetId.current)
+      return;
+    const existing = document.getElementById("cf-turnstile-script");
+    const init = () => {
+      if (!widgetContainerRef.current || widgetId.current) return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      widgetId.current = (window as any).turnstile?.render(
+        widgetContainerRef.current,
+        {
+          sitekey: TURNSTILE_SITE_KEY,
+          size: "invisible",
+          callback: (token: string) => {
+            turnstileToken.current = token;
+          },
+          "expired-callback": () => {
+            turnstileToken.current = "";
+          },
+        },
+      );
+    };
+    if (existing) {
+      init();
+    } else {
+      const script = document.createElement("script");
+      script.id = "cf-turnstile-script";
+      script.src =
+        "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.onload = init;
+      document.head.appendChild(script);
+    }
+  }, []);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!agreed) return;
@@ -152,7 +192,10 @@ export default function SignupForm({ lang = "en" }: Props) {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: normalized }),
+        body: JSON.stringify({
+          email: normalized,
+          turnstileToken: turnstileToken.current,
+        }),
       });
       const data = await res.json();
 
@@ -209,6 +252,8 @@ export default function SignupForm({ lang = "en" }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full">
+      {/* Cloudflare Turnstile — invisible, activated by NEXT_PUBLIC_TURNSTILE_SITE_KEY */}
+      <div ref={widgetContainerRef} aria-hidden="true" />
       <input
         type="email"
         value={email}
