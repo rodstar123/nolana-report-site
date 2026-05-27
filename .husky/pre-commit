@@ -1,0 +1,18 @@
+# 1. Secret scan — block tokens accidentally hardcoded in staged ADDED lines
+#    ntn_ (Notion) · AIza (Google) · sk-ant- (Anthropic) · eyJhbG (JWT, e.g. Supabase service_role)
+#    Length-bounded so prefixes in validation code (e.g. startsWith("sk-ant-")) don't false-positive.
+SECRETS=$(git diff --cached -U0 --diff-filter=ACM \
+  | grep -E '^\+' | grep -vE '^\+\+\+' \
+  | grep -nE '(ntn_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|sk-ant-[A-Za-z0-9_-]{20,}|eyJhbG[A-Za-z0-9_-]{20,})' || true)
+if [ -n "$SECRETS" ]; then
+  echo "✖ pre-commit: potential secret detected in staged changes — commit blocked:"
+  echo "$SECRETS"
+  echo "  Move it to an env var (printf … | vercel env add) and unstage the file."
+  exit 1
+fi
+
+# 2. Format staged files
+npx lint-staged || exit 1
+
+# 3. Typecheck the project
+npm run typecheck || exit 1
