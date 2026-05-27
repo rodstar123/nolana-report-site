@@ -29,6 +29,24 @@
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
+
+  /* NRI badge — color-coded by score tier */
+  --nri-hot-bg: rgba(212, 168, 67, 0.15);
+  --nri-hot-color: #b8860b;
+  --nri-solid-bg: rgba(13, 115, 119, 0.12);
+  --nri-solid-color: #0d7377;
+  --nri-mid-bg: rgba(74, 85, 104, 0.1);
+  --nri-mid-color: #718096;
+}
+
+/* Dark mode overrides — activates when <html class="dark"> */
+.dark {
+  --nri-hot-bg: rgba(212, 168, 67, 0.22);
+  --nri-hot-color: #d4a843;
+  --nri-solid-bg: rgba(13, 115, 119, 0.22);
+  --nri-solid-color: #10a3a8;
+  --nri-mid-bg: rgba(100, 116, 139, 0.18);
+  --nri-mid-color: #94a3b8;
 }
 
 /* Grain texture animation */
@@ -119,7 +137,7 @@ h4 {
   font-family: "DM Sans", sans-serif;
 }
 .font-editorial {
-  font-family: "DM Sans", sans-serif;
+  font-family: "Source Serif 4", Georgia, serif;
 }
 .font-mono {
   font-family: "JetBrains Mono", monospace;

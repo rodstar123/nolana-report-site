@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 export async function getSubscriber() {
   const supabase = await createSupabaseServerClient();
+  if (!supabase) return null;
   const {
     data: { session },
   } = await supabase.auth.getSession();

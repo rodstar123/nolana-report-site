@@ -10,10 +10,12 @@ export async function GET(req: NextRequest) {
 
   const supabase = await createSupabaseServerClient();
 
-  if (code) {
-    await supabase.auth.exchangeCodeForSession(code);
-  } else if (token_hash && type) {
-    await supabase.auth.verifyOtp({ token_hash, type });
+  if (supabase) {
+    if (code) {
+      await supabase.auth.exchangeCodeForSession(code);
+    } else if (token_hash && type) {
+      await supabase.auth.verifyOtp({ token_hash, type });
+    }
   }
 
   return NextResponse.redirect(new URL("/account", req.url));

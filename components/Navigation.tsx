@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { BrandMark } from "./BrandMark";
+import { ThemeToggle } from "./ThemeToggle";
 
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
@@ -37,21 +38,24 @@ export default function Navigation() {
           </span>
         </Link>
 
-        {isHomepage ? (
-          <a
-            href="#pricing"
-            className="font-body text-sm font-bold text-warm-white bg-teal hover:bg-teal-light px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
-          >
-            Subscribe
-          </a>
-        ) : (
-          <Link
-            href="/account"
-            className="font-body text-sm font-semibold text-teal-light hover:text-warm-white border border-teal/30 hover:border-teal/60 px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
-          >
-            My Account
-          </Link>
-        )}
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          {isHomepage ? (
+            <a
+              href="#pricing"
+              className="font-body text-sm font-bold text-warm-white bg-teal hover:bg-teal-light px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
+            >
+              Subscribe
+            </a>
+          ) : (
+            <Link
+              href="/account"
+              className="font-body text-sm font-semibold text-teal-light hover:text-warm-white border border-teal/30 hover:border-teal/60 px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
+            >
+              My Account
+            </Link>
+          )}
+        </div>
       </div>
     </nav>
   );

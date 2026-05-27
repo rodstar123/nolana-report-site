@@ -94,10 +94,7 @@ export default async function IssuePage({
   };
 
   return (
-    <main
-      className="min-h-screen py-24 px-4"
-      style={{ background: "linear-gradient(to bottom, #f4f1ec, #e8e3db)" }}
-    >
+    <main className="min-h-screen py-24 px-4 bg-cream dark:bg-dark-bg transition-colors duration-300">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -107,7 +104,7 @@ export default async function IssuePage({
         <div className="mb-8 flex items-center gap-4">
           <Link
             href="/issues"
-            className="font-body text-sm text-teal hover:text-teal-light transition-colors"
+            className="font-body text-sm text-teal hover:text-teal-light dark:text-teal-light dark:hover:text-teal transition-colors"
           >
             ← All Issues
           </Link>
@@ -121,24 +118,32 @@ export default async function IssuePage({
             year: "numeric",
           })}
         </span>
-        <h1 className="font-display font-bold text-navy text-4xl mt-2 mb-2">
+        <h1 className="font-display font-bold text-navy dark:text-dark-text text-4xl mt-2 mb-2">
           {issue.title}
         </h1>
-        <p className="font-body text-slate-light text-sm mb-8">
+        <p className="font-body text-slate-light dark:text-dark-muted text-sm mb-8">
           {issue.stories_count} stories scored
           {canSeePro ? " · Full access" : " · 5 free stories"}
         </p>
 
         {issue.opening && (
-          <div className="mb-12 pb-10 border-b border-slate-200">
-            <p className="font-body text-[17px] leading-relaxed text-navy-light">
-              {issue.opening}
-            </p>
+          <div className="mb-12 pb-10 border-b border-cream-dark dark:border-dark-border space-y-4">
+            {issue.opening
+              .split("\n\n")
+              .filter(Boolean)
+              .map((para: string, i: number) => (
+                <p
+                  key={i}
+                  className="font-editorial text-[19px] leading-[1.85] text-charcoal dark:text-dark-text prose-nolana"
+                >
+                  {para.trim()}
+                </p>
+              ))}
           </div>
         )}
 
         {/* Free stories */}
-        <h2 className="font-display font-bold text-navy text-2xl mb-6">
+        <h2 className="font-display font-bold text-navy dark:text-dark-text text-2xl mb-6">
           Top Stories This Week
         </h2>
         <div className="space-y-4 mb-8">
@@ -158,7 +163,7 @@ export default async function IssuePage({
         {/* Pro stories */}
         {canSeePro && proStories.length > 0 && (
           <>
-            <h2 className="font-display font-bold text-navy text-2xl mb-6 mt-12">
+            <h2 className="font-display font-bold text-navy dark:text-dark-text text-2xl mb-6 mt-12">
               Full Briefing
             </h2>
             <div className="space-y-4">

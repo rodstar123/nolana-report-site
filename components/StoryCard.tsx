@@ -14,6 +14,17 @@ const SECTION_COLORS: Record<string, { bg: string; color: string }> = {
   industrial_investment: { bg: "rgba(212,168,67,0.15)", color: "#b8860b" },
 };
 
+function getNRIStyle(score: number) {
+  if (score >= 9)
+    return { background: "var(--nri-hot-bg)", color: "var(--nri-hot-color)" };
+  if (score >= 7)
+    return {
+      background: "var(--nri-solid-bg)",
+      color: "var(--nri-solid-color)",
+    };
+  return { background: "var(--nri-mid-bg)", color: "var(--nri-mid-color)" };
+}
+
 export interface StoryData {
   id: string;
   headline: string;
@@ -41,7 +52,7 @@ export function StoryCard({ story, locked = false }: Props) {
 
   return (
     <article
-      className={`bg-warm-white border border-cream-dark rounded-xl p-6 transition-all duration-200 ${
+      className={`bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl p-7 transition-all duration-200 ${
         locked ? "opacity-60" : "hover:shadow-lg hover:-translate-y-0.5"
       }`}
     >
@@ -54,11 +65,10 @@ export function StoryCard({ story, locked = false }: Props) {
         </span>
         {story.nolana_score && (
           <span
-            className="inline-flex items-center font-mono font-bold text-xs rounded px-2 py-1 flex-shrink-0"
+            className="inline-flex items-center font-mono font-bold text-xs rounded px-2.5 py-1.5 flex-shrink-0"
             style={{
-              background: "rgba(212,168,67,0.15)",
-              color: "#b8860b",
               letterSpacing: "0.02em",
+              ...getNRIStyle(story.nolana_score),
             }}
           >
             NRI {story.nolana_score}/10
@@ -66,24 +76,24 @@ export function StoryCard({ story, locked = false }: Props) {
         )}
       </div>
 
-      <h3 className="font-display font-bold text-charcoal text-xl leading-snug mb-3">
+      <h3 className="font-display font-bold text-charcoal dark:text-dark-text text-[21px] leading-snug mb-4">
         {story.headline}
       </h3>
 
       {locked ? (
-        <p className="font-body text-slate-light italic text-sm">
+        <p className="font-body text-slate-light dark:text-dark-dim italic text-sm">
           Upgrade to Pro to read the full story.
         </p>
       ) : (
         <>
-          <p className="font-body text-slate text-[15px] mb-4 leading-relaxed">
+          <p className="font-editorial text-slate dark:text-dark-muted text-[17px] mb-5 leading-relaxed">
             {story.summary}
           </p>
 
           {story.why_it_matters && (
-            <div className="mt-3 pt-3 border-t border-cream-dark mb-4">
-              <p className="font-body text-[13px] text-slate leading-relaxed">
-                <span className="font-semibold text-charcoal">
+            <div className="mt-4 mb-5 pl-4 border-l-[3px] border-teal bg-teal/5 dark:bg-teal/10 rounded-r-md py-3">
+              <p className="font-body text-[15px] text-slate dark:text-dark-muted leading-relaxed">
+                <span className="font-semibold text-teal dark:text-teal-light">
                   Why it matters:
                 </span>{" "}
                 {story.why_it_matters}
@@ -91,31 +101,43 @@ export function StoryCard({ story, locked = false }: Props) {
             </div>
           )}
 
-          <div className="flex items-center gap-3 flex-wrap">
-            {story.source_name && (
-              <span className="font-body text-xs text-slate-light uppercase tracking-wide">
-                {story.source_url ? (
-                  <a
-                    href={story.source_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-teal transition-colors underline underline-offset-2"
-                  >
-                    {story.source_name}
-                  </a>
-                ) : (
-                  story.source_name
-                )}
-              </span>
-            )}
-            {story.source_date && (
-              <span className="font-body text-xs text-slate-light">
-                {new Date(story.source_date).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </span>
+          <div className="flex items-center justify-between gap-3 flex-wrap mt-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              {story.source_name && (
+                <span className="font-body text-xs text-slate-light dark:text-dark-dim uppercase tracking-wide">
+                  {story.source_url ? (
+                    <a
+                      href={story.source_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-teal transition-colors underline underline-offset-2"
+                    >
+                      {story.source_name}
+                    </a>
+                  ) : (
+                    story.source_name
+                  )}
+                </span>
+              )}
+              {story.source_date && (
+                <span className="font-body text-xs text-slate-light dark:text-dark-dim">
+                  {new Date(story.source_date).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
+              )}
+            </div>
+            {story.source_url && (
+              <a
+                href={story.source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-body text-xs font-semibold text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal transition-colors whitespace-nowrap"
+              >
+                Read the full story →
+              </a>
             )}
           </div>
         </>

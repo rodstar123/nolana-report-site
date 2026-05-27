@@ -46,11 +46,16 @@ export function buildBriefingEmail(
   `;
 
   if (opening) {
+    const paras = opening.split("\n\n").filter(Boolean);
+    const parasHtml = paras
+      .map(
+        (p, i) =>
+          `<p style="margin:0${i < paras.length - 1 ? " 0 14px" : ""};font-size:17px;line-height:1.7;color:#1a1a1a;font-family:Georgia,serif;">${p.trim()}</p>`,
+      )
+      .join("");
     html += `
       <div style="margin:28px 0 24px;padding:0 0 24px;border-bottom:1px solid #e5e0d8;">
-        <p style="margin:0;font-size:17px;line-height:1.7;color:#1a1a1a;font-family:Georgia,serif;">
-          ${opening}
-        </p>
+        ${parasHtml}
       </div>
     `;
   }
