@@ -24,6 +24,7 @@ export function buildBriefingEmail(
   issueSlug: string,
   stories: Story[],
   tier: "free" | "pro" | "intel",
+  opening?: string | null,
 ) {
   const visibleStories =
     tier === "free" ? stories.filter((s) => s.is_free) : stories;
@@ -43,6 +44,16 @@ export function buildBriefingEmail(
         </p>
       </div>
   `;
+
+  if (opening) {
+    html += `
+      <div style="margin:28px 0 24px;padding:0 0 24px;border-bottom:1px solid #e5e0d8;">
+        <p style="margin:0;font-size:17px;line-height:1.7;color:#1a1a1a;font-family:Georgia,serif;">
+          ${opening}
+        </p>
+      </div>
+    `;
+  }
 
   for (const [section, sectionStories] of Object.entries(grouped)) {
     html += `
@@ -69,14 +80,21 @@ export function buildBriefingEmail(
             </p>`
               : ""
           }
-          ${
-            story.source_name
-              ? `<p style="margin:0;font-size:12px;color:#999;font-family:sans-serif;">
-              Source: ${story.source_url ? `<a href="${story.source_url}" style="color:#0d7377;">${story.source_name}</a>` : story.source_name}
-              ${story.source_date ? ` · ${new Date(story.source_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : ""}
-            </p>`
-              : ""
-          }
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:4px;">
+            ${
+              story.source_name
+                ? `<p style="margin:0;font-size:12px;color:#999;font-family:sans-serif;">
+                Source: ${story.source_url ? `<a href="${story.source_url}" style="color:#0d7377;">${story.source_name}</a>` : story.source_name}
+                ${story.source_date ? ` · ${new Date(story.source_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : ""}
+              </p>`
+                : "<span></span>"
+            }
+            ${
+              story.source_url
+                ? `<a href="${story.source_url}" style="font-size:12px;font-family:sans-serif;font-weight:bold;color:#0d7377;text-decoration:none;white-space:nowrap;">Read the full story →</a>`
+                : ""
+            }
+          </div>
         </div>
       `;
     }

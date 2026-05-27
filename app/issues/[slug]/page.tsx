@@ -124,10 +124,18 @@ export default async function IssuePage({
         <h1 className="font-display font-bold text-navy text-4xl mt-2 mb-2">
           {issue.title}
         </h1>
-        <p className="font-body text-slate-light text-sm mb-12">
+        <p className="font-body text-slate-light text-sm mb-8">
           {issue.stories_count} stories scored
           {canSeePro ? " · Full access" : " · 5 free stories"}
         </p>
+
+        {issue.opening && (
+          <div className="mb-12 pb-10 border-b border-slate-200">
+            <p className="font-body text-[17px] leading-relaxed text-navy-light">
+              {issue.opening}
+            </p>
+          </div>
+        )}
 
         {/* Free stories */}
         <h2 className="font-display font-bold text-navy text-2xl mb-6">

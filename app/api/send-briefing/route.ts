@@ -52,58 +52,69 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ sent: 0, failed: 0, note: "No subscribers" });
   }
 
+  // Dedup: skip subscribers who already received this issue
+  const { data: alreadySent } = await supabase
+    .from("email_log")
+    .select("subscriber_id")
+    .eq("issue_id", issue.id)
+    .eq("email_type", "briefing");
+  const alreadySentIds = new Set(
+    (alreadySent ?? []).map((r) => r.subscriber_id),
+  );
+  const pending = subscribers.filter((s) => !alreadySentIds.has(s.id));
+
+  if (!pending.length) {
+    return NextResponse.json({
+      sent: 0,
+      failed: 0,
+      note: "All subscribers already received this issue",
+    });
+  }
+
   const results = { sent: 0, failed: 0, errors: [] as string[] };
-  const batchSize = 10;
 
-  for (let i = 0; i < subscribers.length; i += batchSize) {
-    const batch = subscribers.slice(i, i + batchSize);
+  // Send sequentially — Resend free tier is 5 req/sec; sequential with 250ms gap is safe
+  for (const sub of pending) {
+    try {
+      const html = buildBriefingEmail(
+        issue.title,
+        issue.slug,
+        stories as Story[],
+        sub.tier,
+        issue.opening ?? null,
+      );
+      const storyCount =
+        sub.tier === "free"
+          ? stories.filter((s: Story) => s.is_free).length
+          : stories.length;
 
-    await Promise.all(
-      batch.map(async (sub) => {
-        try {
-          const html = buildBriefingEmail(
-            issue.title,
-            issue.slug,
-            stories as Story[],
-            sub.tier,
-          );
-          const storyCount =
-            sub.tier === "free"
-              ? stories.filter((s: Story) => s.is_free).length
-              : stories.length;
+      const { data, error } = await resend.emails.send({
+        from: "The Nolana Report <briefing@mail.nationalboco.com>",
+        to: sub.email,
+        subject: `${issue.title} — ${storyCount} stories scored | The Nolana Report`,
+        html,
+      });
 
-          const { data, error } = await resend.emails.send({
-            from: "The Nolana Report <briefing@mail.nationalboco.com>",
-            to: sub.email,
-            subject: `${issue.title} — ${storyCount} stories scored | The Nolana Report`,
-            html,
-          });
-
-          if (error) {
-            results.failed++;
-            results.errors.push(`${sub.email}: ${error.message}`);
-          } else {
-            results.sent++;
-            await supabase.from("email_log").insert({
-              subscriber_id: sub.id,
-              issue_id: issue.id,
-              email_type: "briefing",
-              resend_id: data?.id,
-            });
-          }
-        } catch (err: unknown) {
-          results.failed++;
-          results.errors.push(
-            `${sub.email}: ${err instanceof Error ? err.message : "unknown error"}`,
-          );
-        }
-      }),
-    );
-
-    // Respect Resend rate limits between batches
-    if (i + batchSize < subscribers.length) {
-      await new Promise((r) => setTimeout(r, 1000));
+      if (error) {
+        results.failed++;
+        results.errors.push(`${sub.email}: ${error.message}`);
+      } else {
+        results.sent++;
+        await supabase.from("email_log").insert({
+          subscriber_id: sub.id,
+          issue_id: issue.id,
+          email_type: "briefing",
+          resend_id: data?.id,
+        });
+      }
+    } catch (err: unknown) {
+      results.failed++;
+      results.errors.push(
+        `${sub.email}: ${err instanceof Error ? err.message : "unknown error"}`,
+      );
     }
+    // 250ms gap between sends — stays well under Resend's 5 req/sec limit
+    await new Promise((r) => setTimeout(r, 250));
   }
 
   return NextResponse.json(results);
