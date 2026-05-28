@@ -158,6 +158,7 @@ function InfoCard({
 
 export default function SignupForm({ lang = "en", variant = "dark" }: Props) {
   const [email, setEmail] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [status, setStatus] = useState<FormStatus>("idle");
   const [submittedEmail, setSubmittedEmail] = useState("");
@@ -230,6 +231,7 @@ export default function SignupForm({ lang = "en", variant = "dark" }: Props) {
         body: JSON.stringify({
           email: normalized,
           turnstileToken: turnstileToken.current,
+          website: honeypot,
         }),
       });
       const data = await res.json();
@@ -292,6 +294,17 @@ export default function SignupForm({ lang = "en", variant = "dark" }: Props) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full">
       {/* Cloudflare Turnstile — invisible, activated by NEXT_PUBLIC_TURNSTILE_SITE_KEY */}
       <div ref={widgetContainerRef} aria-hidden="true" />
+      {/* Honeypot */}
+      <input
+        name="website"
+        type="text"
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{ display: "none" }}
+      />
       <input
         type="email"
         value={email}

@@ -15,6 +15,54 @@ function isBotEmail(email: string): boolean {
   return false;
 }
 
+const BLOCKED_DOMAINS = new Set([
+  "chameleongroup.co",
+  "a7gi.ru",
+  "sigizmundgrp.com",
+  "guerrillamail.com",
+  "tempmail.com",
+  "mailinator.com",
+  "yopmail.com",
+  "throwaway.email",
+  "guerrillamail.info",
+  "grr.la",
+  "sharklasers.com",
+  "guerrillamail.net",
+  "guerrillamail.de",
+  "trbvm.com",
+]);
+
+function isBlockedDomain(email: string): boolean {
+  const domain = email.split("@")[1]?.toLowerCase();
+  if (!domain) return true;
+  if (domain.endsWith(".ru")) return true;
+  return BLOCKED_DOMAINS.has(domain);
+}
+
+// IP rate limiting: 3 signups per hour (in-memory, resets on cold start)
+const ipTimestamps = new Map<string, number[]>();
+const IP_WINDOW_MS = 3_600_000;
+const IP_MAX = 3;
+
+function getClientIp(req: NextRequest): string {
+  return (
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+function isIpLimited(ip: string): boolean {
+  const now = Date.now();
+  const hits = (ipTimestamps.get(ip) ?? []).filter(
+    (t) => now - t < IP_WINDOW_MS,
+  );
+  if (hits.length >= IP_MAX) return true;
+  hits.push(now);
+  ipTimestamps.set(ip, hits);
+  return false;
+}
+
 // Validate Cloudflare Turnstile token — no-op if TURNSTILE_SECRET_KEY not set
 async function verifyTurnstile(token: string): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
@@ -36,16 +84,64 @@ async function verifyTurnstile(token: string): Promise<boolean> {
   }
 }
 
+// Domain burst: block if 3+ signups from the same domain in 24h
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function isDomainBurst(email: string, supabase: any): Promise<boolean> {
+  const domain = email.split("@")[1]?.toLowerCase();
+  if (!domain) return false;
+  // Skip common providers
+  const freeProviders = new Set([
+    "gmail.com",
+    "yahoo.com",
+    "hotmail.com",
+    "outlook.com",
+    "icloud.com",
+    "aol.com",
+    "live.com",
+    "protonmail.com",
+    "proton.me",
+    "me.com",
+    "msn.com",
+    "mail.com",
+  ]);
+  if (freeProviders.has(domain)) return false;
+  const cutoff = new Date(Date.now() - 86_400_000).toISOString();
+  const { count } = await supabase
+    .from("subscribers")
+    .select("id", { count: "exact", head: true })
+    .gte("created_at", cutoff)
+    .like("email", `%@${domain}`);
+  return (count ?? 0) >= 3;
+}
+
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req);
+  if (isIpLimited(ip)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 },
+    );
+  }
+
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
-  let body: { email?: string; referral_code?: string; turnstileToken?: string };
+  let body: {
+    email?: string;
+    referral_code?: string;
+    turnstileToken?: string;
+    website?: string;
+  };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  // Honeypot — bots fill hidden fields
+  if (body.website) {
+    return NextResponse.json({ ok: true });
   }
 
   const { email, referral_code, turnstileToken = "" } = body;
@@ -60,6 +156,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email" }, { status: 400 });
   }
 
+  if (isBlockedDomain(email)) {
+    return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+  }
+
   const turnstileOk = await verifyTurnstile(turnstileToken);
   if (!turnstileOk) {
     return NextResponse.json(
@@ -69,6 +169,11 @@ export async function POST(req: NextRequest) {
   }
 
   const normalized = email.toLowerCase().trim();
+
+  const burst = await isDomainBurst(normalized, supabase);
+  if (burst) {
+    return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+  }
 
   // Check for existing subscriber
   const { data: existing } = await supabase
