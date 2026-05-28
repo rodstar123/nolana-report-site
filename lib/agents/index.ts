@@ -18,3 +18,5 @@ export {
   sendDbWriteAlert,
   sendSourceDegradedAlert,
 } from "./alerter";
+export { runAgent } from "./runner";
+export type { RunResult } from "./runner";

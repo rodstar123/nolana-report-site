@@ -1,8 +1,17 @@
 {
   "crons": [
-    {
-      "path": "/api/send-briefing",
-      "schedule": "0 15 * * 1"
-    }
-  ]
+    { "path": "/api/agents/business-pulse", "schedule": "0 11 * * *" },
+    { "path": "/api/agents/gov-watch", "schedule": "5 11 * * *" },
+    { "path": "/api/agents/cross-border", "schedule": "10 11 * * *" },
+    { "path": "/api/agents/community-buzz", "schedule": "15 11 * * *" },
+    { "path": "/api/agents/industrial-investment", "schedule": "20 11 * * *" },
+    { "path": "/api/aggregator", "schedule": "30 13 * * 1" },
+    { "path": "/api/watchdog", "schedule": "0 14 * * *" },
+    { "path": "/api/watchdog", "schedule": "0 1 * * 0" },
+    { "path": "/api/send-briefing", "schedule": "0 15 * * 1" }
+  ],
+  "functions": {
+    "app/api/agents/*/route.ts": { "maxDuration": 120 },
+    "app/api/aggregator/route.ts": { "maxDuration": 300 }
+  }
 }
