@@ -43,9 +43,9 @@ export default function Hero() {
               letterSpacing: "-0.01em",
             }}
           >
-            The South Texas intelligence
+            Lo que se mueve
             <br />
-            briefing for serious operators
+            en el Valle
           </h1>
 
           {/* Subhead */}
