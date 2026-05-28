@@ -5,9 +5,11 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { BrandMark } from "./BrandMark";
 import { ThemeToggle } from "./ThemeToggle";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
   const isHomepage = pathname === "/";
 
@@ -15,6 +17,19 @@ export default function Navigation() {
     const handler = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
+  }, []);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
@@ -47,12 +62,19 @@ export default function Navigation() {
             >
               Subscribe
             </a>
-          ) : (
+          ) : isLoggedIn ? (
             <Link
               href="/account"
               className="font-body text-sm font-semibold text-teal-light hover:text-warm-white border border-teal/30 hover:border-teal/60 px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
             >
               My Account
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="font-body text-sm font-semibold text-teal-light hover:text-warm-white border border-teal/30 hover:border-teal/60 px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
+            >
+              Login
             </Link>
           )}
         </div>

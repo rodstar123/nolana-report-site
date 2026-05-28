@@ -53,6 +53,9 @@ export async function POST(req: NextRequest) {
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
       const priceId = subscription.items.data[0]?.price.id;
       const tier = getTierFromPriceId(priceId);
+      const rawEnd = (subscription as unknown as { current_period_end: number })
+        .current_period_end;
+      const periodEnd = rawEnd ? new Date(rawEnd * 1000).toISOString() : null;
 
       await supabase
         .from("subscribers")
@@ -60,6 +63,7 @@ export async function POST(req: NextRequest) {
           tier,
           stripe_customer_id: customerId,
           stripe_subscription_id: subscriptionId,
+          current_period_end: periodEnd,
           tier_updated_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -72,11 +76,16 @@ export async function POST(req: NextRequest) {
       const subscription = event.data.object as Stripe.Subscription;
       const priceId = subscription.items.data[0]?.price.id;
       const tier = getTierFromPriceId(priceId);
+      const rawEnd2 = (
+        subscription as unknown as { current_period_end: number }
+      ).current_period_end;
+      const periodEnd = rawEnd2 ? new Date(rawEnd2 * 1000).toISOString() : null;
 
       await supabase
         .from("subscribers")
         .update({
           tier,
+          current_period_end: periodEnd,
           tier_updated_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -93,6 +102,7 @@ export async function POST(req: NextRequest) {
         .update({
           tier: "free",
           stripe_subscription_id: null,
+          current_period_end: null,
           tier_updated_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })

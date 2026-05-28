@@ -5,10 +5,10 @@ export async function getSubscriber() {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return null;
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session?.user?.email) return null;
+  if (!user?.email) return null;
 
   const adminClient = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,7 +18,7 @@ export async function getSubscriber() {
   const { data } = await adminClient
     .from("subscribers")
     .select("*")
-    .eq("email", session.user.email)
+    .eq("email", user.email)
     .single();
 
   return data as Subscriber | null;
@@ -37,6 +37,8 @@ export type Subscriber = {
   referred_by: string | null;
   email_verified: boolean;
   unsubscribed: boolean;
+  alert_preferences: { email: boolean } | null;
+  current_period_end: string | null;
   created_at: string;
   updated_at: string;
 };

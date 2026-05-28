@@ -53,15 +53,15 @@ export default function Pricing() {
 
     const supabase = createSupabaseBrowserClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (session?.user?.email) {
+    if (user?.email) {
       // Logged in — go straight to checkout
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: tierId, email: session.user.email }),
+        body: JSON.stringify({ plan: tierId, email: user.email }),
       });
       const data = (await res.json()) as { url?: string; error?: string };
       if (data.url) {

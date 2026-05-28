@@ -4,9 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
   const supabase = await createSupabaseServerClient();
-  const session = supabase
-    ? (await supabase.auth.getSession()).data.session
-    : null;
+  const user = supabase ? (await supabase.auth.getUser()).data.user : null;
 
   const body = (await req.json()) as {
     what_happened: string;
@@ -29,11 +27,11 @@ export async function POST(req: NextRequest) {
 
   // Resolve subscriber_id if logged in
   let subscriberId: string | null = null;
-  if (session?.user?.email) {
+  if (user?.email) {
     const { data } = await admin
       .from("subscribers")
       .select("id")
-      .eq("email", session.user.email)
+      .eq("email", user.email)
       .single();
     subscriberId = data?.id ?? null;
   }

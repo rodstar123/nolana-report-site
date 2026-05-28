@@ -22,16 +22,18 @@ export async function middleware(req: NextRequest) {
   );
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Protect /account and /admin routes
   const isProtected =
     req.nextUrl.pathname.startsWith("/account") ||
     req.nextUrl.pathname.startsWith("/admin");
 
-  if (isProtected && !session) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  if (isProtected && !user) {
+    const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set("redirectTo", req.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   return res;

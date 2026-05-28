@@ -31,6 +31,14 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
+    // Show auth_failed error from callback redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("error") === "auth_failed") {
+      setError("Login link expired. Please try again.");
+    }
+  }, []);
+
+  useEffect(() => {
     const hash = window.location.hash;
     if (!hash.includes("access_token")) return;
 
@@ -69,7 +77,10 @@ export default function LoginPage() {
           if (sent) return; // window.location.href already set
         }
 
-        router.push("/account");
+        // Redirect to original destination or /account
+        const searchParams = new URLSearchParams(window.location.search);
+        const redirectTo = searchParams.get("redirectTo") ?? "/account";
+        router.push(redirectTo);
       });
   }, [router]);
 

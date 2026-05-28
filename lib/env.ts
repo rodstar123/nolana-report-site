@@ -47,7 +47,7 @@ const schema = z.object({
   // --- Optional: billing (Stripe) ---
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
-  NEXT_PUBLIC_APP_URL: z.string().url().optional(),
+  NEXT_PUBLIC_APP_URL: z.string().url().default("https://www.nolanareport.com"),
 
   // --- Optional: anti-bot ---
   TURNSTILE_SECRET_KEY: z.string().optional(),
