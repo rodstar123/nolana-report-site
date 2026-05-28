@@ -6,6 +6,7 @@ const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 interface Props {
   lang?: "en" | "es";
+  variant?: "dark" | "light";
 }
 
 type FormStatus =
@@ -67,11 +68,13 @@ function InfoCard({
   heading,
   body,
   small,
+  lightMode = false,
 }: {
   variant: "teal" | "amber";
   heading: string;
   body: string;
   small?: string;
+  lightMode?: boolean;
 }) {
   const isTeal = variant === "teal";
   return (
@@ -81,8 +84,12 @@ function InfoCard({
       transition={{ duration: 0.45, ease: "easeOut" }}
       className={`max-w-md w-full rounded-xl px-6 py-5 ${
         isTeal
-          ? "border border-teal/40 bg-teal/10"
-          : "border border-amber-400/40 bg-amber-400/10"
+          ? lightMode
+            ? "border border-teal/30 bg-teal/5"
+            : "border border-teal/40 bg-teal/10"
+          : lightMode
+            ? "border border-amber-400/30 bg-amber-100/40"
+            : "border border-amber-400/40 bg-amber-400/10"
       }`}
       role="alert"
       aria-live="polite"
@@ -110,7 +117,13 @@ function InfoCard({
         </div>
         <h3
           className={`font-display font-bold text-lg leading-tight ${
-            isTeal ? "text-warm-white" : "text-amber-200"
+            isTeal
+              ? lightMode
+                ? "text-charcoal"
+                : "text-warm-white"
+              : lightMode
+                ? "text-amber-800"
+                : "text-amber-200"
           }`}
         >
           {heading}
@@ -118,7 +131,13 @@ function InfoCard({
       </div>
       <p
         className={`font-body text-sm leading-relaxed mb-3 ${
-          isTeal ? "text-slate-light" : "text-amber-100/80"
+          isTeal
+            ? lightMode
+              ? "text-slate"
+              : "text-slate-light"
+            : lightMode
+              ? "text-amber-700"
+              : "text-amber-100/80"
         }`}
       >
         {body}
@@ -137,13 +156,29 @@ function InfoCard({
   );
 }
 
-export default function SignupForm({ lang = "en" }: Props) {
+export default function SignupForm({ lang = "en", variant = "dark" }: Props) {
   const [email, setEmail] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [status, setStatus] = useState<FormStatus>("idle");
   const [submittedEmail, setSubmittedEmail] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const t = copy[lang];
+
+  const isLight = variant === "light";
+  const styles = {
+    input: isLight
+      ? "w-full px-5 py-4 rounded-xl bg-white border border-cream-dark text-charcoal placeholder-slate-light font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[52px] shadow-sm"
+      : "w-full px-5 py-4 rounded-xl bg-white/8 border border-white/15 text-warm-white placeholder-slate-light font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[52px]",
+    button: isLight
+      ? "w-full bg-teal hover:bg-teal-light text-white font-body font-bold text-base py-4 px-8 rounded-xl transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed min-h-[52px] shadow-md"
+      : "w-full bg-teal hover:bg-teal-light text-white font-body font-bold text-base py-4 px-8 rounded-xl transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed min-h-[52px]",
+    checkbox: isLight
+      ? `font-body text-sm leading-snug transition-colors duration-200 ${agreed ? "text-slate" : "text-slate/60"}`
+      : `font-body text-sm leading-snug transition-colors duration-200 ${agreed ? "text-slate-light" : "text-slate-light/60"}`,
+    error: isLight
+      ? "text-red-600 text-sm font-body"
+      : "text-red-400 text-sm font-body",
+  };
 
   const turnstileToken = useRef("");
   const widgetContainerRef = useRef<HTMLDivElement>(null);
@@ -226,6 +261,7 @@ export default function SignupForm({ lang = "en" }: Props) {
         heading={t.confirmHeading}
         body={t.confirmBody(submittedEmail)}
         small={t.confirmSmall}
+        lightMode={isLight}
       />
     );
   }
@@ -236,6 +272,7 @@ export default function SignupForm({ lang = "en" }: Props) {
         variant="teal"
         heading={t.alreadyHeading}
         body={t.alreadyBody}
+        lightMode={isLight}
       />
     );
   }
@@ -246,6 +283,7 @@ export default function SignupForm({ lang = "en" }: Props) {
         variant="amber"
         heading={t.pendingHeading}
         body={t.pendingBody(submittedEmail)}
+        lightMode={isLight}
       />
     );
   }
@@ -261,7 +299,7 @@ export default function SignupForm({ lang = "en" }: Props) {
         placeholder={t.placeholder}
         required
         aria-label="Email address"
-        className="w-full px-5 py-4 rounded-xl bg-white/8 border border-white/15 text-warm-white placeholder-slate-light font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[52px]"
+        className={styles.input}
       />
 
       {/* Consent checkbox */}
@@ -272,25 +310,19 @@ export default function SignupForm({ lang = "en" }: Props) {
           onChange={(e) => setAgreed(e.target.checked)}
           className="w-4 h-4 flex-shrink-0 cursor-pointer accent-teal"
         />
-        <span
-          className={`font-body text-sm leading-snug transition-colors duration-200 ${
-            agreed ? "text-slate-light" : "text-slate-light/60"
-          }`}
-        >
-          {t.checkbox}
-        </span>
+        <span className={styles.checkbox}>{t.checkbox}</span>
       </label>
 
       <button
         type="submit"
         disabled={status === "loading" || !agreed}
-        className="w-full bg-teal hover:bg-teal-light text-white font-body font-bold text-base py-4 px-8 rounded-xl transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed min-h-[52px]"
+        className={styles.button}
       >
         {status === "loading" ? t.submitLoading : t.submitIdle}
       </button>
 
       {status === "error" && (
-        <p className="text-red-400 text-sm font-body" role="alert">
+        <p className={styles.error} role="alert">
           {errorMsg}
         </p>
       )}
