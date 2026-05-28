@@ -1,9 +1,9 @@
 "use client";
 import { useEffect } from "react";
+import Image from "next/image";
 import { heroEntrance } from "@/lib/animations";
 import { BrandMark } from "./BrandMark";
 import SignupForm from "./SignupForm";
-import PhoneEmailMockup from "./PhoneEmailMockup";
 
 export default function Hero() {
   useEffect(() => {
@@ -13,109 +13,140 @@ export default function Hero() {
   return (
     <section
       id="signup"
-      className="relative min-h-screen flex items-center grain-overlay overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(150deg, #0a1628 0%, #0b1e22 30%, #0f1722 65%, #111d2e 100%)",
-      }}
+      className="relative min-h-screen flex items-center overflow-hidden"
+      style={{ background: "#faf9f7" }}
     >
-      {/* Teal ambient — right side, frames the phone */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse at 80% 55%, rgba(13,115,119,0.13) 0%, transparent 50%)",
-        }}
-      />
-      {/* Gold ambient — top left, frames the headline */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse at 5% 15%, rgba(212,168,67,0.07) 0%, transparent 40%)",
-        }}
-      />
-
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-28 w-full">
-        <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-20">
-          {/* ── Left column ── */}
-          <div className="flex-1 w-full max-w-xl lg:max-w-none">
-            {/* Brand lockup */}
-            <div className="hero-brand opacity-0 flex items-center gap-2.5 mb-7">
-              <BrandMark size={20} color="#d4a843" />
-              <span className="font-body font-bold text-gold text-xs tracking-[0.22em] uppercase">
-                The Nolana Report
-              </span>
-            </div>
-
-            {/* Section label */}
-            <div className="hero-label opacity-0 mb-5">
-              <span className="section-label text-teal-light">
-                RGV Business Intelligence
-              </span>
-            </div>
-
-            {/* Main headline */}
-            <h1
-              className="hero-title font-display font-extrabold text-warm-white opacity-0 mb-5"
-              style={{
-                fontSize: "clamp(2.25rem, 5.5vw, 3.75rem)",
-                lineHeight: 1.08,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Lo que se mueve
-              <br />
-              en el Valle
-            </h1>
-
-            {/* Subhead */}
-            <p
-              className="hero-tagline font-body text-slate-light opacity-0 mb-9 leading-relaxed"
-              style={{
-                fontSize: "clamp(1rem, 1.6vw, 1.125rem)",
-                maxWidth: "36rem",
-              }}
-            >
-              Every Monday, get 30 business stories scored by relevance —
-              openings, permits, government moves, trade signals, and investment
-              activity shaping the Valley.{" "}
-              <span className="text-warm-white/70 font-semibold">
-                In your inbox by 7 AM.
-              </span>
-            </p>
-
-            {/* CTA form */}
-            <div className="hero-form opacity-0 mb-5 max-w-sm">
-              <SignupForm />
-            </div>
-
-            {/* Supporting links */}
-            <div className="hero-social-proof opacity-0 flex items-center gap-1 flex-wrap">
-              <span className="font-body text-slate-light/60 text-sm">
-                Free forever —
-              </span>
-              <a
-                href="#sample-issue"
-                className="font-body text-sm text-teal-light hover:text-warm-white transition-colors underline underline-offset-2"
-              >
-                View Sample Issue →
-              </a>
-            </div>
+      {/* Left panel: white background, headline + form */}
+      <div className="relative z-10 w-full lg:w-[55%] px-8 lg:px-16 py-24 flex flex-col justify-center min-h-screen">
+        <div className="max-w-xl">
+          {/* Brand lockup */}
+          <div className="hero-brand opacity-0 flex items-center gap-2.5 mb-7">
+            <BrandMark size={24} color="#d4a843" />
+            <span className="font-body font-bold text-gold text-xs tracking-[0.22em] uppercase">
+              The Nolana Report
+            </span>
           </div>
 
-          {/* ── Right column: phone mockup ── */}
-          <div className="flex-shrink-0 flex justify-center w-full lg:w-auto">
-            <PhoneEmailMockup />
+          {/* Section label */}
+          <div className="hero-label opacity-0 mb-5">
+            <span className="section-label !text-teal">
+              RGV Business Intelligence
+            </span>
+          </div>
+
+          {/* Main headline */}
+          <h1
+            className="hero-title font-display font-extrabold text-charcoal opacity-0 mb-5"
+            style={{
+              fontSize: "clamp(2.25rem, 5vw, 3.5rem)",
+              lineHeight: 1.08,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            The South Texas intelligence
+            <br />
+            briefing for serious operators
+          </h1>
+
+          {/* Subhead */}
+          <p
+            className="hero-tagline font-body text-slate opacity-0 mb-9 leading-relaxed"
+            style={{
+              fontSize: "clamp(1rem, 1.6vw, 1.125rem)",
+              maxWidth: "30rem",
+            }}
+          >
+            30 scored stories. One weekly email. What moves in the Valley
+            &mdash; before it hits the news.{" "}
+            <span className="text-charcoal font-semibold">
+              In your inbox by 7&nbsp;AM.
+            </span>
+          </p>
+
+          {/* CTA form — light variant */}
+          <div className="hero-form opacity-0 mb-5 max-w-md">
+            <SignupForm variant="light" />
+          </div>
+
+          {/* Supporting links */}
+          <div className="hero-social-proof opacity-0 flex items-center gap-1 flex-wrap">
+            <span className="font-body text-slate/60 text-sm">
+              Free forever &mdash;
+            </span>
+            <a
+              href="#sample-issue"
+              className="font-body text-sm text-teal hover:text-teal-light transition-colors underline underline-offset-2"
+            >
+              View Sample Issue &rarr;
+            </a>
           </div>
         </div>
       </div>
 
+      {/* Right panel: navy + teal diagonal with iPhone mockup */}
+      <div
+        className="hidden lg:flex hero-split-right absolute inset-y-0 right-0 w-[50%] items-center justify-center"
+        style={{
+          background:
+            "linear-gradient(160deg, #0a1628 0%, #0b2024 40%, #0f1722 100%)",
+        }}
+      >
+        {/* Teal ambient glow behind phone */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse at 50% 50%, rgba(13,115,119,0.18) 0%, transparent 55%)",
+          }}
+        />
+
+        {/* 270 arc motif — large, faded behind phone */}
+        <div
+          aria-hidden="true"
+          className="hero-arc absolute pointer-events-none"
+          style={{
+            width: "400px",
+            height: "400px",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <BrandMark size={400} color="#d4a843" strokeWidth={1} />
+        </div>
+
+        {/* iPhone 16 Pro mockup image */}
+        <div
+          className="hero-mockup relative z-10"
+          style={{ transform: "rotate(-4deg)" }}
+        >
+          <Image
+            src="/images/hero-iphone-mockup.webp"
+            alt="iPhone 16 Pro showing The Nolana Report newsletter with scored business stories"
+            width={320}
+            height={640}
+            priority
+            className="drop-shadow-2xl"
+            style={{
+              filter: "drop-shadow(0 25px 60px rgba(0,0,0,0.4))",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Mobile: navy accent strip (below form, sm only) */}
+      <div
+        className="lg:hidden absolute bottom-0 left-0 right-0 h-16"
+        aria-hidden="true"
+        style={{
+          background: "linear-gradient(to top, #0a1628, transparent)",
+        }}
+      />
+
       {/* Scroll chevron */}
       <div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce cursor-pointer"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 animate-bounce cursor-pointer"
         aria-label="Scroll to data bar"
         role="button"
         tabIndex={0}
@@ -132,7 +163,7 @@ export default function Hero() {
         }}
       >
         <svg
-          className="w-5 h-5 text-teal-light"
+          className="w-5 h-5 text-teal"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
