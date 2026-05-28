@@ -6,12 +6,15 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Block bot-pattern emails: 5+ dots in local part, or ends in 2-digit numeric suffix
 function isBotEmail(email: string): boolean {
   const local = email.split("@")[0];
   const dots = (local.match(/\./g) ?? []).length;
-  if (dots >= 5) return true;
+  if (dots >= 4) return true;
   if (/\.\d{2}$/.test(local)) return true;
+  // Dot-separated single chars: "v.i.n.b.o.y" pattern
+  const segments = local.split(".");
+  const singleCharSegments = segments.filter((s) => s.length === 1).length;
+  if (singleCharSegments >= 3) return true;
   return false;
 }
 
