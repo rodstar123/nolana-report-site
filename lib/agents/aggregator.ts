@@ -1,0 +1,556 @@
+import { SupabaseClient } from "@supabase/supabase-js";
+
+const STOPWORDS = new Set([
+  "a",
+  "an",
+  "the",
+  "and",
+  "or",
+  "but",
+  "in",
+  "on",
+  "at",
+  "to",
+  "for",
+  "of",
+  "with",
+  "by",
+  "from",
+  "is",
+  "it",
+  "this",
+  "that",
+  "was",
+  "are",
+  "be",
+  "has",
+  "had",
+  "not",
+  "as",
+  "its",
+  "his",
+  "her",
+  "they",
+  "we",
+  "you",
+  "he",
+  "she",
+  "us",
+  "our",
+  "your",
+]);
+
+function tokenize(text: string): string[] {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "")
+    .split(/\s+/)
+    .filter((w) => w.length > 1 && !STOPWORDS.has(w));
+}
+
+function stripPublisherSuffix(title: string): string {
+  return title.replace(/\s*[-–—|]\s*[^-–—|]+$/, "").trim();
+}
+
+function jaccard(a: string[], b: string[]): number {
+  const setA = new Set(a);
+  const setB = new Set(b);
+  let intersection = 0;
+  Array.from(setA).forEach((w) => {
+    if (setB.has(w)) intersection++;
+  });
+  const union = setA.size + setB.size - intersection;
+  return union === 0 ? 0 : intersection / union;
+}
+
+function extractDollarAmount(text: string): string | null {
+  const m = text.match(/\$[\d,.]+\s*[MBmb](?:illion)?/i);
+  return m ? m[0].toLowerCase().replace(/,/g, "") : null;
+}
+
+const TRADE_CATEGORIES = new Set([
+  "Tariff",
+  "Bridge",
+  "FX",
+  "Permit",
+  "Grant",
+  "Zoning",
+]);
+const TRADE_REGEX =
+  /trade|tariff|bridge|customs|cbp|usmca|maquiladora|nearshoring|freight|logistics|import|export|border.*cross/i;
+
+interface RawItemRow {
+  id: string;
+  url: string;
+  url_hash: string;
+  agent: string;
+  title: string;
+  snippet: string | null;
+  source_name: string | null;
+  category: string | null;
+  summary: string | null;
+  language: string | null;
+  relevance_score: number | null;
+  original_date: string | null;
+  date_spotted: string | null;
+  instant_alerted: boolean | null;
+}
+
+export async function fetchPoolItems(
+  supabase: SupabaseClient,
+): Promise<RawItemRow[]> {
+  const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
+  const { data, error } = await supabase
+    .from("raw_items")
+    .select(
+      "id,url,url_hash,agent,title,snippet,source_name,category,summary,language,relevance_score,original_date,date_spotted,instant_alerted",
+    )
+    .gte("date_spotted", weekAgo)
+    .gte("relevance_score", 50)
+    .eq("included_in_briefing", false)
+    .order("relevance_score", { ascending: false })
+    .limit(100);
+  if (error) throw new Error(`raw_items query: ${error.message}`);
+  return (data ?? []) as RawItemRow[];
+}
+
+export function dedup(items: RawItemRow[]): {
+  kept: RawItemRow[];
+  urlDedupCount: number;
+  jaccardDedupCount: number;
+  reroutedCount: number;
+} {
+  // Pass 1: URL dedup — keep highest score
+  const byUrl = new Map<string, RawItemRow>();
+  for (const item of items) {
+    const existing = byUrl.get(item.url);
+    if (
+      !existing ||
+      (item.relevance_score ?? 0) > (existing.relevance_score ?? 0)
+    ) {
+      byUrl.set(item.url, item);
+    }
+  }
+  const afterUrl = Array.from(byUrl.values());
+  const urlDedupCount = items.length - afterUrl.length;
+
+  // Pass 2: Jaccard title similarity >= 0.30
+  const tokenized = afterUrl.map((item) =>
+    tokenize(stripPublisherSuffix(item.title)),
+  );
+  const jaccardDropped = new Set<number>();
+  for (let i = 0; i < afterUrl.length; i++) {
+    if (jaccardDropped.has(i)) continue;
+    for (let j = i + 1; j < afterUrl.length; j++) {
+      if (jaccardDropped.has(j)) continue;
+      if (jaccard(tokenized[i], tokenized[j]) >= 0.3) {
+        const keepI =
+          (afterUrl[i].relevance_score ?? 0) >=
+          (afterUrl[j].relevance_score ?? 0);
+        jaccardDropped.add(keepI ? j : i);
+      }
+    }
+  }
+  const afterJaccard = afterUrl.filter((_, i) => !jaccardDropped.has(i));
+  const jaccardDedupCount = jaccardDropped.size;
+
+  // Pass 3: Dollar-entity dedup — same $X amount + Jaccard >= 0.20
+  const dollarDropped = new Set<number>();
+  const tokenized2 = afterJaccard.map((item) =>
+    tokenize(stripPublisherSuffix(item.title)),
+  );
+  for (let i = 0; i < afterJaccard.length; i++) {
+    if (dollarDropped.has(i)) continue;
+    const dollarI = extractDollarAmount(
+      afterJaccard[i].title + " " + (afterJaccard[i].summary ?? ""),
+    );
+    if (!dollarI) continue;
+    for (let j = i + 1; j < afterJaccard.length; j++) {
+      if (dollarDropped.has(j)) continue;
+      const dollarJ = extractDollarAmount(
+        afterJaccard[j].title + " " + (afterJaccard[j].summary ?? ""),
+      );
+      if (
+        dollarJ &&
+        dollarI === dollarJ &&
+        jaccard(tokenized2[i], tokenized2[j]) >= 0.2
+      ) {
+        const keepI =
+          (afterJaccard[i].relevance_score ?? 0) >=
+          (afterJaccard[j].relevance_score ?? 0);
+        dollarDropped.add(keepI ? j : i);
+      }
+    }
+  }
+  const afterDollar = afterJaccard.filter((_, i) => !dollarDropped.has(i));
+
+  // Agent 3 guard: reroute non-trade stories
+  let reroutedCount = 0;
+  for (const item of afterDollar) {
+    if (item.agent !== "Agent 3") continue;
+    const cat = item.category ?? "";
+    if (TRADE_CATEGORIES.has(cat)) continue;
+    if (TRADE_REGEX.test(item.title + " " + (item.summary ?? ""))) continue;
+    reroutedCount++;
+    if (cat === "Buzz" || cat === "Event") {
+      item.agent = "Agent 4";
+    } else {
+      item.agent = "Agent 1";
+    }
+  }
+
+  return {
+    kept: afterDollar,
+    urlDedupCount,
+    jaccardDedupCount: jaccardDedupCount + dollarDropped.size,
+    reroutedCount,
+  };
+}
+
+export function buildOpusUserMessage(
+  items: RawItemRow[],
+  dedupStats: {
+    urlDedupCount: number;
+    jaccardDedupCount: number;
+    reroutedCount: number;
+  },
+  totalItems: number,
+  downSources: string[],
+): string {
+  const now = new Date();
+  const startDate = new Date(now.getTime() - 7 * 86_400_000)
+    .toISOString()
+    .slice(0, 10);
+  const weekStr = now.toISOString().slice(0, 10);
+
+  const agentToSection: Record<string, string> = {
+    "Agent 1": "New Business Pulse",
+    "Agent 2": "Gov & Economic Watch",
+    "Agent 3": "Cross-Border & Trade Monitor",
+    "Agent 4": "Community Buzz",
+    "Agent 5": "Industrial & Investment Watch",
+  };
+
+  const grouped = new Map<string, RawItemRow[]>();
+  for (const item of items) {
+    const section = agentToSection[item.agent] ?? "Community Buzz";
+    if (!grouped.has(section)) grouped.set(section, []);
+    grouped.get(section)!.push(item);
+  }
+
+  let storyData = "";
+  let n = 1;
+  for (const [section, sectionItems] of Array.from(grouped)) {
+    storyData += `--- SUGGESTED SECTION: ${section} ---\n`;
+    for (const item of sectionItems) {
+      storyData += `[${n}] Title: ${item.title}\n`;
+      storyData += `    Source: ${item.source_name ?? "Unknown"} | Score: ${item.relevance_score ?? 0} | Category: ${item.category ?? "Other"} | Date: ${item.original_date ?? item.date_spotted ?? "Unknown"} | Lang: ${item.language ?? "EN"}`;
+      if (item.instant_alerted) storyData += " | INSTANT_ALERTED";
+      storyData += `\n    Haiku summary: ${item.summary ?? ""}\n`;
+      storyData += `    URL: ${item.url}\n`;
+      n++;
+    }
+  }
+
+  let header = `RGV Intel Briefing — Week of ${startDate} to ${weekStr}\n`;
+  header += `${items.length} stories after JS dedup (${dedupStats.urlDedupCount + dedupStats.jaccardDedupCount} duplicates removed: ${dedupStats.urlDedupCount} by URL, ${dedupStats.jaccardDedupCount} by Jaccard; ${dedupStats.reroutedCount} Agent 3 stories rerouted). Raw pool was ${totalItems} items scoring >=50.\n`;
+  if (downSources.length > 0) {
+    header += `Sources down this week: ${downSources.join(", ")}\n`;
+  }
+
+  return `${header}\nSTORY DATA:\n${storyData}\nNow write the full briefing following your editorial instructions. Apply semantic dedup, re-score each story, enforce section rules, cap any single source at 8 stories, and write each story in Morning Brew style with original headlines, 2-sentence analysis, The Bottom Line, and source link. Output the 5 section bodies only — no preamble.`;
+}
+
+export const OPUS_SYSTEM_PROMPT = `You are the editorial AI for The Nolana Report, an RGV business intelligence briefing published every Monday. Your job is to curate, deduplicate, and write the weekly briefing from the story data provided.
+
+## Semantic Deduplication (do this first)
+Before writing anything, scan ALL stories across ALL sections for same-event duplicates. Stories are duplicates if they describe the same underlying event even if the titles and sources differ. Keep only the version with the richest detail and the most authoritative source. Never include two stories about the same event in the final briefing.
+
+**Dollar-amount rule:** Two stories sharing the same specific dollar amount ($1M+) almost always describe the same event from different sources — treat them as duplicates unless the dollar amounts fund entirely different things. Example: a story about "$42.3M UTRGV therapy facility in Harlingen" from RGV Business Journal and another about "$42.3M UTRGV Physical and Occupational Therapy" from ValleyCentral are the same event. Keep the higher-scored, more authoritative source.
+
+## Section Assignment (strict)
+Assign each story to exactly one section:
+- **New Business Pulse**: New store/restaurant/business openings, expansions, relocations, new startups launching
+- **Gov & Economic Watch**: City council decisions, county commissioner votes, government grants to businesses, zoning changes, permits, tax policy, workforce programs, government funding for community services
+- **Cross-Border & Trade Monitor**: International bridge traffic and wait times, CBP/customs policy, imports/exports, maquiladoras, USMCA, Mexican trade policy, binational commerce, freight/logistics, nearshoring announcements
+- **Community Buzz**: Local community events, nonprofit activity, education initiatives with a business angle, cultural events with commerce tie-in, human interest stories relevant to business owners
+- **Industrial & Investment Watch**: Commercial real estate deals, industrial park permits, infrastructure projects, healthcare facility construction/expansion, university capital projects, EDC announcements, large capital expenditures ($5M+), SpaceX/Starbase, port activity, manufacturing plant openings, warehouse/distribution
+
+IMPORTANT: Healthcare construction, university building projects, large real estate investment, and capital expenditure projects go to Industrial & Investment Watch, NOT Cross-Border & Trade Monitor.
+
+## NRI Scoring (Nolana Relevance Index, 1-10)
+Re-score each story you include. Show the score in the output. The NRI is The Nolana Report's proprietary relevance scoring.
+- 9-10: Major new business opening, $10M+ investment, policy change with direct and immediate RGV business impact
+- 7-8: Significant business activity, meaningful grant ($500K+), infrastructure with clear business impact, bridge/trade anomaly
+- 5-6: Moderate relevance, indirect business impact, workforce or education with clear business angle
+- Below 5: DO NOT INCLUDE.
+Target: 20-30 stories total per issue. Quality over quantity.
+
+## Content Transformation Rules (NON-NEGOTIABLE)
+1. Never copy 3 or more consecutive words from the source headline or snippet. Every headline and summary must be original writing.
+2. Headlines must be original and punchy. Never restate the source headline. Use a business angle. Example: "McAllen Airport receives federal grant" becomes "McAllen Airport Lands $7M — Cargo Corridor Eyes Long-Term Growth"
+3. Summaries are original analysis, not paraphrase. Write what the news means for RGV business owners.
+4. "The Bottom Line" is proprietary forward-looking analysis. One original sentence telling a business owner what to watch, prepare for, or act on. Never repeat the headline or summary.
+5. NRI scores are proprietary. Never attribute them to the source.
+6. 2-sentence max for the main summary. "The Bottom Line" is exactly 1 sentence.
+
+## Morning Brew Style Guide
+- Voice: Conversational but precise. Use contractions. Be direct.
+- Specificity: Always use the actual city name (McAllen, Edinburg, Pharr, Brownsville, Harlingen, Mission, Weslaco). Never "a named RGV city."
+- Headlines: Present-tense, active voice, punchy. Use an em dash to add a hook.
+- Section intros: Each section opens with ONE italicized editorial sentence framing the week's theme.
+- No filler: Never write "As previously reported," "Sources say," "According to officials," "directly impacts RGV businesses."
+- Vary framing: "For local operators..." / "Owners in [city] should note..." / "The ripple effect..." / "This means..."
+
+## Source Diversity
+Cap any single source at 8 stories, choosing the highest-scored ones.
+
+## Output Format
+Write the full briefing starting with an Opening section, then the 5 section bodies.
+
+**Opening (write this first):**
+
+## Opening
+[Exactly 3 paragraphs separated by blank lines (\\n\\n). Morning Brew editorial voice. Never one dense block.
+
+**Paragraph 1 — The Hook** (1 sentence): Start with "Good morning, Valley." + one bold sentence naming the week's single biggest theme. Sets the tone.
+
+**Paragraph 2 — The Tease** (2-4 sentences): The "here's what's inside" paragraph. Name specific stories with exact dollar amounts, city names, company names. Pack in the detail — investors, projects, addresses. This is what earns the open.
+
+**Paragraph 3 — The Forward Hook** (1 sentence): One short sentence that pulls the reader into the briefing. "Let's unpack what it means for your business." energy — not a summary, a door handle.
+
+Rules: Separate ALL 3 paragraphs with \\n\\n in your output. Never merge them into one block. Be specific: dollar figures, city names, company names only. No vague language.
+Example (follow this structure exactly):
+"Good morning, Valley. Outside money is pouring in — and it's bringing shovels.
+
+A $42.3M UTRGV healthcare campus rising from a former Harlingen retail shell, a $10.5M emergency department breaking ground in Palmview, and an $88M cargo expansion at Anzalduas Bridge gearing up for a September launch. Meanwhile, an Austin investor has quietly assembled a 1,700-unit apartment portfolio across the Valley, and McAllen's airport just locked down $7M in federal dollars.
+
+Let's unpack what it all means for your business."]
+
+**Then write the 5 section bodies** with exactly these section headers. Open each section with one italicized editorial sentence. If a section has no qualifying stories, write "No items this week."
+
+Format each story exactly as:
+### [PUNCHY ORIGINAL HEADLINE] (NRI: X/10)
+[2-sentence original analysis in Morning Brew voice]
+**The Bottom Line:** [1 sentence of original forward-looking insight]
+Source: [source name](url) · [Read the full story →](url)
+
+Use the rocket emoji prefix on the headline for any story where instantAlerted=true.`;
+
+const SECTION_HEADERS = [
+  "New Business Pulse",
+  "Gov & Economic Watch",
+  "Cross-Border & Trade Monitor",
+  "Community Buzz",
+  "Industrial & Investment Watch",
+];
+
+const SECTION_TO_ENUM: Record<string, string> = {
+  "New Business Pulse": "new_business_pulse",
+  "Gov & Economic Watch": "gov_economic_watch",
+  "Cross-Border & Trade Monitor": "cross_border_trade",
+  "Community Buzz": "community_buzz",
+  "Industrial & Investment Watch": "industrial_investment",
+};
+
+interface ParsedStory {
+  headline: string;
+  nri: number;
+  summary: string;
+  whyItMatters: string;
+  sourceUrl: string;
+  sourceName: string;
+  section: string;
+  instantAlerted: boolean;
+}
+
+export function parseOpusOutput(markdown: string): {
+  opening: string;
+  stories: ParsedStory[];
+} {
+  const bom = markdown.replace(/^﻿/, "");
+
+  const openingMatch = bom.match(/## Opening\s*\n([\s\S]*?)(?=\n## )/);
+  const opening = openingMatch ? openingMatch[1].trim() : "";
+
+  const storyBlocks = bom
+    .split(/\n(?=###\s)/)
+    .filter((b) => b.startsWith("###"));
+  const stories: ParsedStory[] = [];
+
+  let currentSection = "community_buzz";
+  for (const header of SECTION_HEADERS) {
+    if (bom.includes(`## ${header}`)) {
+      const sectionStart = bom.indexOf(`## ${header}`);
+      for (const block of storyBlocks) {
+        const blockStart = bom.indexOf(block);
+        if (blockStart > sectionStart) {
+          const nextSection = SECTION_HEADERS.find(
+            (h) =>
+              h !== header &&
+              bom.indexOf(`## ${h}`) > sectionStart &&
+              bom.indexOf(`## ${h}`) < blockStart,
+          );
+          if (nextSection) break;
+        }
+      }
+    }
+  }
+
+  for (const block of storyBlocks) {
+    const blockPos = bom.indexOf(block);
+    let matchedSection = "community_buzz";
+    let bestDist = Infinity;
+    for (const header of SECTION_HEADERS) {
+      const headerPos = bom.indexOf(`## ${header}`);
+      if (headerPos >= 0 && headerPos < blockPos) {
+        const dist = blockPos - headerPos;
+        if (dist < bestDist) {
+          bestDist = dist;
+          matchedSection = SECTION_TO_ENUM[header] ?? "community_buzz";
+        }
+      }
+    }
+    currentSection = matchedSection;
+
+    const headlineMatch = block.match(
+      /^###\s+(?:🚀\s*|🚨\s*)?(.+?)\s*\(NRI:\s*(\d+)\/10\)/,
+    );
+    if (!headlineMatch) continue;
+
+    const headline = headlineMatch[1].trim();
+    const nri = parseInt(headlineMatch[2], 10);
+    if (nri < 5) continue;
+
+    const instantAlerted =
+      block.startsWith("### 🚀") || block.startsWith("### 🚨");
+
+    const bottomLineMatch = block.match(
+      /\*\*The Bottom Line:\*\*\s*(.+?)(?:\n|$)/,
+    );
+    const whyItMatters = bottomLineMatch ? bottomLineMatch[1].trim() : "";
+
+    const sourceMatch = block.match(/Source:\s*\[([^\]]*)\]\(([^)]*)\)/);
+    const sourceName = sourceMatch ? sourceMatch[1] : "";
+    const sourceUrl = sourceMatch ? sourceMatch[2] : "";
+
+    const lines = block.split("\n");
+    const summaryLines: string[] = [];
+    let pastHeadline = false;
+    for (const line of lines) {
+      if (line.startsWith("###")) {
+        pastHeadline = true;
+        continue;
+      }
+      if (!pastHeadline) continue;
+      if (line.startsWith("**The Bottom Line")) break;
+      if (line.startsWith("Source:")) break;
+      if (line.trim()) summaryLines.push(line.trim());
+    }
+    const summary = summaryLines.join(" ");
+
+    stories.push({
+      headline,
+      nri,
+      summary,
+      whyItMatters,
+      sourceUrl,
+      sourceName,
+      section: currentSection,
+      instantAlerted,
+    });
+  }
+
+  return { opening, stories: stories.slice(0, 30) };
+}
+
+function normalizeUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    u.hostname = u.hostname.toLowerCase();
+    if (u.pathname.endsWith("/")) u.pathname = u.pathname.slice(0, -1);
+    for (const param of [
+      "utm_source",
+      "utm_medium",
+      "utm_campaign",
+      "utm_content",
+      "utm_term",
+      "ref",
+      "fbclid",
+      "gclid",
+    ]) {
+      u.searchParams.delete(param);
+    }
+    return u.toString();
+  } catch {
+    return url.toLowerCase().replace(/\/+$/, "");
+  }
+}
+
+export async function writeBriefing(
+  supabase: SupabaseClient,
+  opening: string,
+  stories: ParsedStory[],
+  rawItems: RawItemRow[],
+): Promise<{ issueId: string; storiesWritten: number }> {
+  const slug = new Date().toISOString().slice(0, 10);
+  const title = `The Nolana Report — Week of ${slug}`;
+
+  const { data: existing } = await supabase
+    .from("issues")
+    .select("id")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (existing) {
+    return { issueId: existing.id, storiesWritten: 0 };
+  }
+
+  const { data: issue, error: issueErr } = await supabase
+    .from("issues")
+    .insert({
+      slug,
+      title,
+      opening,
+      is_published: true,
+      published_at: new Date().toISOString(),
+      stories_count: stories.length,
+    })
+    .select("id")
+    .single();
+  if (issueErr || !issue)
+    throw new Error(`issues insert: ${issueErr?.message}`);
+
+  const storyRows = stories.map((s, i) => ({
+    issue_id: issue.id,
+    headline: s.headline,
+    summary: s.summary,
+    why_it_matters: s.whyItMatters || null,
+    nolana_score: s.nri,
+    section: s.section,
+    source_name: s.sourceName || null,
+    source_url: s.sourceUrl || null,
+    position: i + 1,
+    is_free: i < 5,
+  }));
+
+  const { error: storiesErr } = await supabase
+    .from("stories")
+    .insert(storyRows);
+  if (storiesErr) throw new Error(`stories insert: ${storiesErr.message}`);
+
+  const rawUrlMap = new Map(rawItems.map((r) => [normalizeUrl(r.url), r.id]));
+  const usedIds: string[] = [];
+  for (const s of stories) {
+    const normUrl = normalizeUrl(s.sourceUrl);
+    const rawId = rawUrlMap.get(normUrl);
+    if (rawId) usedIds.push(rawId);
+  }
+  if (usedIds.length > 0) {
+    await supabase
+      .from("raw_items")
+      .update({ included_in_briefing: true })
+      .in("id", usedIds);
+  }
+
+  return { issueId: issue.id, storiesWritten: stories.length };
+}
