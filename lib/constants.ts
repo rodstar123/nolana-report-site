@@ -15,6 +15,7 @@ export const TIERS = [
     features: [
       "Weekly summary email (5 stories)",
       "Live data bar (USD/MXN, bridge wait)",
+      "Telegram alerts — t.me/NolanaReport",
       "Public web access",
     ],
     cta: "Subscribe Free",
@@ -35,6 +36,7 @@ export const TIERS = [
     features: [
       "Everything in Free",
       "Full 30-story weekly briefing",
+      "Breaking news email alerts",
       "Score badges + relevance ranking",
       "Deep-dive analysis sections",
       "Full archive access",
