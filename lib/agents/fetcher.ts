@@ -106,6 +106,58 @@ function parseCbpBridgeWaits(
   return items;
 }
 
+const BLS_SERIES: Record<string, { label: string; unit: string }> = {
+  LAUMT483258000000003: { label: "Unemployment Rate", unit: "%" },
+  LAUMT483258000000005: { label: "Total Employment", unit: "" },
+  LAUMT483258000000006: { label: "Labor Force", unit: "" },
+};
+
+function parseBls(
+  json: unknown,
+  source: SourceConfig,
+  agent: AgentName,
+): RawItem[] {
+  const bls = json as {
+    Results?: {
+      series?: Array<{
+        seriesID: string;
+        data: Array<{
+          year: string;
+          period: string;
+          periodName: string;
+          value: string;
+          footnotes?: Array<{ text?: string }>;
+        }>;
+      }>;
+    };
+  };
+  const items: RawItem[] = [];
+  for (const s of bls?.Results?.series ?? []) {
+    if (!s.data || s.data.length < 2) continue;
+    const latest = s.data[0];
+    const prior = s.data[1];
+    const meta = BLS_SERIES[s.seriesID] ?? { label: s.seriesID, unit: "" };
+    const fmt = (v: string) =>
+      v === "-"
+        ? "N/A"
+        : meta.unit === "%"
+          ? `${v}%`
+          : Number(v).toLocaleString();
+    const fn = latest.footnotes?.[0]?.text
+      ? ` (${latest.footnotes[0].text.replace(/\.$/, "")})`
+      : "";
+    items.push({
+      title: `McAllen MSA ${meta.label}: ${fmt(latest.value)} (${latest.periodName} ${latest.year})${fn}`,
+      url: `https://data.bls.gov/timeseries/${s.seriesID}`,
+      snippet: `${meta.label} for McAllen-Edinburg-Mission MSA: ${fmt(latest.value)} in ${latest.periodName} ${latest.year}, vs ${fmt(prior.value)} in ${prior.periodName} ${prior.year}.`,
+      source: source.name,
+      original_date: `${latest.year}-${latest.period.replace("M", "").padStart(2, "0")}-01`,
+      agent,
+    });
+  }
+  return items;
+}
+
 const FX_THRESHOLD_PCT = 1.5;
 let lastMxnRate: number | null = null;
 
@@ -154,6 +206,21 @@ async function fetchJson(
   agent: AgentName,
 ): Promise<{ items: RawItem[]; error: string | null }> {
   try {
+    if (source.name === "BLS McAllen MSA") {
+      const yr = new Date().getFullYear().toString();
+      const res = await fetchWithRetry(source.url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          seriesid: Object.keys(BLS_SERIES),
+          startyear: yr,
+          endyear: yr,
+        }),
+      });
+      const json = await res.json();
+      return { items: parseBls(json, source, agent), error: null };
+    }
+
     let url = source.url;
     if (source.name === "Federal Register API") {
       const gte = new Date(Date.now() - 7 * 86_400_000)

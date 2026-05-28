@@ -17,7 +17,11 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
       url: "https://news.google.com/rss/search?q=%22The+Monitor%22+McAllen+OR+RGV+OR+Edinburg&hl=en-US&gl=US&ceid=US:en",
       type: "rss",
     },
-    { name: "MyRGV", url: "https://myrgv.com/feed/", type: "rss" },
+    {
+      name: "GN MyRGV",
+      url: "https://news.google.com/rss/search?q=site:myrgv.com+RGV+OR+McAllen+OR+business&hl=en-US&gl=US&ceid=US:en",
+      type: "rss",
+    },
     {
       name: "Valley Business Report",
       url: "https://valleybusinessreport.com/feed/",
@@ -47,38 +51,8 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
       type: "scraper",
     },
     {
-      name: "Hidalgo County RSS",
-      url: "https://www.hidalgocounty.us/RSSFeed.aspx?ModID=1",
-      type: "rss",
-    },
-    {
-      name: "McAllen EDC",
-      url: "https://news.google.com/rss/search?q=%22McAllen+Economic+Development%22+OR+%22MEDC%22+McAllen+Texas&hl=en-US&gl=US&ceid=US:en",
-      type: "rss",
-    },
-    {
       name: "TX Comptroller",
       url: "https://public.govdelivery.com/topics/TXCOMPT_1/feed.rss",
-      type: "rss",
-    },
-    {
-      name: "Cameron County",
-      url: "https://news.google.com/rss/search?q=%22Cameron+County%22+commissioners+OR+budget+OR+grant+Texas&hl=en-US&gl=US&ceid=US:en",
-      type: "rss",
-    },
-    {
-      name: "City of Edinburg",
-      url: "https://news.google.com/rss/search?q=%22City+of+Edinburg%22+council+OR+development+Texas&hl=en-US&gl=US&ceid=US:en",
-      type: "rss",
-    },
-    {
-      name: "City of Pharr",
-      url: "https://news.google.com/rss/search?q=%22City+of+Pharr%22+council+OR+development+Texas&hl=en-US&gl=US&ceid=US:en",
-      type: "rss",
-    },
-    {
-      name: "City of Mission",
-      url: "https://news.google.com/rss/search?q=%22City+of+Mission%22+Texas+council+OR+development&hl=en-US&gl=US&ceid=US:en",
       type: "rss",
     },
     {
@@ -87,9 +61,34 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
       type: "rss",
     },
     {
-      name: "LRGVDC",
-      url: "https://news.google.com/rss/search?q=%22LRGVDC%22+OR+%22Lower+Rio+Grande+Valley+Development+Council%22&hl=en-US&gl=US&ceid=US:en",
+      name: "Hidalgo County",
+      url: "https://news.google.com/rss/search?q=%22Hidalgo+County%22+commissioners+OR+court+OR+%22public+notice%22+OR+budget&hl=en-US&gl=US&ceid=US:en",
       type: "rss",
+    },
+    {
+      name: "TX Secretary of State",
+      url: "https://www.sos.state.tx.us/rss/press.xml",
+      type: "rss",
+    },
+    {
+      name: "McAllen Podcast",
+      url: "https://podcast.mcallen.net/feed.xml",
+      type: "rss",
+    },
+    {
+      name: "City of Edinburg",
+      url: "https://cityofedinburg.com/newslist.php",
+      type: "scraper",
+    },
+    {
+      name: "Edinburg Chamber",
+      url: "https://edinburg.com/post-category/news/feed/",
+      type: "rss",
+    },
+    {
+      name: "BLS McAllen MSA",
+      url: "https://api.bls.gov/publicAPI/v2/timeseries/data/",
+      type: "json",
     },
   ],
 
@@ -133,9 +132,9 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
 
   "Agent 4": [
     {
-      name: "Reddit r/RGV",
-      url: "https://www.reddit.com/r/RGV.json?sort=new&limit=50",
-      type: "json",
+      name: "GN Reddit RGV",
+      url: "https://news.google.com/rss/search?q=site:reddit.com%2Fr%2FRGV+OR+site:reddit.com%2Fr%2Fmcallen&hl=en-US&gl=US&ceid=US:en",
+      type: "rss",
     },
     {
       name: "KRGV",
@@ -145,11 +144,6 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
     {
       name: "Eventbrite McAllen",
       url: "https://www.eventbrite.com/d/tx--mcallen/business/",
-      type: "scraper",
-    },
-    {
-      name: "old.reddit fallback",
-      url: "https://old.reddit.com/r/rgv/new/",
       type: "scraper",
     },
     {
