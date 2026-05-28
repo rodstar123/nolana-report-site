@@ -116,18 +116,20 @@ export default function Hero() {
         </div>
 
         {/* iPhone 16 Pro mockup — oversized for impact */}
-        <div className="hero-mockup relative z-10 w-full h-full flex items-center justify-center">
+        <div className="hero-mockup relative z-10 w-full h-full flex items-center justify-center pl-8">
           <Image
-            src="/images/hero-iphone-mockup.webp"
+            src="/images/hero-iphone-mockup.png"
             alt="iPhone 16 Pro showing The Nolana Report newsletter with scored business stories"
-            width={700}
-            height={400}
+            width={896}
+            height={1200}
             priority
             className="object-contain"
             style={{
-              width: "min(110%, 750px)",
+              width: "min(95%, 560px)",
               height: "auto",
-              maxHeight: "90vh",
+              maxHeight: "92vh",
+              filter:
+                "drop-shadow(0 20px 60px rgba(0,0,0,0.5)) drop-shadow(0 4px 16px rgba(0,0,0,0.3))",
             }}
           />
         </div>
