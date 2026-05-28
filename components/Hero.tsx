@@ -83,12 +83,11 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Right panel: navy + teal diagonal with iPhone mockup */}
+      {/* Right panel: navy diagonal with iPhone mockup */}
       <div
-        className="hidden lg:flex hero-split-right absolute inset-y-0 right-0 w-[50%] items-center justify-center"
+        className="hidden lg:flex hero-split-right absolute inset-y-0 right-0 w-[50%] items-center justify-center overflow-hidden"
         style={{
-          background:
-            "linear-gradient(160deg, #0a1628 0%, #0b2024 40%, #0f1722 100%)",
+          background: "#0a1628",
         }}
       >
         {/* Teal ambient glow behind phone */}
@@ -97,7 +96,7 @@ export default function Hero() {
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse at 50% 50%, rgba(13,115,119,0.18) 0%, transparent 55%)",
+              "radial-gradient(ellipse at 55% 45%, rgba(13,115,119,0.14) 0%, transparent 60%)",
           }}
         />
 
@@ -106,30 +105,29 @@ export default function Hero() {
           aria-hidden="true"
           className="hero-arc absolute pointer-events-none"
           style={{
-            width: "400px",
-            height: "400px",
+            width: "500px",
+            height: "500px",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
           }}
         >
-          <BrandMark size={400} color="#d4a843" strokeWidth={1} />
+          <BrandMark size={500} color="#d4a843" strokeWidth={0.8} />
         </div>
 
-        {/* iPhone 16 Pro mockup image */}
-        <div
-          className="hero-mockup relative z-10"
-          style={{ transform: "rotate(-4deg)" }}
-        >
+        {/* iPhone 16 Pro mockup — oversized for impact */}
+        <div className="hero-mockup relative z-10 w-full h-full flex items-center justify-center">
           <Image
             src="/images/hero-iphone-mockup.webp"
             alt="iPhone 16 Pro showing The Nolana Report newsletter with scored business stories"
-            width={320}
-            height={640}
+            width={700}
+            height={400}
             priority
-            className="drop-shadow-2xl"
+            className="object-contain"
             style={{
-              filter: "drop-shadow(0 25px 60px rgba(0,0,0,0.4))",
+              width: "min(110%, 750px)",
+              height: "auto",
+              maxHeight: "90vh",
             }}
           />
         </div>

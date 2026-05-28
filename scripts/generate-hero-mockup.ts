@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import * as fs from "fs";
 
-const PROMPT = `Photorealistic product photograph of an Apple iPhone 16 Pro in Natural Titanium finish, floating at a slight angle tilted 5 degrees to the left. The screen displays a professional email newsletter: at the top is a dark navy header bar with gold serif text reading "THE NOLANA REPORT" and a small gold arc-and-dot logo mark beside it, below that a subheading "RGV Business Intelligence" in small gray text, then a row of news story cards each with a small colored square score badge (gold badge showing "91", teal badge showing "84") and bold black headlines about South Texas business news. The email has a clean white background with subtle gray divider lines between stories. Studio lighting from upper left casting a soft diffused shadow beneath and to the right of the device. The phone floats against a solid dark navy background, hex color 0A1628. No hands, no other objects. Ultra-sharp detail on the titanium frame chamfered edges and the Dynamic Island pill at top center of the screen. Professional product photography, 4K quality.`;
+const PROMPT = `Product photograph of an Apple iPhone 16 Pro in Natural Titanium finish against a solid dark navy background, exact hex color #0A1628, completely uniform with no gradient and no texture. The phone is shown at a very slight angle, almost straight-on, tilted just 3 degrees to the left for depth. A second iPhone 16 Pro is partially visible behind and to the left, showing the back with the camera module and Apple logo, creating a layered dual-phone composition. The front phone's screen displays a crisp professional email newsletter: a dark navy header with gold serif capital letter "N" and text "THE NOLANA REPORT" in gold, then a line "RGV Business Intelligence" in small gray text underneath, then multiple news story cards with small square score badges — a gold badge showing "91" next to headline "South Texas Innovation Hub expands with new tech campus" and a teal badge showing "84" next to headline "Cross-border trade agreements boost regional economy". The email body has a clean white background with thin gray divider lines between cards. Ultra-sharp detail on the titanium chamfered edges, the Dynamic Island pill centered at the top of the screen, and camera lenses on the back phone. The phones should feel large, bold, and tangible — like you could reach out and grab them. Studio-quality lighting from above-left. The background must be a single solid flat color #0A1628 with absolutely no variation. Product photography, 4K, professional.`;
 
 async function main() {
   const apiKey = process.env.GOOGLE_AI_API_KEY;
@@ -10,13 +10,11 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(
-    "Generating iPhone 16 Pro mockup via gemini-2.5-flash-image...\n",
-  );
+  console.log("Generating iPhone 16 Pro mockup via Nano Banana Pro...\n");
   const genAI = new GoogleGenerativeAI(apiKey);
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash-image",
+    model: "gemini-3-pro-image-preview",
     generationConfig: {
       // @ts-expect-error — image gen responseModalities not in SDK types
       responseModalities: ["IMAGE", "TEXT"],
@@ -36,7 +34,7 @@ async function main() {
           const ext = part.inlineData.mimeType?.includes("webp")
             ? "webp"
             : "png";
-          const filename = `public/images/hero-iphone-mockup${imageCount > 1 ? `-${imageCount}` : ""}.${ext}`;
+          const filename = `public/images/hero-iphone-mockup-v2${imageCount > 1 ? `-${imageCount}` : ""}.${ext}`;
           fs.writeFileSync(filename, buf);
           console.log(
             `Saved: ${filename} (${Math.round(buf.length / 1024)}KB, ${part.inlineData.mimeType})`,
@@ -49,18 +47,12 @@ async function main() {
     }
 
     if (imageCount === 0) {
-      console.error("No images in response.");
-      const textParts = response.candidates?.[0]?.content?.parts?.filter(
-        (p) => p.text,
-      );
-      if (textParts?.length) {
-        console.log("Text response:", textParts.map((p) => p.text).join("\n"));
-      }
+      console.error("No images generated.");
     } else {
       console.log(`\nDone! ${imageCount} image(s) generated.`);
     }
   } catch (err: any) {
-    console.error("Failed:", err.message?.slice(0, 300));
+    console.error("Failed:", err.message?.slice(0, 400));
   }
 }
 
