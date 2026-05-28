@@ -13,14 +13,6 @@ export function heroEntrance() {
       })
       .add(
         {
-          targets: ".hero-gold-line",
-          scaleX: [0, 1],
-          duration: 500,
-        },
-        "-=300",
-      )
-      .add(
-        {
           targets: ".hero-label",
           opacity: [0, 1],
           translateY: [20, 0],
@@ -61,13 +53,22 @@ export function heroEntrance() {
       )
       .add(
         {
-          targets: ".hero-preview",
+          targets: ".hero-mockup",
           opacity: [0, 1],
-          translateX: [40, 0],
+          translateX: [60, 0],
           duration: 1000,
           easing: "easeOutCubic",
         },
         "-=1200",
+      )
+      .add(
+        {
+          targets: ".hero-arc",
+          opacity: [0, 0.08],
+          duration: 1200,
+          easing: "easeOutCubic",
+        },
+        "-=800",
       );
   });
 }
