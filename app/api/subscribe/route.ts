@@ -160,12 +160,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email" }, { status: 400 });
   }
 
-  const turnstileOk = await verifyTurnstile(turnstileToken);
-  if (!turnstileOk) {
-    return NextResponse.json(
-      { error: "Human verification failed" },
-      { status: 403 },
-    );
+  // Trusted internal callers (NBC proxy) send x-internal-key to bypass Turnstile
+  const internalKey = req.headers.get("x-internal-key");
+  const isInternalCaller =
+    !!process.env.NOLANA_INTERNAL_KEY &&
+    internalKey === process.env.NOLANA_INTERNAL_KEY;
+
+  if (!isInternalCaller) {
+    const turnstileOk = await verifyTurnstile(turnstileToken);
+    if (!turnstileOk) {
+      return NextResponse.json(
+        { error: "Human verification failed" },
+        { status: 403 },
+      );
+    }
   }
 
   const normalized = email.toLowerCase().trim();
