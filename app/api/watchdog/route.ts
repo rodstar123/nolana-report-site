@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 export const maxDuration = 60;
 
 async function sendTelegram(text: string): Promise<void> {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const token = process.env.TELEGRAM_NOLANA_BOT_TOKEN;
   const chatId = process.env.NOE_TELEGRAM_CHAT_ID;
   if (!token || !chatId) return;
   try {

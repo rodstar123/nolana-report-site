@@ -18,7 +18,11 @@ export async function sendConfirmationEmail(email: string): Promise<void> {
           <p style="font-size:17px;color:#2d3748;line-height:1.7;margin:0 0 20px;">You're in.</p>
           <p style="font-size:15px;color:#4a5568;line-height:1.7;">Every Monday, <strong>The Nolana Report</strong> delivers the 30 stories that matter most to your business — scored, summarized, and ready to act on.</p>
           <p style="font-size:15px;color:#4a5568;line-height:1.7;margin-top:16px;">Your first briefing arrives next Monday morning.</p>
-          <div style="margin-top:28px;padding-top:20px;border-top:1px solid #e8e3db;font-size:12px;color:#718096;text-align:center;">
+          <div style="margin-top:24px;padding:14px;background:#f0f7f7;border-radius:8px;border:1px solid #d0e8e8;text-align:center;">
+            <p style="margin:0;font-size:13px;font-family:sans-serif;color:#2d3748;font-weight:bold;">Get breaking alerts on Telegram</p>
+            <a href="https://t.me/NolanaReport" style="color:#0d7377;font-size:13px;font-family:sans-serif;">t.me/NolanaReport</a>
+          </div>
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid #e8e3db;font-size:12px;color:#718096;text-align:center;">
             Published by <a href="https://nationalboco.com" style="color:#0d7377;">National Bookkeeping Company®</a> · McAllen, TX
           </div>
         </div>

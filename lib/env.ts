@@ -24,8 +24,9 @@ const schema = z.object({
   ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
 
   // --- Core: alerts (non-negotiable — see error-resilience skill) ---
-  TELEGRAM_BOT_TOKEN: z.string().min(1),
+  TELEGRAM_NOLANA_BOT_TOKEN: z.string().min(1),
   NOE_TELEGRAM_CHAT_ID: z.string().min(1),
+  TELEGRAM_NOLANA_CHANNEL_ID: z.string().min(1),
 
   // --- Core: email delivery ---
   RESEND_API_KEY: z.string().startsWith("re_"),

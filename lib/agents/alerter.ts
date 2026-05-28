@@ -1,7 +1,7 @@
 import type { AgentName, RawItem, ScoredItem } from "./types";
 
 async function sendTelegram(text: string): Promise<void> {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const token = process.env.TELEGRAM_NOLANA_BOT_TOKEN;
   const chatId = process.env.NOE_TELEGRAM_CHAT_ID;
   if (!token || !chatId) return;
   try {

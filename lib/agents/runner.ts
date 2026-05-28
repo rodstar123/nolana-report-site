@@ -17,6 +17,7 @@ import {
   sendTokenCapAlert,
   sendDbWriteAlert,
 } from "./alerter";
+import { sendBreakingAlert } from "@/lib/alerts/breaking-news";
 import type {
   AgentName,
   AgentRunStats,
@@ -162,6 +163,15 @@ export async function runAgent(
 
     if (scored.score >= 95) {
       await sendInstantAlert(item, scored);
+      await sendBreakingAlert({
+        title: item.title,
+        summary: scored.summary,
+        score: scored.score,
+        category: scored.category,
+        source: item.source,
+        url: item.url,
+        agent: item.agent,
+      });
     }
 
     if (scored.score >= 40) {

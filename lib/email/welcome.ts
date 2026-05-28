@@ -26,6 +26,18 @@ export async function sendWelcomeEmail(email: string) {
              style="display:inline-block;background:#0d7377;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-weight:bold;font-size:15px;">
             View the Latest Briefing
           </a>
+          <div style="margin-top:24px;padding:16px;background:#f0f7f7;border-radius:8px;border:1px solid #d0e8e8;">
+            <p style="margin:0;font-size:14px;font-family:sans-serif;color:#2d3748;">
+              <strong>Get breaking alerts on Telegram</strong>
+            </p>
+            <p style="margin:6px 0 0;font-size:14px;font-family:sans-serif;color:#4a5568;">
+              High-impact stories delivered the moment they break.
+            </p>
+            <a href="https://t.me/NolanaReport"
+               style="display:inline-block;margin-top:10px;background:#229ED9;color:white;padding:8px 20px;border-radius:6px;text-decoration:none;font-family:sans-serif;font-weight:bold;font-size:13px;">
+              Join t.me/NolanaReport
+            </a>
+          </div>
         </div>
         <div style="padding-top:24px;border-top:1px solid #eee;color:#999;font-size:12px;font-family:sans-serif;">
           <p style="margin:0;">The Nolana Report — RGV Business Intelligence</p>
