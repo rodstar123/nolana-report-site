@@ -1,5 +1,7 @@
 import type { FullTextResult, RawItem } from "./types";
 
+const MAX_PER_SOURCE = 25;
+
 export function normalize(items: RawItem[]): RawItem[] {
   const sevenDaysAgo = Date.now() - 7 * 86_400_000;
   const seen = new Set<string>();
@@ -13,7 +15,22 @@ export function normalize(items: RawItem[]): RawItem[] {
     seen.add(d.url);
     out.push(d);
   }
-  return out;
+  const bySource = new Map<string, RawItem[]>();
+  for (const item of out) {
+    const key = item.source;
+    if (!bySource.has(key)) bySource.set(key, []);
+    bySource.get(key)!.push(item);
+  }
+  const capped: RawItem[] = [];
+  for (const group of Array.from(bySource.values())) {
+    group.sort((a, b) => {
+      const ta = a.original_date ? new Date(a.original_date).getTime() : 0;
+      const tb = b.original_date ? new Date(b.original_date).getTime() : 0;
+      return tb - ta;
+    });
+    capped.push(...group.slice(0, MAX_PER_SOURCE));
+  }
+  return capped;
 }
 
 async function safeFetch(
