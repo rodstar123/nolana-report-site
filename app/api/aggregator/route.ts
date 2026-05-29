@@ -57,13 +57,20 @@ export async function GET(req: NextRequest) {
       method: "POST",
       headers: {
         "x-api-key": process.env.ANTHROPIC_API_KEY!,
-        "anthropic-version": "2023-06-01",
+        "anthropic-version": "2025-04-15",
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-opus-4-6",
-        max_tokens: 8192,
-        system: OPUS_SYSTEM_PROMPT,
+        model: "claude-opus-4-8",
+        max_tokens: 16384,
+        thinking: { type: "enabled", effort: "high" },
+        system: [
+          {
+            type: "text",
+            text: OPUS_SYSTEM_PROMPT,
+            cache_control: { type: "ephemeral" },
+          },
+        ],
         messages: [{ role: "user", content: userMessage }],
       }),
     });
@@ -77,10 +84,11 @@ export async function GET(req: NextRequest) {
     }
 
     const opusJson = (await opusRes.json()) as {
-      content?: Array<{ text?: string }>;
+      content?: Array<{ type?: string; text?: string }>;
       usage?: { input_tokens?: number; output_tokens?: number };
     };
-    const briefingMarkdown = opusJson.content?.[0]?.text ?? "";
+    const textBlock = (opusJson.content ?? []).find((b) => b.type === "text");
+    const briefingMarkdown = textBlock?.text ?? "";
     const tokens =
       (opusJson.usage?.input_tokens ?? 0) +
       (opusJson.usage?.output_tokens ?? 0);
