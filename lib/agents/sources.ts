@@ -36,19 +36,24 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
 
   "Agent 2": [
     {
-      name: "GN Gov",
-      url: "https://news.google.com/rss/search?q=%28%22McAllen%22+OR+%22RGV%22%29+%28%22city+council%22+OR+%22grant%22+OR+%22zoning%22+OR+%22economic+development%22%29&hl=en-US&gl=US&ceid=US:en",
+      name: "GN RGV Grants",
+      url: "https://news.google.com/rss/search?q=%28%22McAllen%22+OR+%22Edinburg%22+OR+%22Pharr%22+OR+%22Mission%22+OR+%22Brownsville%22+OR+%22Harlingen%22+OR+%22RGV%22+OR+%22Hidalgo+County%22+OR+%22Cameron+County%22%29+%28%22grant%22+OR+%22funding%22+OR+%22incentive%22+OR+%22SBA%22+OR+%22USDA%22%29&hl=en-US&gl=US&ceid=US:en",
       type: "rss",
     },
     {
-      name: "Federal Register API",
-      url: "https://www.federalregister.gov/api/v1/articles.json?conditions%5Bterm%5D=Hidalgo+County+McAllen&fields%5B%5D=title&fields%5B%5D=abstract&fields%5B%5D=html_url&fields%5B%5D=publication_date&per_page=20",
-      type: "json",
+      name: "GN RGV RFP",
+      url: "https://news.google.com/rss/search?q=%28%22McAllen%22+OR+%22Edinburg%22+OR+%22Hidalgo+County%22+OR+%22Cameron+County%22%29+%28%22RFP%22+OR+%22request+for+proposal%22+OR+%22bid%22+OR+%22contract+awarded%22+OR+%22procurement%22%29&hl=en-US&gl=US&ceid=US:en",
+      type: "rss",
     },
     {
-      name: "McAllen Agendas",
-      url: "https://mcallen.net/government/city-council/agendas",
-      type: "scraper",
+      name: "GN RGV Permits",
+      url: "https://news.google.com/rss/search?q=%28%22McAllen%22+OR+%22Edinburg%22+OR+%22Pharr%22+OR+%22Mission%22+OR+%22Brownsville%22%29+%28%22building+permit%22+OR+%22construction+permit%22+OR+%22site+plan%22+OR+%22business+license%22%29&hl=en-US&gl=US&ceid=US:en",
+      type: "rss",
+    },
+    {
+      name: "Federal Register",
+      url: "https://www.federalregister.gov/api/v1/articles.json?conditions%5Bterm%5D=Hidalgo+County+McAllen&fields%5B%5D=title&fields%5B%5D=abstract&fields%5B%5D=html_url&fields%5B%5D=publication_date&per_page=20",
+      type: "json",
     },
     {
       name: "TX Comptroller",
@@ -56,39 +61,29 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
       type: "rss",
     },
     {
-      name: "TWC RGV",
-      url: "https://news.google.com/rss/search?q=site:twc.texas.gov+RGV+OR+%22Rio+Grande+Valley%22&hl=en-US&gl=US&ceid=US:en",
+      name: "SBA South Texas",
+      url: "https://news.google.com/rss/search?q=%22SBA%22+%28%22South+Texas%22+OR+%22Rio+Grande+Valley%22+OR+%22McAllen%22%29+loan+OR+grant+OR+program&hl=en-US&gl=US&ceid=US:en",
       type: "rss",
     },
     {
-      name: "Hidalgo County",
-      url: "https://news.google.com/rss/search?q=%22Hidalgo+County%22+commissioners+OR+court+OR+%22public+notice%22+OR+budget&hl=en-US&gl=US&ceid=US:en",
-      type: "rss",
-    },
-    {
-      name: "TX Secretary of State",
-      url: "https://www.sos.state.tx.us/rss/press.xml",
-      type: "rss",
-    },
-    {
-      name: "McAllen Podcast",
-      url: "https://podcast.mcallen.net/feed.xml",
-      type: "rss",
-    },
-    {
-      name: "City of Edinburg",
-      url: "https://cityofedinburg.com/newslist.php",
+      name: "McAllen Agendas",
+      url: "https://mcallen.net/government/city-council/agendas",
       type: "scraper",
     },
     {
-      name: "Edinburg Chamber",
-      url: "https://edinburg.com/post-category/news/feed/",
+      name: "Hidalgo County Bids",
+      url: "https://news.google.com/rss/search?q=%22Hidalgo+County%22+%28%22bid%22+OR+%22contract%22+OR+%22RFP%22+OR+%22grant%22+OR+%22incentive%22+OR+%22economic+development%22%29&hl=en-US&gl=US&ceid=US:en",
       type: "rss",
     },
     {
-      name: "BLS McAllen MSA",
-      url: "https://api.bls.gov/publicAPI/v2/timeseries/data/",
-      type: "json",
+      name: "GN EDC Incentives",
+      url: "https://news.google.com/rss/search?q=%28%22EDC%22+OR+%22economic+development+corporation%22%29+%28%22McAllen%22+OR+%22Edinburg%22+OR+%22Pharr%22+OR+%22Mission%22+OR+%22Brownsville%22+OR+%22Harlingen%22%29+incentive+OR+grant+OR+%22tax+abatement%22&hl=en-US&gl=US&ceid=US:en",
+      type: "rss",
+    },
+    {
+      name: "GN TX Workforce",
+      url: "https://news.google.com/rss/search?q=%28%22Texas+Workforce%22+OR+%22TWC%22%29+%28%22RGV%22+OR+%22Rio+Grande+Valley%22+OR+%22McAllen%22%29+training+OR+grant+OR+program&hl=en-US&gl=US&ceid=US:en",
+      type: "rss",
     },
   ],
 

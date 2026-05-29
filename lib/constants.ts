@@ -77,10 +77,10 @@ export const AGENT_CARDS = [
       "Who's opening, expanding, or closing — before the signs go up.",
   },
   {
-    icon: "🏛️",
-    title: "Gov & Economic Watch",
+    icon: "🎯",
+    title: "Opportunity Radar",
     description:
-      "Permits, grants, zoning changes, and economic development moves.",
+      "Grants, RFPs, permits, and incentives — money your business can go get.",
   },
   {
     icon: "🌉",

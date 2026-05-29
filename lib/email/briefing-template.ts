@@ -13,7 +13,7 @@ export interface Story {
 
 const sectionLabels: Record<string, string> = {
   new_business_pulse: "New Business Pulse",
-  gov_economic_watch: "Gov &amp; Economic Watch",
+  gov_economic_watch: "Opportunity Radar",
   cross_border_trade: "Cross-Border &amp; Trade",
   community_buzz: "Community Buzz",
   industrial_investment: "Industrial &amp; Investment Watch",

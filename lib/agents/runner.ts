@@ -138,6 +138,7 @@ export async function runAgent(
       fullText.text,
       item.source,
       item.original_date,
+      agent,
     );
 
     if (scoreError) {

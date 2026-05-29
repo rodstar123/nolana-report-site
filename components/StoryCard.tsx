@@ -1,6 +1,6 @@
 const SECTION_LABELS: Record<string, string> = {
   new_business_pulse: "New Business Pulse",
-  gov_economic_watch: "Gov & Economic Watch",
+  gov_economic_watch: "Opportunity Radar",
   cross_border_trade: "Cross-Border & Trade",
   community_buzz: "Community Buzz",
   industrial_investment: "Industrial & Investment Watch",

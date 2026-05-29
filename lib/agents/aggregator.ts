@@ -225,7 +225,7 @@ export function buildOpusUserMessage(
 
   const agentToSection: Record<string, string> = {
     "Agent 1": "New Business Pulse",
-    "Agent 2": "Gov & Economic Watch",
+    "Agent 2": "Opportunity Radar",
     "Agent 3": "Cross-Border & Trade Monitor",
     "Agent 4": "Community Buzz",
     "Agent 5": "Industrial & Investment Watch",
@@ -271,7 +271,7 @@ Before writing anything, scan ALL stories across ALL sections for same-event dup
 ## Section Assignment (strict)
 Assign each story to exactly one section:
 - **New Business Pulse**: New store/restaurant/business openings, expansions, relocations, new startups launching
-- **Gov & Economic Watch**: City council decisions, county commissioner votes, government grants to businesses, zoning changes, permits, tax policy, workforce programs, government funding for community services
+- **Opportunity Radar**: Grants, funding programs, RFPs, bids, contracts, building permits, business filings, EDC/SBA incentives, workforce programs — money and leads RGV businesses can pursue
 - **Cross-Border & Trade Monitor**: International bridge traffic and wait times, CBP/customs policy, imports/exports, maquiladoras, USMCA, Mexican trade policy, binational commerce, freight/logistics, nearshoring announcements
 - **Community Buzz**: Local community events, nonprofit activity, education initiatives with a business angle, cultural events with commerce tie-in, human interest stories relevant to business owners
 - **Industrial & Investment Watch**: Commercial real estate deals, industrial park permits, infrastructure projects, healthcare facility construction/expansion, university capital projects, EDC announcements, large capital expenditures ($5M+), SpaceX/Starbase, port activity, manufacturing plant openings, warehouse/distribution
@@ -339,7 +339,7 @@ Use the rocket emoji prefix on the headline for any story where instantAlerted=t
 
 const SECTION_HEADERS = [
   "New Business Pulse",
-  "Gov & Economic Watch",
+  "Opportunity Radar",
   "Cross-Border & Trade Monitor",
   "Community Buzz",
   "Industrial & Investment Watch",
@@ -347,7 +347,7 @@ const SECTION_HEADERS = [
 
 const SECTION_TO_ENUM: Record<string, string> = {
   "New Business Pulse": "new_business_pulse",
-  "Gov & Economic Watch": "gov_economic_watch",
+  "Opportunity Radar": "gov_economic_watch",
   "Cross-Border & Trade Monitor": "cross_border_trade",
   "Community Buzz": "community_buzz",
   "Industrial & Investment Watch": "industrial_investment",

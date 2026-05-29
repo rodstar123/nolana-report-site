@@ -1,4 +1,4 @@
-import type { ScoredItem } from "./types";
+import type { AgentName, ScoredItem } from "./types";
 
 const RETRYABLE = new Set([429, 529]);
 
@@ -108,22 +108,62 @@ Return ONLY valid JSON. No markdown fences, no preamble:
 {"score": <int 0-100>, "category": "<exact category>", "summary": "<2-3 sentences plain English>", "language": "EN" | "ES"}`;
 }
 
+function buildOpportunityScoringPrompt(
+  title: string,
+  contentSection: string,
+  source: string,
+  originalDate: string,
+): string {
+  return `You are an "Opportunity Radar" for RGV (Rio Grande Valley, Texas) small-business owners. Your job is to spot actionable money, contracts, permits, and incentives.
+
+Score each item 0-100 on how actionable it is for an RGV small-business owner to pursue or prepare for.
+
+Scoring guide:
+  95-100 — Direct, live opportunity: grant/funding program accepting applications NOW; open RFP/bid with a deadline; named EDC/SBA incentive program with clear eligibility; new tax abatement zone announced; programs like BCIC BIG LIFT grant.
+  70-94  — Strong lead: building/construction permit filed (subcontractor pipeline); government contract awarded to local firm (validates the pipeline); new business license filed (partnership opportunity); workforce training grant program announced; city/county budget line-item for business assistance.
+  50-69  — Useful signal: new zoning approval for commercial use; state-level funding program that MAY reach RGV; EDC announcement without specific amounts; permit trend or data release; regional workforce development initiative.
+  30-49  — Weak signal: general government policy discussion without resolution; national SBA news without specific local application; infrastructure project with indirect impact; city council agenda item without actionable detail.
+  0-29   — Not actionable: crime, sports, opinion, completed/past-deadline opportunities, national news without RGV connection, routine government proceedings.
+
+Categories (USE EXACTLY ONE):
+  Grant · RFP · Permit · Contract · Incentive · Filing · Workforce · Other
+
+Edge cases:
+  - No full text / paywall → score on title alone, cap at 60
+  - Past-deadline opportunities → max 20
+  - Dollar amounts mentioned → boost score by +10 (concrete = actionable)
+
+Item:
+  Title: ${title}
+  ${contentSection}
+  Source: ${source}
+  Original date: ${originalDate}
+
+Return ONLY valid JSON. No markdown fences, no preamble:
+{"score": <int 0-100>, "category": "<exact category>", "summary": "<2-3 sentences plain English>", "language": "EN" | "ES"}`;
+}
+
 export async function scoreItem(
   title: string,
   snippet: string,
   fullText: string | null,
   source: string,
   originalDate: string,
+  agent?: AgentName,
 ): Promise<{ scored: ScoredItem; error: string | null }> {
   const contentSection = fullText
     ? `Full article:\n${fullText}`
     : `Snippet: ${snippet}`;
-  const prompt = buildScoringPrompt(
-    title,
-    contentSection,
-    source,
-    originalDate,
-  );
+
+  const prompt =
+    agent === "Agent 2"
+      ? buildOpportunityScoringPrompt(
+          title,
+          contentSection,
+          source,
+          originalDate,
+        )
+      : buildScoringPrompt(title, contentSection, source, originalDate);
 
   const { data, error } = await callHaiku(prompt);
   if (error || !data) {
