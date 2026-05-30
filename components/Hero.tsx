@@ -13,7 +13,7 @@ export default function Hero() {
   return (
     <section
       id="signup"
-      className="relative min-h-screen flex items-center overflow-hidden grid-overlay"
+      className="relative min-h-screen flex items-center overflow-x-clip overflow-y-visible grid-overlay"
       style={{
         background:
           "linear-gradient(135deg, #0a1628 0%, #0f2035 50%, #0a1628 100%)",
@@ -108,14 +108,14 @@ export default function Hero() {
         </div>
 
         {/* Right: iPhone mockup */}
-        <div className="w-full lg:w-[45%] flex items-center justify-center relative px-6 pb-16 lg:pb-0 lg:min-h-screen">
+        <div className="w-full lg:w-[45%] flex items-end justify-end relative pb-8 lg:pb-0 lg:min-h-screen overflow-visible">
           {/* Teal ambient glow */}
           <div
             aria-hidden="true"
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "radial-gradient(ellipse at 50% 45%, rgba(13,115,119,0.12) 0%, transparent 60%)",
+                "radial-gradient(ellipse at 60% 45%, rgba(13,115,119,0.15) 0%, transparent 55%)",
             }}
           />
 
@@ -124,31 +124,34 @@ export default function Hero() {
             aria-hidden="true"
             className="hero-arc absolute pointer-events-none"
             style={{
-              width: "500px",
-              height: "500px",
+              width: "600px",
+              height: "600px",
               top: "50%",
-              left: "50%",
+              left: "55%",
               transform: "translate(-50%, -50%)",
             }}
           >
-            <BrandMark size={500} color="#d4a843" strokeWidth={0.8} />
+            <BrandMark size={600} color="#d4a843" strokeWidth={0.6} />
           </div>
 
-          {/* Phone */}
-          <div className="hero-mockup relative z-10 flex items-center justify-center">
+          {/* Phone — no card, full scale */}
+          <div
+            className="hero-mockup relative z-10"
+            style={{ marginRight: "-3%", marginBottom: "-2%" }}
+          >
             <Image
               src="/images/hero-nolana-mockup.webp"
               alt="iPhone showing The Nolana Report with scored business stories"
-              width={1200}
-              height={675}
+              width={673}
+              height={731}
               priority
-              className="object-contain rounded-2xl"
+              className="object-contain"
               style={{
-                width: "min(100%, 580px)",
-                height: "auto",
-                maxHeight: "85vh",
+                height: "88vh",
+                width: "auto",
+                maxWidth: "none",
                 filter:
-                  "drop-shadow(0 24px 64px rgba(0,0,0,0.4)) drop-shadow(0 4px 16px rgba(0,0,0,0.25))",
+                  "drop-shadow(0 32px 80px rgba(0,0,0,0.5)) drop-shadow(0 8px 24px rgba(0,0,0,0.3))",
               }}
             />
           </div>
