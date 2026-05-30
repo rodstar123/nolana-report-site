@@ -34,12 +34,14 @@ function FAQItem({
   question,
   answer,
   delay,
+  defaultOpen = false,
 }: {
   question: string;
   answer: string;
   delay: number;
+  defaultOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
     <SectionReveal delay={delay}>
@@ -107,7 +109,12 @@ export default function FAQ() {
 
         <div className="space-y-4">
           {FAQS.map((faq, i) => (
-            <FAQItem key={faq.question} {...faq} delay={i * 0.07} />
+            <FAQItem
+              key={faq.question}
+              {...faq}
+              delay={i * 0.07}
+              defaultOpen={i < 2}
+            />
           ))}
         </div>
       </div>
