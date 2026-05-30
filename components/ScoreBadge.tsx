@@ -4,6 +4,7 @@ interface Props {
   score: number;
   size?: number;
   showLabel?: boolean;
+  animated?: boolean;
 }
 
 function getNRITier(score: number) {
@@ -38,12 +39,19 @@ function getNRITier(score: number) {
 
 export { getNRITier };
 
-export default function ScoreBadge({ score, size = 44, showLabel }: Props) {
+export default function ScoreBadge({
+  score,
+  size = 44,
+  showLabel,
+  animated,
+}: Props) {
   const tier = getNRITier(score);
   const radius = (size - 6) / 2;
   const circumference = 2 * Math.PI * radius;
   const progress = (score / 100) * circumference;
   const gap = circumference - progress;
+
+  const targetOffset = circumference - progress;
 
   return (
     <div
@@ -73,9 +81,12 @@ export default function ScoreBadge({ score, size = 44, showLabel }: Props) {
           fill="none"
           stroke={tier.ring}
           strokeWidth={3}
-          strokeDasharray={`${progress} ${gap}`}
           strokeLinecap="round"
-          className="transition-all duration-700"
+          className={animated ? "nri-ring-arc" : "transition-all duration-700"}
+          strokeDasharray={animated ? circumference : `${progress} ${gap}`}
+          strokeDashoffset={animated ? circumference : 0}
+          data-target-offset={animated ? targetOffset : undefined}
+          data-start-offset={animated ? circumference : undefined}
         />
         <text
           x={size / 2}
@@ -87,8 +98,10 @@ export default function ScoreBadge({ score, size = 44, showLabel }: Props) {
           fontFamily="'Playfair Display', Georgia, serif"
           fontWeight="700"
           transform={`rotate(90, ${size / 2}, ${size / 2})`}
+          className={animated ? "nri-score-num" : ""}
+          data-target={animated ? score : undefined}
         >
-          {score}
+          {animated ? 0 : score}
         </text>
       </svg>
       {showLabel && (

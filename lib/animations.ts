@@ -138,6 +138,126 @@ export function whatYouGetRows(containerEl: HTMLElement) {
   });
 }
 
+export function nriSectionEntrance(container: HTMLElement) {
+  if (typeof window === "undefined") return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    container
+      .querySelectorAll<HTMLElement>(
+        ".nri-dim-row, .nri-example-card, .nri-heatmap-label",
+      )
+      .forEach((el) => (el.style.opacity = "1"));
+    container
+      .querySelectorAll<HTMLElement>(".nri-heatmap-bar")
+      .forEach((el) => (el.style.transform = "scaleX(1)"));
+    container
+      .querySelectorAll<SVGCircleElement>(".nri-ring-arc")
+      .forEach((circle) => {
+        const target = circle.dataset.targetOffset ?? "0";
+        circle.style.strokeDashoffset = target;
+      });
+    container.querySelectorAll<HTMLElement>(".nri-score-num").forEach((el) => {
+      el.textContent = el.dataset.target ?? "0";
+    });
+    return;
+  }
+
+  import("animejs").then(({ default: anime }) => {
+    const tl = anime.timeline({ easing: "easeOutCubic" });
+
+    // 1. Dimension rows: fade-up + stagger
+    tl.add({
+      targets: container.querySelectorAll(".nri-dim-row"),
+      opacity: [0, 1],
+      translateY: [24, 0],
+      duration: 500,
+      delay: anime.stagger(100),
+    });
+
+    // 2. Dimension icons: scale-in pop
+    tl.add(
+      {
+        targets: container.querySelectorAll(".nri-dim-icon"),
+        scale: [0.4, 1],
+        opacity: [0, 1],
+        duration: 400,
+        easing: "easeOutBack",
+        delay: anime.stagger(100),
+      },
+      "-=400",
+    );
+
+    // 3. Heatmap bars: grow width left-to-right
+    tl.add(
+      {
+        targets: container.querySelectorAll(".nri-heatmap-bar"),
+        scaleX: [0, 1],
+        duration: 800,
+        easing: "easeOutQuart",
+        delay: anime.stagger(120),
+      },
+      "-=200",
+    );
+
+    // 4. Heatmap legend: fade in after bars
+    tl.add(
+      {
+        targets: container.querySelectorAll(".nri-heatmap-label"),
+        opacity: [0, 1],
+        translateY: [8, 0],
+        duration: 300,
+        delay: anime.stagger(80),
+      },
+      "-=200",
+    );
+
+    // 5. Example cards: fade-up stagger
+    tl.add(
+      {
+        targets: container.querySelectorAll(".nri-example-card"),
+        opacity: [0, 1],
+        translateY: [30, 0],
+        duration: 500,
+        delay: anime.stagger(120),
+      },
+      "-=600",
+    );
+
+    // 6. Score rings: draw-in arc
+    container
+      .querySelectorAll<SVGCircleElement>(".nri-ring-arc")
+      .forEach((circle, i) => {
+        const target = parseFloat(circle.dataset.targetOffset ?? "0");
+        const start = parseFloat(circle.dataset.startOffset ?? "0");
+        anime({
+          targets: circle,
+          strokeDashoffset: [start, target],
+          duration: 1000,
+          easing: "easeOutCubic",
+          delay: 400 + i * 120,
+        });
+      });
+
+    // 7. Score numbers: count up
+    container
+      .querySelectorAll<HTMLElement>(".nri-score-num")
+      .forEach((el, i) => {
+        const target = parseInt(el.dataset.target ?? "0");
+        const obj = { v: 0 };
+        anime({
+          targets: obj,
+          v: target,
+          duration: 1000,
+          easing: "easeOutCubic",
+          delay: 400 + i * 120,
+          round: 1,
+          update: () => {
+            el.textContent = String(Math.round(obj.v));
+          },
+        });
+      });
+  });
+}
+
 export function pricingEntrance() {
   if (typeof window === "undefined") return;
   import("animejs").then(({ default: anime }) => {

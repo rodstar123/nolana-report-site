@@ -19,7 +19,11 @@ const SAMPLE_WEEK = [
 
 const TOTAL = SAMPLE_WEEK.reduce((s, b) => s + b.count, 0);
 
-export default function NRIHeatmap() {
+interface Props {
+  animated?: boolean;
+}
+
+export default function NRIHeatmap({ animated }: Props) {
   return (
     <div
       className="w-full"
@@ -30,18 +34,23 @@ export default function NRIHeatmap() {
         {SAMPLE_WEEK.map((bucket) => (
           <div
             key={bucket.label}
-            className="h-full rounded-full transition-all duration-500"
+            className={`h-full rounded-full ${animated ? "nri-heatmap-bar origin-left" : "transition-all duration-500"}`}
             style={{
               width: `${(bucket.count / TOTAL) * 100}%`,
               background: bucket.color,
               opacity: 0.85,
+              ...(animated ? { transform: "scaleX(0)" } : {}),
             }}
           />
         ))}
       </div>
       <div className="grid grid-cols-2 sm:flex sm:justify-between gap-1.5 sm:gap-0 mt-2.5">
         {SAMPLE_WEEK.map((bucket) => (
-          <div key={bucket.label} className="flex items-center gap-1.5">
+          <div
+            key={bucket.label}
+            className={`flex items-center gap-1.5 ${animated ? "nri-heatmap-label" : ""}`}
+            style={animated ? { opacity: 0 } : undefined}
+          >
             <span
               className="w-2 h-2 rounded-full flex-shrink-0"
               style={{ background: bucket.color }}
