@@ -1,17 +1,17 @@
 import Hero from "@/components/Hero";
 import DataBar from "@/components/DataBar";
+import SampleBriefing from "@/components/SampleBriefing";
+import NRIFeature from "@/components/NRIFeature";
 import WhoItsFor from "@/components/WhoItsFor";
 import WhatYouGet from "@/components/WhatYouGet";
-import SampleBriefing from "@/components/SampleBriefing";
 import Pricing from "@/components/Pricing";
 import About from "@/components/About";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
+import StickyMobileCTA from "@/components/StickyMobileCTA";
 import SectionReveal from "@/components/SectionReveal";
 import { getSnapshot, formatUpdatedLabel } from "@/lib/snapshot";
 
-// ISR: rebuild hourly so the snapshot picks up each agent run / the Monday
-// aggregator cron automatically — no manual redeploy, no stale fixed date.
 export const revalidate = 3600;
 
 const faqSchema = {
@@ -75,13 +75,15 @@ export default async function Home() {
       <SectionReveal>
         <DataBar metrics={snapshot.metrics} updatedLabel={updatedLabel} />
       </SectionReveal>
+      <SampleBriefing />
+      <NRIFeature />
       <WhoItsFor />
       <WhatYouGet />
-      <SampleBriefing />
       <Pricing />
       <About />
       <FAQ />
       <Footer />
+      <StickyMobileCTA />
     </>
   );
 }

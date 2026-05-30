@@ -1,20 +1,37 @@
 import { PUBLISHER, PUBLISHER_URL } from "@/lib/constants";
+import SignupForm from "./SignupForm";
 
 export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
     <footer
-      className="border-t border-white/5 py-16"
+      className="border-t border-white/5"
       style={{
-        background: "linear-gradient(to bottom, #0f1722 0%, #2d3748 100%)",
+        background: "linear-gradient(to bottom, #0f1722 0%, #0a1221 100%)",
       }}
     >
-      <div className="max-w-6xl mx-auto px-6">
-        {/* SmartBook ad slot */}
-        <div className="bg-teal/10 border border-teal/20 rounded-xl p-6 mb-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* Final CTA block */}
+      <div className="py-16 md:py-20 border-b border-white/5">
+        <div className="max-w-lg mx-auto px-6 lg:px-8 text-center">
+          <h2 className="font-display font-bold text-warm-white text-2xl md:text-3xl mb-4">
+            Stay ahead of the Valley.
+          </h2>
+          <p className="font-body text-slate-light text-sm mb-8 leading-relaxed">
+            Join business owners, investors, and professionals who start their
+            Monday with 30 scored RGV stories. Free forever.
+          </p>
+          <div className="max-w-sm mx-auto">
+            <SignupForm variant="dark" />
+          </div>
+        </div>
+      </div>
+
+      {/* SmartBook ad slot */}
+      <div className="max-w-6xl mx-auto px-6 lg:px-8 pt-12">
+        <div className="glass-nolana rounded-xl p-6 mb-12 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <p className="font-body text-xs text-teal-light uppercase tracking-widest mb-1">
+            <p className="font-body text-xs text-teal-light uppercase tracking-widest mb-1 font-semibold">
               From the publisher
             </p>
             <p className="font-display font-bold text-warm-white text-lg">
@@ -26,9 +43,9 @@ export default function Footer() {
           </div>
           <a
             href={PUBLISHER_URL}
-            className="flex-shrink-0 bg-teal hover:bg-teal-light text-white font-body font-bold text-sm px-6 py-3 rounded-lg transition-colors min-h-[44px] flex items-center"
+            className="flex-shrink-0 bg-teal hover:bg-teal-light text-white font-body font-bold text-sm px-6 py-3 rounded-lg transition-all duration-200 min-h-[44px] flex items-center hover:-translate-y-0.5"
           >
-            Learn More →
+            Learn More &rarr;
           </a>
         </div>
 
@@ -44,7 +61,7 @@ export default function Footer() {
               Published by{" "}
               <a
                 href={PUBLISHER_URL}
-                className="text-teal-light hover:text-teal underline transition-colors"
+                className="text-teal-light hover:text-teal underline underline-offset-2 transition-colors"
               >
                 {PUBLISHER}
               </a>
@@ -55,11 +72,12 @@ export default function Footer() {
             <h4 className="font-body font-bold text-warm-white text-sm uppercase tracking-widest mb-4">
               Links
             </h4>
-            <ul className="space-y-2 font-body text-sm">
+            <ul className="space-y-2.5 font-body text-sm">
               {[
                 { label: "Privacy Policy", href: "/privacy" },
                 { label: "Terms of Service", href: "/terms" },
                 { label: "Contact", href: "mailto:info@nationalboco.com" },
+                { label: "Telegram", href: "https://t.me/NolanaReport" },
               ].map((link) => (
                 <li key={link.label}>
                   <a
@@ -77,7 +95,7 @@ export default function Footer() {
             <h4 className="font-body font-bold text-warm-white text-sm uppercase tracking-widest mb-4">
               NBC Services
             </h4>
-            <ul className="space-y-2 font-body text-sm">
+            <ul className="space-y-2.5 font-body text-sm">
               {[
                 { label: "SmartBook Bookkeeping", href: PUBLISHER_URL },
                 { label: "Tax Coordination", href: PUBLISHER_URL },
@@ -96,9 +114,9 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/5 pt-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <div className="border-t border-white/5 py-8 flex flex-col sm:flex-row justify-between items-center gap-3">
           <p className="font-body text-slate-light text-xs">
-            © {year} {PUBLISHER}. All rights reserved.
+            &copy; {year} {PUBLISHER}. All rights reserved.
           </p>
           <p className="font-body text-slate-light text-xs italic">
             Lo que se mueve en el Valle

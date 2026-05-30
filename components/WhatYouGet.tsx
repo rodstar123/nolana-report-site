@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useEffect } from "react";
 import SectionReveal from "./SectionReveal";
+import ScoreBadge from "./ScoreBadge";
 import { whatYouGetRows } from "@/lib/animations";
 
 type Section = {
@@ -8,7 +9,6 @@ type Section = {
   title: string;
   accent: string;
   accentSoft: string;
-  scoreBg: string;
   tagline: string;
   sample: string;
   score: number;
@@ -22,8 +22,7 @@ const SECTIONS: Section[] = [
     num: "01",
     title: "New Business Pulse",
     accent: "#0d7377",
-    accentSoft: "rgba(13,115,119,0.10)",
-    scoreBg: "rgba(13,115,119,0.12)",
+    accentSoft: "rgba(13,115,119,0.08)",
     tagline: "Who's opening, expanding, or closing — before the signs go up.",
     sample: "HEB breaks ground on third Valley store — 400 jobs expected",
     score: 87,
@@ -48,9 +47,8 @@ const SECTIONS: Section[] = [
   {
     num: "02",
     title: "Opportunity Radar",
-    accent: "#1a2332",
-    accentSoft: "rgba(26,35,50,0.10)",
-    scoreBg: "rgba(26,35,50,0.12)",
+    accent: "#0d7377",
+    accentSoft: "rgba(13,115,119,0.06)",
     tagline: "Grants, RFPs, permits, and incentives you can pursue.",
     sample: "BCIC Opens $50K BIG LIFT Grant — RGV Businesses Eligible Now",
     score: 74,
@@ -79,9 +77,8 @@ const SECTIONS: Section[] = [
   {
     num: "03",
     title: "Cross-Border & Trade",
-    accent: "#c49a30",
-    accentSoft: "rgba(196,154,48,0.12)",
-    scoreBg: "rgba(196,154,48,0.15)",
+    accent: "#d4a843",
+    accentSoft: "rgba(212,168,67,0.08)",
     tagline:
       "Bridge waits, FX shifts, and tariff changes — the numbers that move the Valley.",
     sample: "USD/MXN hits 19.85 — cross-border shoppers surge at La Plaza",
@@ -109,8 +106,7 @@ const SECTIONS: Section[] = [
     num: "04",
     title: "Community Buzz",
     accent: "#6366f1",
-    accentSoft: "rgba(99,102,241,0.10)",
-    scoreBg: "rgba(99,102,241,0.12)",
+    accentSoft: "rgba(99,102,241,0.06)",
     tagline: "Events, sentiment, and the stories everyone's talking about.",
     sample: "SpaceX 12th launch draws thousands to Isla Blanca Park",
     score: 68,
@@ -138,8 +134,7 @@ const SECTIONS: Section[] = [
     num: "05",
     title: "Industrial & Investment Watch",
     accent: "#d4a843",
-    accentSoft: "rgba(212,168,67,0.18)",
-    scoreBg: "rgba(212,168,67,0.20)",
+    accentSoft: "rgba(212,168,67,0.10)",
     tagline:
       "Manufacturing moves, corporate relocations, and the big money bets.",
     sample: "Monterrey auto supplier announces $14M Edinburg FTZ facility",
@@ -176,9 +171,7 @@ interface RowProps {
 
 function SectionRow({ section, isLast }: RowProps) {
   const ex = section.exclusive;
-  const accentColor = ex ? "#b8860b" : section.accent;
-  const scoreColor = ex ? "#b8860b" : section.accent;
-  const scoreBg = ex ? "rgba(212,168,67,0.22)" : section.scoreBg;
+  const accentColor = ex ? "#d4a843" : section.accent;
 
   return (
     <div
@@ -188,7 +181,7 @@ function SectionRow({ section, isLast }: RowProps) {
         borderLeftStyle: "solid",
         borderLeftColor: accentColor,
         borderBottomColor: "var(--cream-dark)",
-        background: ex ? "rgba(212,168,67,0.038)" : "var(--warm-white)",
+        background: ex ? "rgba(212,168,67,0.04)" : "var(--warm-white)",
       }}
     >
       {/* Watermark number */}
@@ -198,7 +191,7 @@ function SectionRow({ section, isLast }: RowProps) {
           fontSize: "clamp(72px, 8.5vw, 96px)",
           lineHeight: 1,
           color: "var(--charcoal)",
-          opacity: 0.07,
+          opacity: 0.05,
           zIndex: 0,
         }}
         aria-hidden="true"
@@ -206,15 +199,11 @@ function SectionRow({ section, isLast }: RowProps) {
         {section.num}
       </span>
 
-      {/* Translating content shell */}
-      <div
-        className="relative z-10 flex flex-col md:flex-row w-full transition-transform duration-200 ease-out group-hover:translate-x-[4px]"
-        style={{ willChange: "transform" }}
-      >
+      <div className="relative z-10 flex flex-col md:flex-row w-full transition-transform duration-200 ease-out group-hover:translate-x-[4px]">
         {/* Left: icon + title + tagline */}
-        <div className="flex items-center gap-5 flex-1 py-6 pl-10 pr-6 md:py-8 md:pl-16 md:pr-10">
+        <div className="flex items-center gap-5 flex-1 py-7 pl-10 pr-6 md:py-9 md:pl-16 md:pr-10">
           <div
-            className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+            className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ background: section.accentSoft, color: accentColor }}
           >
             {section.icon}
@@ -234,14 +223,14 @@ function SectionRow({ section, isLast }: RowProps) {
 
               {ex && (
                 <span
-                  className="inline-flex items-center gap-1.5 font-body font-bold uppercase tracking-widest flex-shrink-0 cursor-default"
+                  className="inline-flex items-center gap-1.5 font-body font-bold uppercase tracking-widest flex-shrink-0"
                   style={{
                     fontSize: "9.5px",
                     padding: "2px 7px",
-                    borderRadius: "3px",
-                    background: "rgba(212,168,67,0.18)",
+                    borderRadius: "4px",
+                    background: "rgba(212,168,67,0.15)",
                     color: "#b8860b",
-                    border: "1px solid rgba(212,168,67,0.42)",
+                    border: "1px solid rgba(212,168,67,0.35)",
                   }}
                 >
                   <svg
@@ -257,54 +246,35 @@ function SectionRow({ section, isLast }: RowProps) {
               )}
             </div>
 
-            <p
-              className="font-body text-[15px] leading-relaxed"
-              style={{ color: "var(--slate)" }}
-            >
+            <p className="font-body text-[15px] leading-relaxed text-slate">
               {section.tagline}
             </p>
           </div>
         </div>
 
-        {/* Right: mini story card */}
+        {/* Right: mini story with NRI ring */}
         <div
-          className="flex-shrink-0 w-full md:w-72 lg:w-80 px-6 py-5 md:py-8 border-t md:border-t-0 md:border-l flex flex-col justify-center gap-2.5"
+          className="flex-shrink-0 w-full md:w-72 lg:w-80 px-6 py-5 md:py-9 border-t md:border-t-0 md:border-l flex items-center gap-4"
           style={{
             borderColor: "var(--cream-dark)",
-            background: ex ? "rgba(212,168,67,0.05)" : "transparent",
+            background: ex ? "rgba(212,168,67,0.03)" : "transparent",
           }}
         >
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <span
-              className="inline-flex items-center gap-1 font-mono font-bold rounded"
-              style={{
-                fontSize: "11px",
-                padding: "2px 7px",
-                background: scoreBg,
-                color: scoreColor,
-                letterSpacing: "0.02em",
-              }}
+          <ScoreBadge score={section.score} size={38} />
+          <div className="flex-1 min-w-0">
+            <p
+              className="font-editorial italic leading-snug text-charcoal/85"
+              style={{ fontSize: "13.5px" }}
             >
-              ▲ {section.score}
-            </span>
+              &ldquo;{section.sample}&rdquo;
+            </p>
             <span
-              className="font-mono uppercase tracking-wider"
-              style={{ fontSize: "10px", color: "var(--slate-light)" }}
+              className="font-mono uppercase tracking-wider text-slate-light"
+              style={{ fontSize: "10px" }}
             >
               {section.sourceLabel}
             </span>
           </div>
-
-          <p
-            className="font-editorial italic leading-snug"
-            style={{
-              fontSize: "13.5px",
-              color: "var(--charcoal)",
-              opacity: ex ? 1 : 0.85,
-            }}
-          >
-            &ldquo;{section.sample}&rdquo;
-          </p>
         </div>
       </div>
     </div>
@@ -334,12 +304,12 @@ export default function WhatYouGet() {
 
   return (
     <section
-      className="bg-cream card-stack py-24 relative overflow-hidden"
+      className="py-20 md:py-28 relative overflow-hidden"
       style={{
         background: "linear-gradient(to bottom, #f4f1ec 0%, #e8e3db 100%)",
       }}
     >
-      {/* Ambient teal orbs */}
+      {/* Ambient orbs */}
       <div
         className="ambient-orb"
         style={
@@ -369,15 +339,14 @@ export default function WhatYouGet() {
         aria-hidden="true"
       />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6">
-        {/* Header */}
+      <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8">
         <SectionReveal>
           <div className="text-center mb-16">
             <span className="section-label justify-center mb-4">
               The Weekly Briefing
             </span>
             <h2
-              className="font-display font-bold text-navy mt-4 mb-4"
+              className="font-display font-bold text-navy mt-4 mb-5"
               style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)" }}
             >
               The signals Valley business owners usually notice too late.
@@ -389,11 +358,10 @@ export default function WhatYouGet() {
           </div>
         </SectionReveal>
 
-        {/* Magazine TOC rows */}
         <SectionReveal>
           <div
             ref={rowContainerRef}
-            className="rounded-xl overflow-hidden"
+            className="rounded-xl overflow-hidden shadow-lg"
             style={{ border: "1px solid var(--cream-dark)" }}
           >
             {SECTIONS.map((section, i) => (

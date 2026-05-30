@@ -10,24 +10,23 @@ export default function PaywallBlur() {
   }, []);
 
   return (
-    <div className="relative -mt-32 pt-32 pb-12 bg-gradient-to-t from-cream from-50% via-cream/90 to-transparent">
+    <div className="relative -mt-32 pt-32 pb-12 bg-gradient-to-t from-cream-dark from-50% via-cream-dark/90 to-transparent">
       <div className="text-center px-6">
         <p className="font-body text-slate text-base mb-2 font-semibold">
           + 26 more stories this week
         </p>
         <p className="font-body text-slate-light text-sm italic mb-8">
-          Scored, sourced, and summarized — every Monday before 7am.
+          Scored, sourced, and summarized &mdash; every Monday before 7 AM.
         </p>
         <a
           ref={ctaRef}
-          href="#pricing"
-          className="block w-full sm:inline-block sm:w-auto bg-teal text-warm-white font-body font-bold px-8 py-4 rounded-xl text-base hover:bg-teal-light transition-colors duration-200 min-h-[52px] leading-[24px] shadow-lg shadow-teal/25"
+          href="#signup"
+          className="inline-block bg-teal text-warm-white font-body font-bold px-8 py-4 rounded-xl text-base hover:bg-teal-light hover:-translate-y-0.5 transition-all duration-200 min-h-[52px] leading-[24px] shadow-lg shadow-teal/20"
         >
-          Start with the free Monday Brief. Upgrade only when the full 30-story
-          intelligence report becomes useful to you.
+          Get the Free Monday Brief &rarr;
         </a>
         <p className="font-body text-slate-light text-xs mt-4">
-          First month free · Cancel anytime
+          Free forever &middot; Cancel anytime
         </p>
       </div>
     </div>

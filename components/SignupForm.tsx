@@ -169,7 +169,7 @@ export default function SignupForm({ lang = "en", variant = "dark" }: Props) {
   const styles = {
     input: isLight
       ? "w-full px-5 py-4 rounded-xl bg-white border border-cream-dark text-charcoal placeholder-slate-light font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[52px] shadow-sm"
-      : "w-full px-5 py-4 rounded-xl bg-white/8 border border-white/15 text-warm-white placeholder-slate-light font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[52px]",
+      : "w-full px-5 py-4 rounded-xl bg-[#1a2a3d] border border-[#2a3a4d] text-warm-white placeholder-[#6b7a8d] font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[52px]",
     button: isLight
       ? "w-full bg-teal hover:bg-teal-light text-white font-body font-bold text-base py-4 px-8 rounded-xl transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed min-h-[52px] shadow-md"
       : "w-full bg-teal hover:bg-teal-light text-white font-body font-bold text-base py-4 px-8 rounded-xl transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed min-h-[52px]",

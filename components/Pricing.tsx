@@ -57,7 +57,6 @@ export default function Pricing() {
     } = await supabase.auth.getUser();
 
     if (user?.email) {
-      // Logged in — go straight to checkout
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,7 +69,6 @@ export default function Pricing() {
         setLoadingPlan(null);
       }
     } else {
-      // Not logged in — send to login with plan intent
       window.location.href = `/login?plan=${tierId}`;
     }
   };
@@ -79,13 +77,13 @@ export default function Pricing() {
     <section
       ref={sectionRef}
       id="pricing"
-      className="relative py-24 card-stack overflow-hidden"
+      className="relative py-20 md:py-28 card-stack overflow-hidden grid-overlay"
       style={{
         background:
           "radial-gradient(ellipse at center, #1a2332 0%, #0f1722 100%)",
       }}
     >
-      {/* Ambient gold diagonal lines */}
+      {/* Gold drift lines */}
       <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
         <div
           className="pricing-gold-line"
@@ -122,13 +120,16 @@ export default function Pricing() {
         />
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6">
+      <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8">
         <SectionReveal>
-          <div className="text-center mb-10">
+          <div className="text-center mb-12">
             <span className="section-label justify-center mb-4">
               <span className="text-teal-light">Pricing</span>
             </span>
-            <h2 className="font-display font-bold text-warm-white text-4xl mt-4 mb-4">
+            <h2
+              className="font-display font-bold text-warm-white mt-4 mb-5"
+              style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)" }}
+            >
               One early signal can pay for the whole year.
             </h2>
             <p className="font-editorial text-slate-light text-lg max-w-xl mx-auto leading-relaxed mb-8">
@@ -141,7 +142,7 @@ export default function Pricing() {
           </div>
         </SectionReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-12">
           {TIERS.map((tier) => {
             const isYearly = billing === "yearly";
             const yearly = YEARLY[tier.id];
@@ -156,17 +157,16 @@ export default function Pricing() {
                 key={tier.id}
                 className={`price-card-${tier.id} relative rounded-2xl p-8 flex flex-col transition-all duration-300 hover:-translate-y-1 ${
                   tier.highlight
-                    ? "bg-teal border-2 border-teal-light shadow-2xl shadow-teal/20 md:scale-105"
-                    : "bg-navy-deep border border-white/10"
+                    ? "glass-nolana !bg-teal/90 !border-teal-light/40 shadow-2xl shadow-teal/20 md:scale-105"
+                    : "glass-nolana"
                 }`}
               >
-                {/* Pro card pulsing glow */}
                 {tier.highlight && (
                   <div className="pro-glow" aria-hidden="true" />
                 )}
 
                 {tier.highlight && tier.badge && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gold text-navy-deep text-xs font-bold font-body px-4 py-1.5 rounded-full uppercase tracking-widest whitespace-nowrap">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gold text-navy-deep text-xs font-bold font-body px-4 py-1.5 rounded-full uppercase tracking-widest whitespace-nowrap shadow-lg">
                     {tier.badge}
                   </div>
                 )}
@@ -175,7 +175,7 @@ export default function Pricing() {
                   <h3 className="font-display font-bold text-warm-white text-2xl mb-1">
                     {tier.name}
                   </h3>
-                  <p className="font-body text-xs text-teal-light/80 font-semibold mb-3 leading-snug">
+                  <p className="font-body text-xs text-teal-light/80 font-semibold mb-4 leading-snug">
                     {tier.tagline}
                   </p>
                   <div className="flex items-baseline gap-2 mb-3">
@@ -184,14 +184,14 @@ export default function Pricing() {
                     </span>
                   </div>
                   {showFoundingBadge && (
-                    <div className="inline-flex items-center bg-gold/10 border border-gold/30 rounded-lg px-3 py-1.5 mb-3">
+                    <div className="inline-flex items-center bg-gold/12 border border-gold/25 rounded-lg px-3 py-1.5 mb-3">
                       <span className="text-gold text-xs font-bold font-body">
                         {tier.foundingBadge}
                       </span>
                     </div>
                   )}
                   {showYearlySavings && (
-                    <div className="inline-flex items-center bg-gold/10 border border-gold/30 rounded-lg px-3 py-1.5 mb-3">
+                    <div className="inline-flex items-center bg-gold/12 border border-gold/25 rounded-lg px-3 py-1.5 mb-3">
                       <span className="text-gold text-xs font-bold font-body">
                         {yearly.savings}
                       </span>
@@ -208,9 +208,20 @@ export default function Pricing() {
                       key={feature}
                       className="flex items-start gap-2 text-sm font-body"
                     >
-                      <span className="text-teal-light mt-0.5 flex-shrink-0">
-                        ✓
-                      </span>
+                      <svg
+                        className="w-4 h-4 text-teal-light mt-0.5 flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
                       <span
                         className={
                           tier.highlight
@@ -227,10 +238,10 @@ export default function Pricing() {
                 <button
                   onClick={() => handleCTA(planId)}
                   disabled={loadingPlan === planId}
-                  className={`block w-full text-center py-3 px-6 rounded-xl font-body font-bold text-sm transition-colors duration-200 min-h-[44px] leading-[28px] cursor-pointer disabled:opacity-60 disabled:cursor-wait ${
+                  className={`block w-full text-center py-3.5 px-6 rounded-xl font-body font-bold text-sm transition-all duration-200 min-h-[48px] leading-[28px] cursor-pointer disabled:opacity-60 disabled:cursor-wait hover:-translate-y-0.5 ${
                     tier.highlight
-                      ? "bg-warm-white text-navy hover:bg-cream"
-                      : "border border-white/20 text-warm-white hover:border-teal hover:text-teal-light"
+                      ? "bg-warm-white text-navy hover:bg-cream hover:shadow-lg"
+                      : "border border-white/15 text-warm-white hover:border-teal hover:text-teal-light hover:shadow-lg hover:shadow-teal/10"
                   }`}
                 >
                   {loadingPlan === planId ? "Loading…" : tier.cta}
@@ -241,10 +252,15 @@ export default function Pricing() {
         </div>
 
         <SectionReveal delay={0.3}>
-          <p className="text-center font-body text-slate-light text-sm">
-            Cancel anytime. No contracts. Founding member pricing locks in
-            permanently for the first 100 Pro subscribers.
-          </p>
+          <div className="text-center space-y-2">
+            <p className="font-body text-warm-white/70 text-sm font-semibold">
+              First month free &middot; Cancel anytime
+            </p>
+            <p className="font-body text-slate-light text-xs">
+              Founding member pricing locks in permanently for the first 100 Pro
+              subscribers. No contracts.
+            </p>
+          </div>
         </SectionReveal>
       </div>
     </section>

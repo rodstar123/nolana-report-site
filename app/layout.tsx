@@ -179,15 +179,19 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          rel="stylesheet"
+          rel="preload"
+          as="style"
           href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;1,400;1,700&family=DM+Sans:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
         />
-        {/* Hero image preload — reduces LCP */}
         <link
-          rel="preload"
-          as="image"
-          href="/images/hero-rgv-golden-hour.webp"
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;1,400;1,700&family=DM+Sans:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+          media="print"
+          // @ts-expect-error onLoad not typed on link
+          onLoad="this.media='all'"
         />
+        {/* Hero image preload — reduces LCP */}
+        <link rel="preload" as="image" href="/images/hero-nolana-mockup.webp" />
         {/* RSS — reserved for Phase 2 feed */}
         <link
           rel="alternate"

@@ -28,11 +28,11 @@ export default function DataBar({ metrics, updatedLabel }: DataBarProps) {
 
   return (
     <div id="data-bar" ref={ref} className="bar-shimmer relative card-stack">
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <p className="font-body text-warm-white/60 text-xs uppercase tracking-widest text-center mb-6">
+      <div className="max-w-6xl mx-auto px-6 lg:px-8 py-12">
+        <p className="font-body text-warm-white/50 text-xs uppercase tracking-[0.2em] text-center mb-8 font-semibold">
           This week&apos;s intelligence snapshot
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {metrics.map((metric, i) => (
             <div
               key={metric.label}
@@ -50,19 +50,19 @@ export default function DataBar({ metrics, updatedLabel }: DataBarProps) {
                     : metric.value}
                 </span>
                 <span
-                  className="font-normal text-warm-white/65 ml-1"
+                  className="font-normal text-warm-white/55 ml-1"
                   style={{ fontSize: "clamp(0.85rem, 1.5vw, 1rem)" }}
                 >
                   {metric.suffix}
                 </span>
               </div>
-              <div className="font-body text-warm-white text-sm font-semibold uppercase tracking-widest mt-2">
+              <div className="font-body text-warm-white/80 text-sm font-semibold uppercase tracking-[0.15em] mt-3">
                 {metric.label}
               </div>
             </div>
           ))}
         </div>
-        <p className="font-mono text-warm-white/35 text-xs text-center mt-6">
+        <p className="font-mono text-warm-white/30 text-xs text-center mt-8">
           {updatedLabel}
         </p>
       </div>

@@ -1,53 +1,104 @@
 "use client";
-import { useEffect, useRef } from "react";
-import { scoreBadgePop } from "@/lib/animations";
 
 interface Props {
   score: number;
+  size?: number;
+  showLabel?: boolean;
 }
 
-function getBadgeStyle(score: number) {
+function getNRITier(score: number) {
   if (score >= 85)
     return {
-      bg: "rgba(212,168,67,0.2)",
-      color: "#b8860b",
-      arrow: "▲",
-      glow: "0 0 10px rgba(212,168,67,0.45)",
+      ring: "var(--nri-critical-ring)",
+      bg: "var(--nri-critical-bg)",
+      label: "Critical",
+      glow: true,
     };
   if (score >= 70)
     return {
-      bg: "rgba(13,115,119,0.15)",
-      color: "#0d7377",
-      arrow: "▲",
-      glow: "none",
+      ring: "var(--nri-high-ring)",
+      bg: "var(--nri-high-bg)",
+      label: "High",
+      glow: false,
+    };
+  if (score >= 55)
+    return {
+      ring: "var(--nri-moderate-ring)",
+      bg: "var(--nri-moderate-bg)",
+      label: "Moderate",
+      glow: false,
     };
   return {
-    bg: "rgba(74,85,104,0.1)",
-    color: "#4a5568",
-    arrow: "▲",
-    glow: "none",
+    ring: "var(--nri-watch-ring)",
+    bg: "var(--nri-watch-bg)",
+    label: "Watch",
+    glow: false,
   };
 }
 
-export default function ScoreBadge({ score }: Props) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const style = getBadgeStyle(score);
+export { getNRITier };
 
-  useEffect(() => {
-    if (ref.current) scoreBadgePop(ref.current);
-  }, []);
+export default function ScoreBadge({ score, size = 44, showLabel }: Props) {
+  const tier = getNRITier(score);
+  const radius = (size - 6) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = (score / 100) * circumference;
+  const gap = circumference - progress;
 
   return (
-    <span
-      ref={ref}
-      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-base font-mono font-bold flex-shrink-0 min-w-[44px] justify-center"
-      style={{
-        background: style.bg,
-        color: style.color,
-        boxShadow: style.glow,
-      }}
+    <div
+      className={`inline-flex flex-col items-center gap-1 flex-shrink-0 ${tier.glow ? "nri-glow" : ""}`}
+      role="img"
+      aria-label={`NRI score ${score} out of 100 — ${tier.label}`}
     >
-      {style.arrow} {score}
-    </span>
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="transform -rotate-90"
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={3}
+          className="text-slate-light/15"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={tier.ring}
+          strokeWidth={3}
+          strokeDasharray={`${progress} ${gap}`}
+          strokeLinecap="round"
+          className="transition-all duration-700"
+        />
+        <text
+          x={size / 2}
+          y={size / 2}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fill={tier.ring}
+          fontSize={size * 0.32}
+          fontFamily="'Playfair Display', Georgia, serif"
+          fontWeight="700"
+          transform={`rotate(90, ${size / 2}, ${size / 2})`}
+        >
+          {score}
+        </text>
+      </svg>
+      {showLabel && (
+        <span
+          className="font-mono text-[9px] uppercase tracking-widest font-bold"
+          style={{ color: tier.ring }}
+        >
+          {tier.label}
+        </span>
+      )}
+    </div>
   );
 }

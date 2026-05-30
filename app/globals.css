@@ -30,23 +30,82 @@
   --warning: #f59e0b;
   --error: #ef4444;
 
-  /* NRI badge — color-coded by score tier */
-  --nri-hot-bg: rgba(212, 168, 67, 0.15);
-  --nri-hot-color: #b8860b;
-  --nri-solid-bg: rgba(13, 115, 119, 0.12);
-  --nri-solid-color: #0d7377;
-  --nri-mid-bg: rgba(74, 85, 104, 0.1);
-  --nri-mid-color: #718096;
+  /* NRI (Nolana Relevance Index) — green top, gold/amber mid */
+  --nri-critical-ring: #0d7377;
+  --nri-critical-bg: rgba(13, 115, 119, 0.14);
+  --nri-critical-glow: rgba(13, 115, 119, 0.25);
+  --nri-high-ring: #d4a843;
+  --nri-high-bg: rgba(212, 168, 67, 0.14);
+  --nri-moderate-ring: #b8860b;
+  --nri-moderate-bg: rgba(184, 134, 11, 0.12);
+  --nri-watch-ring: #64748b;
+  --nri-watch-bg: rgba(100, 116, 139, 0.1);
 }
 
-/* Dark mode overrides — activates when <html class="dark"> */
+/* Dark mode overrides */
 .dark {
-  --nri-hot-bg: rgba(212, 168, 67, 0.22);
-  --nri-hot-color: #d4a843;
-  --nri-solid-bg: rgba(13, 115, 119, 0.22);
-  --nri-solid-color: #10a3a8;
-  --nri-mid-bg: rgba(100, 116, 139, 0.18);
-  --nri-mid-color: #94a3b8;
+  --nri-critical-ring: #10a3a8;
+  --nri-critical-bg: rgba(13, 115, 119, 0.22);
+  --nri-critical-glow: rgba(16, 163, 168, 0.3);
+  --nri-high-ring: #d4a843;
+  --nri-high-bg: rgba(212, 168, 67, 0.2);
+  --nri-moderate-ring: #d4a843;
+  --nri-moderate-bg: rgba(184, 134, 11, 0.18);
+  --nri-watch-ring: #94a3b8;
+  --nri-watch-bg: rgba(100, 116, 139, 0.18);
+}
+
+/* Glassmorphism card — dark sections */
+.glass-nolana {
+  background: rgba(10, 22, 40, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Grid overlay — dark sections */
+.grid-overlay {
+  position: relative;
+}
+.grid-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* NRI ring badge pulse for critical scores */
+@keyframes nriGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 4px var(--nri-critical-glow));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px var(--nri-critical-glow));
+  }
+}
+.nri-glow {
+  animation: nriGlow 3s ease-in-out infinite;
+}
+
+/* Sticky CTA slide-up */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.sticky-cta-enter {
+  animation: slideUp 300ms ease-out forwards;
 }
 
 /* Grain texture animation */

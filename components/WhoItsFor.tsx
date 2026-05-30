@@ -61,7 +61,7 @@ const AUDIENCE = [
     ),
     title: "Professionals",
     description:
-      "Brokers, lenders, accountants, and consultants looking for prospecting signals and new business leads.",
+      "Brokers, lenders, accountants, and consultants looking for prospecting signals and business leads.",
   },
   {
     icon: (
@@ -89,40 +89,56 @@ const AUDIENCE = [
 export default function WhoItsFor() {
   return (
     <section
-      className="py-20"
+      className="py-20 md:py-28 relative overflow-hidden"
       style={{
-        background: "linear-gradient(to bottom, #0f1722 0%, #1a2332 100%)",
+        background: "linear-gradient(to bottom, #f4f1ec 0%, #e8e3db 100%)",
       }}
     >
-      <div className="max-w-6xl mx-auto px-6">
+      {/* Ambient orb */}
+      <div
+        className="ambient-orb"
+        style={
+          {
+            width: "50px",
+            height: "50px",
+            top: "20%",
+            right: "8%",
+            "--float-duration": "15s",
+            "--float-delay": "-2s",
+          } as React.CSSProperties
+        }
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8">
         <SectionReveal>
-          <div className="text-center mb-12">
+          <div className="text-center mb-14">
             <span className="section-label justify-center mb-4">
-              <span className="text-teal-light">Who It&apos;s For</span>
+              Who It&apos;s For
             </span>
             <h2
-              className="font-display font-bold text-warm-white mt-4 max-w-3xl mx-auto"
-              style={{ fontSize: "clamp(1.4rem, 3vw, 2rem)" }}
+              className="font-display font-bold text-navy mt-4 max-w-3xl mx-auto"
+              style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)" }}
             >
               Built for RGV business owners, investors, brokers, lenders,
-              consultants, contractors, accountants, and operators who need to
-              spot movement before the market does.
+              consultants, contractors, and operators who need to spot movement
+              before the market does.
             </h2>
           </div>
         </SectionReveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {AUDIENCE.map((item, i) => (
             <SectionReveal key={item.title} delay={i * 0.08}>
-              <div className="bg-navy-deep border border-white/10 rounded-xl p-6 flex flex-col gap-4 h-full">
-                <div className="w-11 h-11 rounded-full bg-teal/10 flex items-center justify-center text-teal-light flex-shrink-0">
+              <div className="bg-warm-white border border-cream-dark rounded-xl p-7 flex flex-col gap-4 h-full hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
+                <div className="w-12 h-12 rounded-xl bg-teal/8 flex items-center justify-center text-teal flex-shrink-0">
                   {item.icon}
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-warm-white text-lg mb-2">
+                  <h3 className="font-display font-bold text-navy text-lg mb-2">
                     {item.title}
                   </h3>
-                  <p className="font-body text-slate-light text-sm leading-relaxed">
+                  <p className="font-body text-slate text-sm leading-relaxed">
                     {item.description}
                   </p>
                 </div>
