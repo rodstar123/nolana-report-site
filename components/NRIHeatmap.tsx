@@ -39,7 +39,7 @@ export default function NRIHeatmap() {
           />
         ))}
       </div>
-      <div className="flex justify-between mt-2.5">
+      <div className="grid grid-cols-2 sm:flex sm:justify-between gap-1.5 sm:gap-0 mt-2.5">
         {SAMPLE_WEEK.map((bucket) => (
           <div key={bucket.label} className="flex items-center gap-1.5">
             <span

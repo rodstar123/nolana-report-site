@@ -74,7 +74,10 @@ export default function StickyMobileCTA() {
 
   return (
     <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden sticky-cta-enter">
-      <div className="bg-navy-deep/95 backdrop-blur-lg border-t border-white/10 px-4 py-3 shadow-2xl">
+      <div
+        className="bg-navy-deep/95 backdrop-blur-lg border-t border-white/10 px-4 py-3 shadow-2xl"
+        style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+      >
         {done ? (
           <p className="font-body text-teal-light text-sm text-center font-semibold">
             You&apos;re on the list!

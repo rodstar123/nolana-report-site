@@ -17,14 +17,14 @@ export default function SampleBriefing() {
   return (
     <section
       id="sample-issue"
-      className="py-20 md:py-28"
+      className="py-12 md:py-28"
       style={{
         background: "linear-gradient(to bottom, #f4f1ec 0%, #e8e3db 100%)",
       }}
     >
       <div className="max-w-4xl mx-auto px-6 lg:px-8">
         <SectionReveal>
-          <div className="mb-14">
+          <div className="mb-8 md:mb-14">
             <span className="section-label mb-4">Sample Issue</span>
             <div className="flex flex-wrap items-baseline gap-4 mt-4 mb-5">
               <h2

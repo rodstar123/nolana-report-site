@@ -12,7 +12,7 @@ export default function Footer() {
       }}
     >
       {/* Final CTA block */}
-      <div className="py-16 md:py-20 border-b border-white/5">
+      <div className="py-12 md:py-20 border-b border-white/5">
         <div className="max-w-lg mx-auto px-6 lg:px-8 text-center">
           <h2 className="font-display font-bold text-warm-white text-2xl md:text-3xl mb-4">
             Stay ahead of the Valley.
@@ -43,7 +43,7 @@ export default function Footer() {
           </div>
           <a
             href={PUBLISHER_URL}
-            className="flex-shrink-0 bg-teal hover:bg-teal-light text-white font-body font-bold text-sm px-6 py-3 rounded-lg transition-all duration-200 min-h-[44px] flex items-center hover:-translate-y-0.5"
+            className="flex-shrink-0 w-full sm:w-auto text-center bg-teal hover:bg-teal-light text-white font-body font-bold text-sm px-6 py-3 rounded-lg transition-all duration-200 min-h-[48px] flex items-center justify-center hover:-translate-y-0.5"
           >
             Learn More &rarr;
           </a>
@@ -114,7 +114,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/5 py-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <div className="border-t border-white/5 py-8 pb-24 lg:pb-8 flex flex-col sm:flex-row justify-between items-center gap-3">
           <p className="font-body text-slate-light text-xs">
             &copy; {year} {PUBLISHER}. All rights reserved.
           </p>

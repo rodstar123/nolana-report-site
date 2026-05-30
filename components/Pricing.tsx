@@ -77,7 +77,7 @@ export default function Pricing() {
     <section
       ref={sectionRef}
       id="pricing"
-      className="relative py-20 md:py-28 card-stack overflow-hidden grid-overlay"
+      className="relative py-12 md:py-28 card-stack overflow-hidden grid-overlay"
       style={{
         background:
           "radial-gradient(ellipse at center, #1a2332 0%, #0f1722 100%)",
@@ -155,9 +155,9 @@ export default function Pricing() {
             return (
               <div
                 key={tier.id}
-                className={`price-card-${tier.id} relative rounded-2xl p-8 flex flex-col transition-all duration-300 hover:-translate-y-1 ${
+                className={`price-card-${tier.id} relative rounded-2xl p-6 sm:p-8 flex flex-col transition-all duration-300 hover:-translate-y-1 ${
                   tier.highlight
-                    ? "glass-nolana !bg-teal/90 !border-teal-light/40 shadow-2xl shadow-teal/20 md:scale-105"
+                    ? "glass-nolana !bg-teal/90 !border-teal-light/40 shadow-2xl shadow-teal/20 md:scale-105 -order-1 md:order-none"
                     : "glass-nolana"
                 }`}
               >

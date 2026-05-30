@@ -89,7 +89,7 @@ const AUDIENCE = [
 export default function WhoItsFor() {
   return (
     <section
-      className="py-20 md:py-28 relative overflow-hidden"
+      className="py-12 md:py-28 relative overflow-hidden"
       style={{
         background: "linear-gradient(to bottom, #f4f1ec 0%, #e8e3db 100%)",
       }}
@@ -112,7 +112,7 @@ export default function WhoItsFor() {
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8">
         <SectionReveal>
-          <div className="text-center mb-14">
+          <div className="text-center mb-8 md:mb-14">
             <span className="section-label justify-center mb-4">
               Who It&apos;s For
             </span>

@@ -28,11 +28,11 @@ export default function DataBar({ metrics, updatedLabel }: DataBarProps) {
 
   return (
     <div id="data-bar" ref={ref} className="bar-shimmer relative card-stack">
-      <div className="max-w-6xl mx-auto px-6 lg:px-8 py-12">
-        <p className="font-body text-warm-white/50 text-xs uppercase tracking-[0.2em] text-center mb-8 font-semibold">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
+        <p className="font-body text-warm-white/50 text-xs uppercase tracking-[0.2em] text-center mb-6 md:mb-8 font-semibold">
           This week&apos;s intelligence snapshot
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
           {metrics.map((metric, i) => (
             <div
               key={metric.label}

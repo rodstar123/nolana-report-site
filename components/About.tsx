@@ -4,7 +4,7 @@ import SectionReveal from "./SectionReveal";
 export default function About() {
   return (
     <section
-      className="py-20 md:py-28 relative overflow-hidden"
+      className="py-12 md:py-28 relative overflow-hidden"
       style={{
         background: "linear-gradient(to bottom, #f4f1ec 0%, #e8e3db 100%)",
       }}

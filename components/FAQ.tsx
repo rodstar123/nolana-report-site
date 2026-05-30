@@ -85,7 +85,7 @@ function FAQItem({
 export default function FAQ() {
   return (
     <section
-      className="py-20 md:py-28 card-stack"
+      className="py-12 md:py-28 card-stack"
       aria-label="Frequently asked questions"
       style={{
         background: "linear-gradient(to bottom, #f4f1ec 0%, #e8e3db 100%)",
@@ -93,7 +93,7 @@ export default function FAQ() {
     >
       <div className="max-w-3xl mx-auto px-6 lg:px-8">
         <SectionReveal>
-          <div className="mb-14">
+          <div className="mb-8 md:mb-14">
             <span className="section-label mb-4">FAQ</span>
             <h2
               className="font-display font-bold text-navy mt-4 mb-3"

@@ -201,7 +201,7 @@ function SectionRow({ section, isLast }: RowProps) {
 
       <div className="relative z-10 flex flex-col md:flex-row w-full transition-transform duration-200 ease-out group-hover:translate-x-[4px]">
         {/* Left: icon + title + tagline */}
-        <div className="flex items-center gap-5 flex-1 py-7 pl-10 pr-6 md:py-9 md:pl-16 md:pr-10">
+        <div className="flex items-center gap-3 sm:gap-5 flex-1 py-5 pl-5 pr-4 md:py-9 md:pl-16 md:pr-10">
           <div
             className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ background: section.accentSoft, color: accentColor }}
@@ -254,7 +254,7 @@ function SectionRow({ section, isLast }: RowProps) {
 
         {/* Right: mini story with NRI ring */}
         <div
-          className="flex-shrink-0 w-full md:w-72 lg:w-80 px-6 py-5 md:py-9 border-t md:border-t-0 md:border-l flex items-center gap-4"
+          className="flex-shrink-0 w-full md:w-72 lg:w-80 px-4 sm:px-6 py-4 md:py-9 border-t md:border-t-0 md:border-l flex items-center gap-3 sm:gap-4"
           style={{
             borderColor: "var(--cream-dark)",
             background: ex ? "rgba(212,168,67,0.03)" : "transparent",
@@ -304,7 +304,7 @@ export default function WhatYouGet() {
 
   return (
     <section
-      className="py-20 md:py-28 relative overflow-hidden"
+      className="py-12 md:py-28 relative overflow-hidden"
       style={{
         background: "linear-gradient(to bottom, #f4f1ec 0%, #e8e3db 100%)",
       }}
@@ -341,7 +341,7 @@ export default function WhatYouGet() {
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8">
         <SectionReveal>
-          <div className="text-center mb-16">
+          <div className="text-center mb-8 md:mb-16">
             <span className="section-label justify-center mb-4">
               The Weekly Briefing
             </span>

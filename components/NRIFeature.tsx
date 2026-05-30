@@ -7,14 +7,14 @@ import NRITooltip from "./NRITooltip";
 export default function NRIFeature() {
   return (
     <section
-      className="py-20 md:py-28 relative overflow-hidden grid-overlay"
+      className="py-12 md:py-28 relative overflow-hidden grid-overlay"
       style={{
         background: "linear-gradient(to bottom, #0f1722 0%, #1a2332 100%)",
       }}
     >
       <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8">
         <SectionReveal>
-          <div className="text-center mb-14">
+          <div className="text-center mb-8 md:mb-14">
             <span className="section-label justify-center mb-4">
               <span className="text-teal-light">The NRI</span>
             </span>
