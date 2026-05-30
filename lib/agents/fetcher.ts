@@ -1,5 +1,6 @@
 import RssParser from "rss-parser";
 import type { AgentName, FetchResult, RawItem, SourceConfig } from "./types";
+import { parseBridgeWaits } from "../cbp";
 
 const rssParser = new RssParser({ timeout: 10_000 });
 
@@ -76,7 +77,6 @@ function parseFederalRegister(
   }));
 }
 
-const RGV_PORTS = /mcallen|hidalgo|anzalduas|pharr/i;
 const BRIDGE_DELAY_THRESHOLD = 60;
 
 function parseCbpBridgeWaits(
@@ -84,26 +84,19 @@ function parseCbpBridgeWaits(
   source: SourceConfig,
   agent: AgentName,
 ): RawItem[] {
-  const cbp = json as { port?: Array<Record<string, unknown>> };
-  const items: RawItem[] = [];
-  for (const port of cbp?.port ?? []) {
-    const portName = String(port.port_name ?? "");
-    if (!RGV_PORTS.test(portName)) continue;
-    const lanes = port.passenger_vehicle_lanes as
-      | { standard_lanes?: { delay_minutes?: number } }
-      | undefined;
-    const delay = lanes?.standard_lanes?.delay_minutes ?? 0;
-    if (delay < BRIDGE_DELAY_THRESHOLD) continue;
-    items.push({
-      title: `Bridge wait anomaly: ${portName} — ${delay} min delay`,
+  // Shared, shape-correct parser (bwtnew root is a top-level array; delays are
+  // localized strings). Emit an anomaly item only for genuinely high waits.
+  const reading = parseBridgeWaits(json);
+  return reading.lanes
+    .filter((lane) => lane.delayMinutes >= BRIDGE_DELAY_THRESHOLD)
+    .map((lane) => ({
+      title: `Bridge wait anomaly: ${lane.crossing} — ${lane.delayMinutes} min delay`,
       url: "https://bwt.cbp.gov/",
-      snippet: `Passenger standard-lane delay at ${portName}: ${delay} minutes (threshold: ${BRIDGE_DELAY_THRESHOLD}min).`,
+      snippet: `Passenger standard-lane delay at ${lane.crossing}: ${lane.delayMinutes} minutes (threshold: ${BRIDGE_DELAY_THRESHOLD}min).`,
       source: source.name,
       original_date: new Date().toISOString(),
       agent,
-    });
-  }
-  return items;
+    }));
 }
 
 const BLS_SERIES: Record<string, { label: string; unit: string }> = {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { AGENT_NAME_TO_SLUG, type AgentName } from "@/lib/agents/types";
+import { fetchBridgeReading } from "@/lib/cbp";
 
 export const maxDuration = 300;
 
@@ -134,6 +135,29 @@ export async function GET(req: NextRequest) {
     lines.push("✅ All sources healthy.");
   }
 
+  // --- Step 4b: CBP bridge feed shape check (fail loud on shape-change) ---
+  // The bwtnew feed has silently changed shape before, zeroing out Agent 3's
+  // bridge data without any error. Surface a 0-RGV-crossings result the same
+  // way as zero-ingestion so the next shape-change is caught, not hidden.
+  let bridgeShapeBroken = false;
+  const bridge = await fetchBridgeReading();
+  if (bridge === null) {
+    lines.push("⚠️ CBP bridge feed unreachable this run.");
+  } else if (bridge.shapeBroken) {
+    bridgeShapeBroken = true;
+    lines.push(
+      "🔴 CBP bridge feed returned 0 RGV crossings — likely a feed shape-change. Agent 3 bridge data + homepage tile are blind until parseBridgeWaits() is fixed.",
+    );
+  } else if (bridge.lanes.length === 0) {
+    lines.push(
+      `⚠️ CBP bridge: ${bridge.rgvCrossingsMatched} RGV crossings found but all lanes closed/pending (no usable delay).`,
+    );
+  } else {
+    lines.push(
+      `✅ CBP bridge: ${bridge.lanes.length}/${bridge.rgvCrossingsMatched} RGV lanes live, avg ${bridge.avgDelayMinutes} min.`,
+    );
+  }
+
   // --- Step 5: Monday aggregator + briefing validation ---
   let aggregatorHalted = false;
   if (isMonday && now.getUTCHours() >= 13) {
@@ -197,6 +221,7 @@ export async function GET(req: NextRequest) {
     retries,
     todayItems: todayItemCount ?? 0,
     aggregatorHalted,
+    bridgeShapeBroken,
     lines,
   });
 }
