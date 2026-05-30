@@ -134,10 +134,10 @@ export default function Hero() {
             <BrandMark size={600} color="#d4a843" strokeWidth={0.6} />
           </div>
 
-          {/* Phone — no card, full scale */}
+          {/* Phone — no card, editorial bleed right */}
           <div
             className="hero-mockup relative z-10"
-            style={{ marginRight: "-3%", marginBottom: "-2%" }}
+            style={{ marginRight: "-12%", marginBottom: "-2%" }}
           >
             <Image
               src="/images/hero-nolana-mockup.webp"
@@ -147,7 +147,7 @@ export default function Hero() {
               priority
               className="object-contain"
               style={{
-                height: "88vh",
+                height: "72vh",
                 width: "auto",
                 maxWidth: "none",
                 filter:
