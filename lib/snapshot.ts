@@ -194,7 +194,11 @@ export async function getSnapshot(): Promise<Snapshot> {
   return { metrics, updatedAtISO };
 }
 
-/** "Updated Monday, May 25, 2026 at 6:45 AM" style label in CST, from real refresh time. */
+/**
+ * "Updated Friday, May 29, 2026 at 4:37 PM CDT" — from the real refresh time.
+ * timeZoneName:"short" emits the correct abbreviation automatically
+ * (CDT in summer DST, CST in winter), so the label is never wrong.
+ */
 export function formatUpdatedLabel(iso: string | null): string {
   const d = iso ? new Date(iso) : new Date();
   const fmt = new Intl.DateTimeFormat("en-US", {
@@ -205,7 +209,7 @@ export function formatUpdatedLabel(iso: string | null): string {
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    timeZoneName: "short",
   });
-  // en-US → "Friday, May 29, 2026 at 4:37 PM"
-  return `Updated ${fmt.format(d)} CST`;
+  return `Updated ${fmt.format(d)}`;
 }
