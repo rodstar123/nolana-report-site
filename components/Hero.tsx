@@ -24,12 +24,12 @@ export default function Hero() {
         aria-hidden="true"
         className="absolute inset-0 z-0 hidden lg:block overflow-hidden"
       >
-        {/* Teal ambient glow */}
+        {/* Teal ambient glow — brighter to lift the phone */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse at 70% 45%, rgba(13,115,119,0.18) 0%, transparent 50%)",
+              "radial-gradient(ellipse at 72% 48%, rgba(13,115,119,0.28) 0%, rgba(13,115,119,0.10) 35%, transparent 55%)",
           }}
         />
 
@@ -68,19 +68,19 @@ export default function Hero() {
               width: "auto",
               maxWidth: "none",
               filter:
-                "drop-shadow(0 32px 80px rgba(0,0,0,0.5)) drop-shadow(0 8px 24px rgba(0,0,0,0.3))",
+                "drop-shadow(0 24px 64px rgba(0,0,0,0.35)) drop-shadow(0 8px 20px rgba(0,0,0,0.2)) drop-shadow(0 0 80px rgba(13,115,119,0.15))",
             }}
           />
         </div>
       </div>
 
-      {/* Gradient scrim: dark left → transparent right */}
+      {/* Gradient scrim: solid left for text, light wash on right for phone visibility */}
       <div
         aria-hidden="true"
         className="absolute inset-0 z-[1] hidden lg:block pointer-events-none"
         style={{
           background:
-            "linear-gradient(to right, #0a1628 0%, #0a1628 35%, rgba(10,22,40,0.85) 55%, rgba(10,22,40,0.4) 75%, transparent 100%)",
+            "linear-gradient(to right, #0a1628 0%, #0a1628 32%, rgba(10,22,40,0.75) 48%, rgba(10,22,40,0.18) 68%, transparent 85%)",
         }}
       />
 
