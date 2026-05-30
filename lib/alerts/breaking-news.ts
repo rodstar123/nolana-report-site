@@ -31,7 +31,7 @@ async function postToChannel(payload: BreakingAlertPayload): Promise<boolean> {
     `<a href="${payload.url}">Read Full Story \u{2192}</a>\n\n` +
     `\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\n` +
     `<i>The Nolana Report \u{2014} RGV Business Intelligence</i>\n` +
-    `<a href="https://nolanareport.com">nolanareport.com</a>`;
+    `<a href="https://www.nolanareport.com">nolanareport.com</a>`;
 
   try {
     const res = await fetch(
