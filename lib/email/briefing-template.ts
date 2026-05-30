@@ -113,7 +113,7 @@ export function buildBriefingEmail(
       <div style="margin:32px 0;padding:28px;background:#f0f9ff;border:2px solid #bae6fd;border-radius:10px;text-align:center;font-family:sans-serif;">
         <h3 style="margin:0 0 8px;font-size:20px;color:#1a1a1a;">${lockedCount} more stories scored this week</h3>
         <p style="margin:0 0 20px;color:#555;font-size:15px;">One early signal can pay for the whole year.</p>
-        <a href="https://www.nolanareport.com/issues/${issueSlug}"
+        <a href="https://nolanareport.com/issues/${issueSlug}"
            style="display:inline-block;background:#0d7377;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;">
           Read the full briefing →
         </a>
@@ -127,8 +127,8 @@ export function buildBriefingEmail(
       <p style="margin:0;">The Nolana Report — RGV Business Intelligence</p>
       <p style="margin:4px 0 0;">Published by National Bookkeeping Company® · McAllen, TX</p>
       <p style="margin:10px 0 0;">
-        <a href="https://www.nolanareport.com/issues/${issueSlug}" style="color:#0d7377;">View on web</a> ·
-        <a href="https://www.nolanareport.com/account" style="color:#0d7377;">Manage subscription</a>
+        <a href="https://nolanareport.com/issues/${issueSlug}" style="color:#0d7377;">View on web</a> ·
+        <a href="https://nolanareport.com/account" style="color:#0d7377;">Manage subscription</a>
       </p>
     </div>
   </div>

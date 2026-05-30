@@ -1,6 +1,6 @@
 export const SITE_NAME = "The Nolana Report";
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.nolanareport.com";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://nolanareport.com";
 export const PUBLISHER = "National Bookkeeping Company®";
 export const PUBLISHER_URL = "https://nationalboco.com";
 

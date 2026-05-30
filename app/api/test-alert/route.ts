@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     score: 97,
     category: "Grant",
     source: "Test Alert",
-    url: "https://www.nolanareport.com",
+    url: "https://nolanareport.com",
     agent: "Agent 2",
   });
 

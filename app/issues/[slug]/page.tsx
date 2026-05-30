@@ -82,7 +82,7 @@ export default async function IssuePage({
     publisher: {
       "@type": "Organization",
       name: "The Nolana Report",
-      url: "https://www.nolanareport.com",
+      url: "https://nolanareport.com",
     },
     description: `${issue.stories_count} stories scored this week.`,
     isAccessibleForFree: false,

@@ -13,13 +13,13 @@ export const metadata: Metadata = {
   publisher: "National Bookkeeping Company®",
   creator: "The Nolana Report",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.nolanareport.com",
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://nolanareport.com",
   ),
-  alternates: { canonical: "https://www.nolanareport.com" },
+  alternates: { canonical: "https://nolanareport.com" },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://www.nolanareport.com",
+    url: "https://nolanareport.com",
     siteName: "The Nolana Report",
     title: "The Nolana Report — Lo que se mueve en el Valle",
     description:
@@ -57,8 +57,8 @@ const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "The Nolana Report",
-  url: "https://www.nolanareport.com",
-  logo: "https://www.nolanareport.com/images/og-social-card.png",
+  url: "https://nolanareport.com",
+  logo: "https://nolanareport.com/images/og-social-card.png",
   description:
     "Weekly business intelligence briefing for the Rio Grande Valley. 30 stories scored and summarized every Monday.",
   foundingDate: "2026",
@@ -88,13 +88,13 @@ const websiteSchema = {
   "@type": "WebSite",
   name: "The Nolana Report",
   alternateName: "Nolana Report",
-  url: "https://www.nolanareport.com",
+  url: "https://nolanareport.com",
   description:
     "Weekly briefing covering new businesses, government moves, cross-border trade, and industrial investment across McAllen, Edinburg, Brownsville, and the RGV.",
   publisher: {
     "@type": "Organization",
     name: "The Nolana Report",
-    url: "https://www.nolanareport.com",
+    url: "https://nolanareport.com",
   },
   inLanguage: "en-US",
 };
@@ -103,7 +103,7 @@ const periodicalSchema = {
   "@context": "https://schema.org",
   "@type": "Periodical",
   name: "The Nolana Report",
-  url: "https://www.nolanareport.com",
+  url: "https://nolanareport.com",
   publisher: {
     "@type": "Organization",
     name: "National Bookkeeping Company",

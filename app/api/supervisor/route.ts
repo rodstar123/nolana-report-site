@@ -46,8 +46,7 @@ export async function GET(req: NextRequest) {
   startOfDay.setUTCHours(0, 0, 0, 0);
   const isMonday = now.getUTCDay() === 1;
   const dateStr = now.toISOString().slice(0, 10);
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://www.nolanareport.com";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://nolanareport.com";
 
   const lines: string[] = [];
   const retries: Array<{ agent: string; ok: boolean; detail: string }> = [];

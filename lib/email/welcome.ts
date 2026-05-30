@@ -22,7 +22,7 @@ export async function sendWelcomeEmail(email: string) {
           <p style="font-size:16px;line-height:1.6;margin:0 0 24px;">
             Your first briefing arrives this Monday.
           </p>
-          <a href="https://www.nolanareport.com/issues"
+          <a href="https://nolanareport.com/issues"
              style="display:inline-block;background:#0d7377;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-weight:bold;font-size:15px;">
             View the Latest Briefing
           </a>
@@ -43,7 +43,7 @@ export async function sendWelcomeEmail(email: string) {
           <p style="margin:0;">The Nolana Report — RGV Business Intelligence</p>
           <p style="margin:4px 0 0;">Published by National Bookkeeping Company® · McAllen, TX</p>
           <p style="margin:8px 0 0;">
-            <a href="https://www.nolanareport.com/account" style="color:#0d7377;">Manage subscription</a>
+            <a href="https://nolanareport.com/account" style="color:#0d7377;">Manage subscription</a>
           </p>
         </div>
       </div>
