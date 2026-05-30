@@ -46,7 +46,7 @@ export default function NRIFeature() {
           nriSectionEntrance(el);
         }
       },
-      { threshold: 0.15 },
+      { threshold: 0.08 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -60,7 +60,7 @@ export default function NRIFeature() {
         background: "linear-gradient(to bottom, #0f1722 0%, #1a2332 100%)",
       }}
     >
-      <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionReveal>
           <div className="text-center mb-8 md:mb-14">
             <span className="section-label justify-center mb-4">
@@ -85,10 +85,10 @@ export default function NRIFeature() {
           </div>
         </SectionReveal>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center">
           {/* Left column: dimensions + heatmap */}
-          <div className="space-y-6">
-            <div className="glass-nolana rounded-xl p-6">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="glass-nolana rounded-xl p-4 sm:p-6">
               <h3 className="font-display font-bold text-warm-white text-lg mb-3">
                 Three dimensions, one score
               </h3>
@@ -126,7 +126,7 @@ export default function NRIFeature() {
               </div>
             </div>
 
-            <div className="glass-nolana rounded-xl p-6">
+            <div className="glass-nolana rounded-xl p-4 sm:p-6">
               <p className="font-body text-warm-white/60 text-xs uppercase tracking-widest font-semibold mb-3">
                 This week&apos;s distribution
               </p>
@@ -135,18 +135,18 @@ export default function NRIFeature() {
           </div>
 
           {/* Right column: example tier cards */}
-          <div className="flex flex-col items-center gap-6">
+          <div className="flex flex-col items-center gap-4 sm:gap-6">
             <p className="font-body text-slate-light text-sm text-center max-w-sm">
               The higher the NRI score, the more actionable the story is for
               your business. Here&apos;s what each tier means:
             </p>
-            <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-sm">
               {EXAMPLES.map((ex) => {
                 const tier = getNRITier(ex.score);
                 return (
                   <div
                     key={ex.score}
-                    className="nri-example-card glass-nolana rounded-xl p-4 flex flex-col items-center gap-2 text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-default group"
+                    className="nri-example-card glass-nolana rounded-xl p-3 sm:p-4 flex flex-col items-center gap-1.5 sm:gap-2 text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-default group"
                     style={{
                       opacity: 0,
                       ["--tier-glow" as string]: tier.ring,
@@ -155,12 +155,12 @@ export default function NRIFeature() {
                     <div className="transition-[filter] duration-200 group-hover:drop-shadow-[0_0_10px_var(--tier-glow)]">
                       <ScoreBadge
                         score={ex.score}
-                        size={52}
+                        size={44}
                         showLabel
                         animated
                       />
                     </div>
-                    <p className="font-body text-slate-light text-xs leading-snug">
+                    <p className="font-body text-slate-light text-[11px] sm:text-xs leading-snug">
                       {ex.desc}
                     </p>
                   </div>

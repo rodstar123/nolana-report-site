@@ -162,6 +162,9 @@ export function nriSectionEntrance(container: HTMLElement) {
   }
 
   import("animejs").then(({ default: anime }) => {
+    const mobile = window.innerWidth < 768;
+    const stag = mobile ? 60 : 100;
+    const ringStag = mobile ? 80 : 120;
     const tl = anime.timeline({ easing: "easeOutCubic" });
 
     // 1. Dimension rows: fade-up + stagger
@@ -170,7 +173,7 @@ export function nriSectionEntrance(container: HTMLElement) {
       opacity: [0, 1],
       translateY: [24, 0],
       duration: 500,
-      delay: anime.stagger(100),
+      delay: anime.stagger(stag),
     });
 
     // 2. Dimension icons: scale-in pop
@@ -181,7 +184,7 @@ export function nriSectionEntrance(container: HTMLElement) {
         opacity: [0, 1],
         duration: 400,
         easing: "easeOutBack",
-        delay: anime.stagger(100),
+        delay: anime.stagger(stag),
       },
       "-=400",
     );
@@ -193,7 +196,7 @@ export function nriSectionEntrance(container: HTMLElement) {
         scaleX: [0, 1],
         duration: 800,
         easing: "easeOutQuart",
-        delay: anime.stagger(120),
+        delay: anime.stagger(ringStag),
       },
       "-=200",
     );
@@ -205,7 +208,7 @@ export function nriSectionEntrance(container: HTMLElement) {
         opacity: [0, 1],
         translateY: [8, 0],
         duration: 300,
-        delay: anime.stagger(80),
+        delay: anime.stagger(mobile ? 50 : 80),
       },
       "-=200",
     );
@@ -215,14 +218,15 @@ export function nriSectionEntrance(container: HTMLElement) {
       {
         targets: container.querySelectorAll(".nri-example-card"),
         opacity: [0, 1],
-        translateY: [30, 0],
+        translateY: [mobile ? 20 : 30, 0],
         duration: 500,
-        delay: anime.stagger(120),
+        delay: anime.stagger(ringStag),
       },
       "-=600",
     );
 
     // 6. Score rings: draw-in arc
+    const ringDelay = mobile ? 300 : 400;
     container
       .querySelectorAll<SVGCircleElement>(".nri-ring-arc")
       .forEach((circle, i) => {
@@ -233,7 +237,7 @@ export function nriSectionEntrance(container: HTMLElement) {
           strokeDashoffset: [start, target],
           duration: 1000,
           easing: "easeOutCubic",
-          delay: 400 + i * 120,
+          delay: ringDelay + i * ringStag,
         });
       });
 
@@ -248,7 +252,7 @@ export function nriSectionEntrance(container: HTMLElement) {
           v: target,
           duration: 1000,
           easing: "easeOutCubic",
-          delay: 400 + i * 120,
+          delay: ringDelay + i * ringStag,
           round: 1,
           update: () => {
             el.textContent = String(Math.round(obj.v));
