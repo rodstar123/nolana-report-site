@@ -19,8 +19,73 @@ export default function Hero() {
           "linear-gradient(135deg, #0a1628 0%, #0f2035 50%, #0a1628 100%)",
       }}
     >
-      <div className="relative z-10 w-full flex flex-col lg:flex-row items-center min-h-screen">
-        {/* Left: headline + form */}
+      {/* Background layer: phone mockup + decorative elements */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-0 hidden lg:block overflow-hidden"
+      >
+        {/* Teal ambient glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse at 70% 45%, rgba(13,115,119,0.18) 0%, transparent 50%)",
+          }}
+        />
+
+        {/* 270 arc motif */}
+        <div
+          className="hero-arc absolute pointer-events-none"
+          style={{
+            width: "600px",
+            height: "600px",
+            top: "50%",
+            right: "5%",
+            transform: "translateY(-50%)",
+          }}
+        >
+          <BrandMark size={600} color="#d4a843" strokeWidth={0.6} />
+        </div>
+
+        {/* Phone — large, right-aligned, bleeds off edge */}
+        <div
+          className="hero-mockup absolute"
+          style={{
+            right: "-4%",
+            top: "50%",
+            transform: "translateY(-50%)",
+          }}
+        >
+          <Image
+            src="/images/hero-nolana-mockup.webp"
+            alt=""
+            width={673}
+            height={731}
+            priority
+            className="object-contain"
+            style={{
+              height: "78vh",
+              width: "auto",
+              maxWidth: "none",
+              filter:
+                "drop-shadow(0 32px 80px rgba(0,0,0,0.5)) drop-shadow(0 8px 24px rgba(0,0,0,0.3))",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Gradient scrim: dark left → transparent right */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-[1] hidden lg:block pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(to right, #0a1628 0%, #0a1628 35%, rgba(10,22,40,0.85) 55%, rgba(10,22,40,0.4) 75%, transparent 100%)",
+        }}
+      />
+
+      {/* Foreground: text content */}
+      <div className="relative z-10 w-full min-h-screen flex items-center">
         <div className="w-full lg:w-[55%] px-6 sm:px-10 lg:px-16 py-20 lg:py-24 flex flex-col justify-center">
           <div className="max-w-xl">
             {/* Brand lockup */}
@@ -107,38 +172,9 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Right: iPhone mockup */}
-        <div className="w-full lg:w-[45%] flex items-end justify-end relative pb-8 lg:pb-0 lg:min-h-screen overflow-visible">
-          {/* Teal ambient glow */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse at 60% 45%, rgba(13,115,119,0.15) 0%, transparent 55%)",
-            }}
-          />
-
-          {/* 270 arc motif */}
-          <div
-            aria-hidden="true"
-            className="hero-arc absolute pointer-events-none"
-            style={{
-              width: "600px",
-              height: "600px",
-              top: "50%",
-              left: "55%",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <BrandMark size={600} color="#d4a843" strokeWidth={0.6} />
-          </div>
-
-          {/* Phone — no card, editorial bleed right */}
-          <div
-            className="hero-mockup relative z-10"
-            style={{ marginRight: "-12%", marginBottom: "-2%" }}
-          >
+        {/* Mobile-only: phone below text */}
+        <div className="w-full flex justify-center pb-12 lg:hidden">
+          <div className="hero-mockup">
             <Image
               src="/images/hero-nolana-mockup.webp"
               alt="iPhone showing The Nolana Report with scored business stories"
@@ -147,11 +183,10 @@ export default function Hero() {
               priority
               className="object-contain"
               style={{
-                height: "72vh",
+                height: "50vh",
                 width: "auto",
-                maxWidth: "none",
                 filter:
-                  "drop-shadow(0 32px 80px rgba(0,0,0,0.5)) drop-shadow(0 8px 24px rgba(0,0,0,0.3))",
+                  "drop-shadow(0 24px 64px rgba(0,0,0,0.4)) drop-shadow(0 4px 16px rgba(0,0,0,0.25))",
               }}
             />
           </div>
