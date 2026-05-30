@@ -51,7 +51,7 @@ export default function Hero() {
         <div
           className="hero-mockup absolute"
           style={{
-            right: "-4%",
+            right: "-14%",
             top: "50%",
             transform: "translateY(-50%)",
           }}
