@@ -57,12 +57,19 @@ export const metadata: Metadata = {
 
 const organizationSchema = {
   "@context": "https://schema.org",
-  "@type": "Organization",
+  "@type": "NewsMediaOrganization",
+  "@id": "https://nolanareport.com/#organization",
   name: "The Nolana Report",
+  alternateName: "Nolana Report",
   url: "https://nolanareport.com",
-  logo: "https://nolanareport.com/images/og-social-card.png",
+  logo: {
+    "@type": "ImageObject",
+    url: "https://nolanareport.com/images/og-social-card.png",
+    width: 1344,
+    height: 752,
+  },
   description:
-    "Weekly business intelligence briefing for the Rio Grande Valley. 30 stories scored and summarized every Monday.",
+    "Get the weekly Rio Grande Valley business intelligence briefing covering new businesses, permits, trade, bridge waits, government moves, and industrial investment across McAllen and the RGV.",
   foundingDate: "2026",
   address: {
     "@type": "PostalAddress",
@@ -72,7 +79,24 @@ const organizationSchema = {
     postalCode: "78504",
     addressCountry: "US",
   },
+  areaServed: [
+    { "@type": "Place", name: "Rio Grande Valley" },
+    {
+      "@type": "City",
+      name: "McAllen",
+      address: {
+        "@type": "PostalAddress",
+        addressRegion: "TX",
+        addressCountry: "US",
+      },
+    },
+  ],
   parentOrganization: {
+    "@type": "Organization",
+    name: "National Bookkeeping Company",
+    url: "https://nationalboco.com",
+  },
+  publisher: {
     "@type": "Organization",
     name: "National Bookkeeping Company",
     url: "https://nationalboco.com",
@@ -82,21 +106,20 @@ const organizationSchema = {
     email: "info@nationalboco.com",
     contactType: "customer service",
   },
-  sameAs: [],
+  sameAs: ["https://t.me/NolanaReport"],
 };
 
 const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": "https://nolanareport.com/#website",
   name: "The Nolana Report",
   alternateName: "Nolana Report",
   url: "https://nolanareport.com",
   description:
     "Weekly briefing covering new businesses, government moves, cross-border trade, and industrial investment across McAllen, Edinburg, Brownsville, and the RGV.",
   publisher: {
-    "@type": "Organization",
-    name: "The Nolana Report",
-    url: "https://nolanareport.com",
+    "@id": "https://nolanareport.com/#organization",
   },
   inLanguage: "en-US",
 };
@@ -107,8 +130,7 @@ const periodicalSchema = {
   name: "The Nolana Report",
   url: "https://nolanareport.com",
   publisher: {
-    "@type": "Organization",
-    name: "National Bookkeeping Company",
+    "@id": "https://nolanareport.com/#organization",
   },
   about: "Business intelligence for the Rio Grande Valley",
   audience: {
