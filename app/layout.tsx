@@ -15,11 +15,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://nolanareport.com",
   ),
-  alternates: { canonical: "https://nolanareport.com" },
+  // Relative canonical/url resolve against metadataBase (non-www) — no host
+  // literal to drift, self-referential per route via each page's own metadata.
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://nolanareport.com",
+    url: "/",
     siteName: "The Nolana Report",
     title: "The Nolana Report — Lo que se mueve en el Valle",
     description:

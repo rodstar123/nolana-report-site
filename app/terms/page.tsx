@@ -4,6 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Terms of Service — The Nolana Report",
   description: "Terms of service for The Nolana Report newsletter.",
+  alternates: { canonical: "/terms" },
   robots: { index: false, follow: false },
 };
 
