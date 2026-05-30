@@ -69,11 +69,36 @@ export async function GET(req: NextRequest) {
 
     const retryPromises = missing.map(async (agent) => {
       const slug = AGENT_NAME_TO_SLUG[agent];
+      const retryStartedAt = new Date().toISOString();
       try {
         const res = await fetch(`${baseUrl}/api/agents/${slug}`, {
           headers: { Authorization: `Bearer ${process.env.CRON_SECRET}` },
         });
         const data = (await res.json()) as Record<string, unknown>;
+        if (!res.ok) {
+          await supabase.from("agent_logs").insert({
+            agent,
+            run_started_at: retryStartedAt,
+            run_finished_at: new Date().toISOString(),
+            sources_attempted: 0,
+            sources_succeeded: 0,
+            sources_failed: 0,
+            items_fetched: 0,
+            items_new: 0,
+            items_scored: 0,
+            items_ingested: 0,
+            tokens_used: 0,
+            errors: [
+              {
+                ts: retryStartedAt,
+                agent,
+                source: null,
+                type: "fetch",
+                message: `Supervisor retry failed: ${data.error ?? "unknown"} (HTTP ${res.status})`,
+              },
+            ],
+          });
+        }
         return {
           agent,
           ok: res.ok,
@@ -82,10 +107,33 @@ export async function GET(req: NextRequest) {
             : `❌ retry failed: ${data.error ?? "unknown"}`,
         };
       } catch (err) {
+        const message = err instanceof Error ? err.message : "fetch failed";
+        await supabase.from("agent_logs").insert({
+          agent,
+          run_started_at: retryStartedAt,
+          run_finished_at: new Date().toISOString(),
+          sources_attempted: 0,
+          sources_succeeded: 0,
+          sources_failed: 0,
+          items_fetched: 0,
+          items_new: 0,
+          items_scored: 0,
+          items_ingested: 0,
+          tokens_used: 0,
+          errors: [
+            {
+              ts: retryStartedAt,
+              agent,
+              source: null,
+              type: "fetch",
+              message: `Supervisor retry exception: ${message}`,
+            },
+          ],
+        });
         return {
           agent,
           ok: false,
-          detail: `❌ ${err instanceof Error ? err.message : "fetch failed"}`,
+          detail: `❌ ${message}`,
         };
       }
     });
