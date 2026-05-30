@@ -1,9 +1,14 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { countUpNumbers } from "@/lib/animations";
-import { DATA_BAR_METRICS } from "@/lib/constants";
+import type { SnapshotMetric } from "@/lib/snapshot";
 
-export default function DataBar() {
+interface DataBarProps {
+  metrics: SnapshotMetric[];
+  updatedLabel: string;
+}
+
+export default function DataBar({ metrics, updatedLabel }: DataBarProps) {
   const ref = useRef<HTMLDivElement>(null);
   const fired = useRef(false);
 
@@ -28,7 +33,7 @@ export default function DataBar() {
           This week&apos;s intelligence snapshot
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {DATA_BAR_METRICS.map((metric, i) => (
+          {metrics.map((metric, i) => (
             <div
               key={metric.label}
               className="text-center px-4"
@@ -58,7 +63,7 @@ export default function DataBar() {
           ))}
         </div>
         <p className="font-mono text-warm-white/35 text-xs text-center mt-6">
-          Updated Monday, May 19, 2026 at 6:45 AM
+          {updatedLabel}
         </p>
       </div>
     </div>

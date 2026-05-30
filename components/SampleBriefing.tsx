@@ -12,15 +12,13 @@ export default function SampleBriefing() {
       <div className="max-w-4xl mx-auto px-6">
         <SectionReveal>
           <div className="mb-12">
-            <span className="section-label mb-4">
-              Sample Issue — Week of May 19
-            </span>
+            <span className="section-label mb-4">Sample Issue</span>
             <h2 className="font-display font-bold text-navy text-4xl mt-4 mb-4">
               This week in the Valley
             </h2>
             <p className="font-editorial text-slate text-lg leading-relaxed">
-              47 stories scored this week. Here are the top stories — Pro
-              subscribers get all 30.
+              Every Monday, we score 30+ RGV business stories. Here are sample
+              top stories — Pro subscribers get the full briefing.
             </p>
             <p className="font-body text-slate-light text-sm mt-4 italic">
               Sample format shown for demonstration. Real issues include direct

@@ -149,27 +149,6 @@ export const MOCK_STORIES = [
   },
 ];
 
-export const DATA_BAR_METRICS = [
-  { label: "USD/MXN", value: 19.42, decimals: 2, prefix: "$", suffix: "" },
-  {
-    label: "Stories Scored",
-    value: 47,
-    decimals: 0,
-    prefix: "",
-    suffix: " this week",
-  },
-  {
-    label: "Bridge Wait",
-    value: 34,
-    decimals: 0,
-    prefix: "",
-    suffix: " min avg",
-  },
-  {
-    label: "New Filings",
-    value: 12,
-    decimals: 0,
-    prefix: "",
-    suffix: " this week",
-  },
-];
+// DATA_BAR_METRICS removed May 2026 — the homepage snapshot bar now sources
+// live values from Supabase + public FX/CBP APIs via lib/snapshot.ts. Do not
+// reintroduce hardcoded metrics here (they caused stale "this week" data).

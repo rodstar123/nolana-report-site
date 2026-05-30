@@ -8,6 +8,11 @@ import About from "@/components/About";
 import FAQ from "@/components/FAQ";
 import Footer from "@/components/Footer";
 import SectionReveal from "@/components/SectionReveal";
+import { getSnapshot, formatUpdatedLabel } from "@/lib/snapshot";
+
+// ISR: rebuild hourly so the snapshot picks up each agent run / the Monday
+// aggregator cron automatically — no manual redeploy, no stale fixed date.
+export const revalidate = 3600;
 
 const faqSchema = {
   "@context": "https://schema.org",
@@ -56,7 +61,10 @@ const faqSchema = {
   ],
 };
 
-export default function Home() {
+export default async function Home() {
+  const snapshot = await getSnapshot();
+  const updatedLabel = formatUpdatedLabel(snapshot.updatedAtISO);
+
   return (
     <>
       <script
@@ -65,7 +73,7 @@ export default function Home() {
       />
       <Hero />
       <SectionReveal>
-        <DataBar />
+        <DataBar metrics={snapshot.metrics} updatedLabel={updatedLabel} />
       </SectionReveal>
       <WhoItsFor />
       <WhatYouGet />
