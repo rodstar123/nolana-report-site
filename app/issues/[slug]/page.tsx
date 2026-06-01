@@ -52,7 +52,12 @@ export default async function IssuePage({
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) notFound();
 
   const supabase = getSupabase();
-  const subscriber = await getSubscriber();
+  let subscriber: Awaited<ReturnType<typeof getSubscriber>> = null;
+  try {
+    subscriber = await getSubscriber();
+  } catch {
+    // Auth failure must never crash the page — render as free tier
+  }
   const canSeePro = subscriber?.tier === "pro" || subscriber?.tier === "intel";
 
   const { data: issue } = await supabase
