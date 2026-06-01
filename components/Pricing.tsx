@@ -51,25 +51,28 @@ export default function Pricing() {
 
     setLoadingPlan(tierId);
 
-    const supabase = createSupabaseBrowserClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // Try to pre-fill email if user is logged in, but never block on it
+    let email: string | undefined;
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      email = user?.email ?? undefined;
+    } catch {
+      // Auth check failed — proceed without email, Stripe will collect it
+    }
 
-    if (user?.email) {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: tierId, email: user.email }),
-      });
-      const data = (await res.json()) as { url?: string; error?: string };
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setLoadingPlan(null);
-      }
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan: tierId, ...(email && { email }) }),
+    });
+    const data = (await res.json()) as { url?: string; error?: string };
+    if (data.url) {
+      window.location.href = data.url;
     } else {
-      window.location.href = `/login?plan=${tierId}`;
+      setLoadingPlan(null);
     }
   };
 

@@ -1,28 +1,30 @@
 "use client";
 
+import { useState } from "react";
+
 interface Props {
   remaining: number;
   email?: string;
 }
 
-export function UpgradeBanner({ remaining, email }: Props) {
+export function UpgradeBanner({ remaining }: Props) {
+  const [loading, setLoading] = useState(false);
+
   const handleUpgrade = async () => {
-    const priceId =
-      process.env.NEXT_PUBLIC_STRIPE_FOUNDING_PRO_PRICE_ID ??
-      process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID;
-
-    if (!priceId || !email) {
-      window.location.href = "/#pricing";
-      return;
-    }
-
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ priceId, email }),
-    });
-    const data = (await res.json()) as { url?: string };
-    if (data.url) window.location.href = data.url;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: "pro" }),
+      });
+      const data = (await res.json()) as { url?: string };
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+    } catch {}
+    setLoading(false);
   };
 
   return (
@@ -44,9 +46,10 @@ export function UpgradeBanner({ remaining, email }: Props) {
       </p>
       <button
         onClick={handleUpgrade}
-        className="bg-teal hover:bg-teal-light text-white font-body font-bold px-8 py-4 rounded-xl text-base transition-colors duration-200 min-h-[52px]"
+        disabled={loading}
+        className="bg-teal hover:bg-teal-light text-white font-body font-bold px-8 py-4 rounded-xl text-base transition-colors duration-200 min-h-[52px] disabled:opacity-60 disabled:cursor-wait"
       >
-        Upgrade to Pro — $7/mo founding rate
+        {loading ? "Loading…" : "Upgrade to Pro — $7/mo founding rate"}
       </button>
       <p className="font-body text-slate-light text-xs mt-4">
         Founding members lock in $7/mo forever · Cancel anytime

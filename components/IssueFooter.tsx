@@ -24,6 +24,25 @@ function FreeConversion({
   freeCount,
   totalCount,
 }: Omit<FreeFooterProps, "variant">) {
+  const [loading, setLoading] = useState(false);
+
+  const handleUpgrade = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: "pro" }),
+      });
+      const data = (await res.json()) as { url?: string };
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+    } catch {}
+    setLoading(false);
+  };
+
   return (
     <div className="mt-16 mb-8 rounded-2xl px-8 py-12 text-center bg-teal/[0.06] dark:bg-teal/[0.08] border border-teal/20">
       <p className="font-display font-bold text-charcoal dark:text-dark-text text-2xl mb-3">
@@ -33,12 +52,13 @@ function FreeConversion({
         RGV business owners use The Nolana Report to spot opportunities before
         the competition.
       </p>
-      <a
-        href="/#pricing"
-        className="inline-block bg-teal hover:bg-teal-light text-white font-body font-bold px-10 py-4 rounded-xl text-base transition-colors duration-200 min-h-[52px]"
+      <button
+        onClick={handleUpgrade}
+        disabled={loading}
+        className="inline-block bg-teal hover:bg-teal-light text-white font-body font-bold px-10 py-4 rounded-xl text-base transition-colors duration-200 min-h-[52px] disabled:opacity-60 disabled:cursor-wait cursor-pointer"
       >
-        Unlock the full briefing &rarr;
-      </a>
+        {loading ? "Loading…" : "Unlock the full briefing →"}
+      </button>
       <p className="font-body text-slate-light dark:text-dark-dim text-xs mt-4">
         Founding members lock in $7/mo forever.
       </p>
