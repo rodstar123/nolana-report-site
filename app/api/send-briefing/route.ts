@@ -3,7 +3,9 @@ import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
 import { buildBriefingEmail, type Story } from "@/lib/email/briefing-template";
 
-export async function POST(req: NextRequest) {
+export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
