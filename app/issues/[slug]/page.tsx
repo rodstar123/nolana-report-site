@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { StoryCard, type StoryData } from "@/components/StoryCard";
 import { UpgradeBanner } from "@/components/UpgradeBanner";
+import { IssueFooter } from "@/components/IssueFooter";
 
 export const revalidate = 3600;
 
@@ -190,6 +191,20 @@ export default async function IssuePage({
               </div>
             ))}
           </div>
+        )}
+
+        {/* Bottom conversion / actions footer */}
+        {canSeePro ? (
+          <IssueFooter
+            variant="pro"
+            issueUrl={`https://nolanareport.com/issues/${issue.slug}`}
+          />
+        ) : (
+          <IssueFooter
+            variant="free"
+            freeCount={freeStories.length}
+            totalCount={allStories.length}
+          />
         )}
       </div>
     </main>
