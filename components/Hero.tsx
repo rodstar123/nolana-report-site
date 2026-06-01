@@ -125,10 +125,10 @@ export default function Hero() {
                 maxWidth: "30rem",
               }}
             >
-              30 scored stories. One weekly email. What moves in the Valley
-              &mdash; before it hits the news.{" "}
+              Every story scored and summarized. One weekly email. What moves in
+              the Valley &mdash; before it hits the news.{" "}
               <span className="text-warm-white font-semibold">
-                In your inbox by 7&nbsp;AM.
+                Every Monday morning.
               </span>
             </p>
 
