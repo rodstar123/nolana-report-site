@@ -40,18 +40,18 @@ export default function Hero() {
             width: "600px",
             height: "600px",
             top: "50%",
-            right: "5%",
+            right: "8%",
             transform: "translateY(-50%)",
           }}
         >
           <BrandMark size={600} color="#d4a843" strokeWidth={0.6} />
         </div>
 
-        {/* Phone — large, right-aligned, bleeds off edge */}
+        {/* Phone — right-aligned, fully visible */}
         <div
           className="hero-mockup absolute"
           style={{
-            right: "-14%",
+            right: "2%",
             top: "50%",
             transform: "translateY(-50%)",
           }}
