@@ -126,7 +126,7 @@ export default function Hero() {
               }}
             >
               Every story scored and summarized. One weekly email. What moves in
-              the Valley &mdash; before it hits the news.{" "}
+              the Valley &mdash; so you can move first.{" "}
               <span className="text-warm-white font-semibold">
                 Every Monday morning.
               </span>
