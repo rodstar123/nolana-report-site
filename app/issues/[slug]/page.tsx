@@ -6,6 +6,7 @@ import { StoryCard, type StoryData } from "@/components/StoryCard";
 import { UpgradeBanner } from "@/components/UpgradeBanner";
 import { IssueFooter } from "@/components/IssueFooter";
 import NRIHeatmap from "@/components/NRIHeatmap";
+import ReadersPickVote from "@/components/ReadersPickVote";
 
 export const revalidate = 3600;
 
@@ -181,7 +182,7 @@ export default async function IssuePage({
         </h2>
         <div className="space-y-4 mb-8">
           {freeStories.map((story) => (
-            <StoryCard key={story.id} story={story} />
+            <StoryCard key={story.id} story={story} issueSlug={issue.slug} />
           ))}
         </div>
 
@@ -202,7 +203,7 @@ export default async function IssuePage({
             <div className="space-y-4">
               {proStories.map((story) => (
                 <div key={story.id} className="pro-story">
-                  <StoryCard story={story} />
+                  <StoryCard story={story} issueSlug={issue.slug} />
                 </div>
               ))}
             </div>
@@ -219,6 +220,17 @@ export default async function IssuePage({
             ))}
           </div>
         )}
+
+        {/* Reader's Pick vote */}
+        <ReadersPickVote
+          issueSlug={issue.slug}
+          stories={allStories.map((s) => ({
+            id: s.id,
+            headline: s.headline,
+            is_free: s.is_free,
+          }))}
+          canSeePro={canSeePro}
+        />
 
         {/* Bottom conversion / actions footer */}
         {canSeePro ? (

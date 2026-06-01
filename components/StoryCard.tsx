@@ -1,6 +1,7 @@
 "use client";
 import NRITooltip from "./NRITooltip";
 import QuickReactions from "./QuickReactions";
+import ReadersPickBadge from "./ReadersPickBadge";
 
 const SECTION_LABELS: Record<string, string> = {
   new_business_pulse: "New Business Pulse",
@@ -46,9 +47,10 @@ export interface StoryData {
 interface Props {
   story: StoryData;
   locked?: boolean;
+  issueSlug?: string;
 }
 
-export function StoryCard({ story, locked = false }: Props) {
+export function StoryCard({ story, locked = false, issueSlug }: Props) {
   const tagStyle = SECTION_COLORS[story.section] ?? {
     bg: "rgba(74,85,104,0.10)",
     color: "#4a5568",
@@ -67,19 +69,24 @@ export function StoryCard({ story, locked = false }: Props) {
         >
           {SECTION_LABELS[story.section] ?? story.section}
         </span>
-        {story.nolana_score && (
-          <NRITooltip>
-            <span
-              className="inline-flex items-center font-mono font-bold text-xs rounded px-2.5 py-1.5 flex-shrink-0"
-              style={{
-                letterSpacing: "0.02em",
-                ...getNRIStyle(story.nolana_score),
-              }}
-            >
-              NRI {story.nolana_score}/10
-            </span>
-          </NRITooltip>
-        )}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {issueSlug && (
+            <ReadersPickBadge issueSlug={issueSlug} storyId={story.id} />
+          )}
+          {story.nolana_score && (
+            <NRITooltip>
+              <span
+                className="inline-flex items-center font-mono font-bold text-xs rounded px-2.5 py-1.5 flex-shrink-0"
+                style={{
+                  letterSpacing: "0.02em",
+                  ...getNRIStyle(story.nolana_score),
+                }}
+              >
+                NRI {story.nolana_score}/10
+              </span>
+            </NRITooltip>
+          )}
+        </div>
       </div>
 
       <h3 className="font-display font-bold text-charcoal dark:text-dark-text text-[21px] leading-snug mb-4">
