@@ -130,7 +130,13 @@ export default function NRIFeature() {
               <p className="font-body text-warm-white/60 text-xs uppercase tracking-widest font-semibold mb-3">
                 This week&apos;s distribution
               </p>
-              <NRIHeatmap animated />
+              <NRIHeatmap
+                scores={[
+                  10, 9, 9, 9, 8, 8, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6,
+                  6, 6, 6, 6, 6, 6, 6, 5, 5, 4,
+                ]}
+                animated
+              />
             </div>
           </div>
 

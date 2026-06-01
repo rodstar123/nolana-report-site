@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
-import { buildBriefingEmail, type Story } from "@/lib/email/briefing-template";
+import {
+  buildBriefingEmail,
+  estimateReadingTime,
+  type Story,
+} from "@/lib/email/briefing-template";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +47,8 @@ export async function GET(req: NextRequest) {
   if (!stories?.length) {
     return NextResponse.json({ error: "No stories" }, { status: 404 });
   }
+
+  const readingTime = estimateReadingTime(stories as Story[]);
 
   const { data: subscribers } = await supabase
     .from("subscribers")
@@ -93,7 +99,7 @@ export async function GET(req: NextRequest) {
       const { data, error } = await resend.emails.send({
         from: "The Nolana Report <briefing@mail.nationalboco.com>",
         to: sub.email,
-        subject: `${issue.title} — ${storyCount} stories scored | The Nolana Report`,
+        subject: `${issue.title} — ${storyCount} stories scored · ~${readingTime} min read | The Nolana Report`,
         html,
       });
 

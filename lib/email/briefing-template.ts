@@ -11,6 +11,14 @@ export interface Story {
   position: number;
 }
 
+export function estimateReadingTime(stories: Story[]): number {
+  const totalWords = stories.reduce((sum, s) => {
+    const text = `${s.headline} ${s.summary} ${s.why_it_matters ?? ""}`;
+    return sum + text.split(/\s+/).length;
+  }, 0);
+  return Math.max(3, Math.ceil(totalWords / 250));
+}
+
 const sectionLabels: Record<string, string> = {
   new_business_pulse: "New Business Pulse",
   gov_economic_watch: "Opportunity Radar",

@@ -1,3 +1,7 @@
+"use client";
+import NRITooltip from "./NRITooltip";
+import QuickReactions from "./QuickReactions";
+
 const SECTION_LABELS: Record<string, string> = {
   new_business_pulse: "New Business Pulse",
   gov_economic_watch: "Opportunity Radar",
@@ -64,15 +68,17 @@ export function StoryCard({ story, locked = false }: Props) {
           {SECTION_LABELS[story.section] ?? story.section}
         </span>
         {story.nolana_score && (
-          <span
-            className="inline-flex items-center font-mono font-bold text-xs rounded px-2.5 py-1.5 flex-shrink-0"
-            style={{
-              letterSpacing: "0.02em",
-              ...getNRIStyle(story.nolana_score),
-            }}
-          >
-            NRI {story.nolana_score}/10
-          </span>
+          <NRITooltip>
+            <span
+              className="inline-flex items-center font-mono font-bold text-xs rounded px-2.5 py-1.5 flex-shrink-0"
+              style={{
+                letterSpacing: "0.02em",
+                ...getNRIStyle(story.nolana_score),
+              }}
+            >
+              NRI {story.nolana_score}/10
+            </span>
+          </NRITooltip>
         )}
       </div>
 
@@ -100,6 +106,10 @@ export function StoryCard({ story, locked = false }: Props) {
               </p>
             </div>
           )}
+
+          <div className="mt-4 mb-3">
+            <QuickReactions storyId={story.id} />
+          </div>
 
           <div className="flex items-center justify-between gap-3 flex-wrap mt-3">
             <div className="flex items-center gap-3 flex-wrap">

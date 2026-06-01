@@ -5,6 +5,7 @@ import Link from "next/link";
 import { StoryCard, type StoryData } from "@/components/StoryCard";
 import { UpgradeBanner } from "@/components/UpgradeBanner";
 import { IssueFooter } from "@/components/IssueFooter";
+import NRIHeatmap from "@/components/NRIHeatmap";
 
 export const revalidate = 3600;
 
@@ -80,6 +81,20 @@ export default async function IssuePage({
   const freeStories = allStories.filter((s) => s.is_free);
   const proStories = allStories.filter((s) => !s.is_free);
 
+  const readingTime = Math.max(
+    3,
+    Math.ceil(
+      allStories.reduce((sum, s) => {
+        const text = `${s.headline} ${s.summary} ${s.why_it_matters ?? ""}`;
+        return sum + text.split(/\s+/).length;
+      }, 0) / 250,
+    ),
+  );
+
+  const nriScores = allStories
+    .map((s) => s.nolana_score)
+    .filter((s): s is number => s !== null);
+
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -130,6 +145,8 @@ export default async function IssuePage({
         <p className="font-body text-slate-light dark:text-dark-muted text-sm mb-8">
           {issue.stories_count} stories scored
           {canSeePro ? " · Full access" : " · 5 free stories"}
+          {" · ~"}
+          {readingTime} min read
         </p>
 
         {issue.opening && (
@@ -145,6 +162,16 @@ export default async function IssuePage({
                   {para.trim()}
                 </p>
               ))}
+          </div>
+        )}
+
+        {/* NRI Heatmap — score distribution */}
+        {nriScores.length > 0 && (
+          <div className="mb-10 p-5 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl">
+            <p className="font-body text-xs text-slate-light dark:text-dark-dim uppercase tracking-wide font-semibold mb-3">
+              Score Distribution
+            </p>
+            <NRIHeatmap scores={nriScores} />
           </div>
         )}
 
