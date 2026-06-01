@@ -26,6 +26,57 @@ async function fetchWithRetry(
   throw new Error("exhausted retries");
 }
 
+function isGoogleNewsUrl(url: string): boolean {
+  return url.includes("news.google.com/rss/articles/");
+}
+
+async function resolveGoogleNewsUrl(
+  gnUrl: string,
+  sourceDomain?: string,
+  title?: string,
+): Promise<string> {
+  // Strategy 1: if we have the source domain from RSS <source url="...">, search there
+  if (sourceDomain && title) {
+    const cleanTitle = title.replace(/ - [^-]+$/, "").trim();
+    const slug = cleanTitle
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 80);
+    const candidates = [
+      `${sourceDomain.replace(/\/$/, "")}/${slug}`,
+      `${sourceDomain.replace(/\/$/, "")}/${new Date().getFullYear()}/${slug}`,
+    ];
+    for (const candidate of candidates) {
+      try {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 4_000);
+        const res = await fetch(candidate, {
+          method: "HEAD",
+          signal: ctrl.signal,
+          redirect: "follow",
+        });
+        clearTimeout(t);
+        if (res.ok) return candidate;
+      } catch {}
+    }
+  }
+
+  // Strategy 2: follow redirects (works for some articles)
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 5_000);
+    const res = await fetch(gnUrl, { redirect: "follow", signal: ctrl.signal });
+    clearTimeout(t);
+    if (res.url && !res.url.includes("news.google.com")) return res.url;
+  } catch {}
+
+  // Strategy 3: if source domain known, link to it as fallback
+  if (sourceDomain) return sourceDomain;
+
+  return gnUrl;
+}
+
 function parseRssItems(
   feed: RssParser.Output<Record<string, unknown>>,
   source: SourceConfig,
@@ -187,8 +238,46 @@ async function fetchRss(
   agent: AgentName,
 ): Promise<{ items: RawItem[]; error: string | null }> {
   try {
-    const feed = await rssParser.parseURL(source.url);
-    return { items: parseRssItems(feed, source, agent), error: null };
+    const isGoogleNewsFeed = source.url.includes("news.google.com");
+    let feed: RssParser.Output<Record<string, unknown>>;
+    let sourceUrls: Map<number, string> | undefined;
+
+    if (isGoogleNewsFeed) {
+      // Parse with xml2js to extract <source url="..."> attributes
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 10_000);
+      const res = await fetch(source.url, { signal: ctrl.signal });
+      clearTimeout(t);
+      const xml = await res.text();
+      feed = await rssParser.parseString(xml);
+
+      // Extract source domain URLs from raw XML
+      sourceUrls = new Map();
+      const sourceRe = /<source\s+url="([^"]+)"[^>]*>[^<]*<\/source>/g;
+      let sourceMatch: RegExpExecArray | null;
+      let idx = 0;
+      while ((sourceMatch = sourceRe.exec(xml)) !== null) {
+        sourceUrls.set(idx, sourceMatch[1]);
+        idx++;
+      }
+    } else {
+      feed = await rssParser.parseURL(source.url);
+    }
+
+    const items = parseRssItems(feed, source, agent);
+
+    if (isGoogleNewsFeed && sourceUrls) {
+      await Promise.all(
+        items.map(async (item, i) => {
+          if (isGoogleNewsUrl(item.url)) {
+            const domain = sourceUrls!.get(i);
+            item.url = await resolveGoogleNewsUrl(item.url, domain, item.title);
+          }
+        }),
+      );
+    }
+
+    return { items, error: null };
   } catch (e) {
     return { items: [], error: e instanceof Error ? e.message : String(e) };
   }
