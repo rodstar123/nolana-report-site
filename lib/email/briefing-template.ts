@@ -113,9 +113,9 @@ export function buildBriefingEmail(
       <div style="margin:32px 0;padding:28px;background:#f0f9ff;border:2px solid #bae6fd;border-radius:10px;text-align:center;font-family:sans-serif;">
         <h3 style="margin:0 0 8px;font-size:20px;color:#1a1a1a;">${lockedCount} more stories scored this week</h3>
         <p style="margin:0 0 20px;color:#555;font-size:15px;">One early signal can pay for the whole year.</p>
-        <a href="https://nolanareport.com/issues/${issueSlug}"
+        <a href="https://nolanareport.com/#pricing"
            style="display:inline-block;background:#0d7377;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;">
-          Read the full briefing →
+          Unlock the full briefing →
         </a>
         <p style="margin:12px 0 0;font-size:12px;color:#999;">Founding members lock in $7/mo forever.</p>
       </div>
