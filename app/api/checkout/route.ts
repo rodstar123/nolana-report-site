@@ -64,7 +64,8 @@ async function createCheckoutSession(
     sessionOpts.customer = customerId;
     sessionOpts.metadata = { email };
   } else {
-    sessionOpts.customer_creation = "always";
+    // Subscription mode always creates a customer — just pre-fill email if we have one
+    // No customer_creation needed; Stripe handles it
   }
 
   const session = await stripe.checkout.sessions.create(sessionOpts);
