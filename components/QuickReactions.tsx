@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 interface Props {
   storyId: string;
@@ -7,8 +7,8 @@ interface Props {
 
 const REACTIONS = [
   { emoji: "\u{1F44D}", label: "Useful", key: "useful" },
-  { emoji: "\u{1F525}", label: "Important", key: "important" },
-  { emoji: "\u{1F440}", label: "Watching", key: "watching" },
+  { emoji: "\u{1F525}", label: "Big Deal", key: "important" },
+  { emoji: "\u{1F4AC}", label: "Discuss", key: "watching" },
 ] as const;
 
 type ReactionKey = (typeof REACTIONS)[number]["key"];
@@ -29,6 +29,8 @@ export default function QuickReactions({ storyId }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [loaded, setLoaded] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const tooltipTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     let cancelled = false;
@@ -77,56 +79,79 @@ export default function QuickReactions({ storyId }: Props) {
     [storyId, selected],
   );
 
+  const handleGroupHover = useCallback((entering: boolean) => {
+    clearTimeout(tooltipTimer.current);
+    if (entering) {
+      tooltipTimer.current = setTimeout(() => setShowTooltip(true), 600);
+    } else {
+      setShowTooltip(false);
+    }
+  }, []);
+
   if (!loaded) {
     return (
-      <div
-        className="flex items-center gap-2 h-8"
-        role="group"
-        aria-label="Quick reactions"
-      >
-        {REACTIONS.map((r) => (
-          <span
-            key={r.key}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-cream-dark/40 dark:bg-dark-border/40 border border-transparent animate-pulse min-h-[32px] w-14"
-          />
-        ))}
+      <div className="mt-4 mb-3">
+        <div className="flex items-center gap-2 h-8">
+          {REACTIONS.map((r) => (
+            <span
+              key={r.key}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-cream-dark/40 dark:bg-dark-border/40 border border-transparent animate-pulse min-h-[32px] w-20"
+            />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      className="flex items-center gap-2"
-      role="group"
-      aria-label="Quick reactions"
-    >
-      {REACTIONS.map((r) => {
-        const active = selected.has(r.key);
-        const count = counts[r.key] ?? 0;
-        return (
-          <button
-            key={r.key}
-            type="button"
-            onClick={() => toggle(r.key)}
-            aria-label={`React with ${r.label}`}
-            aria-pressed={active}
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-body transition-all duration-200 min-h-[32px] ${
-              active
-                ? "bg-teal/15 border border-teal/30 text-teal dark:text-teal-light"
-                : "bg-cream-dark/60 dark:bg-dark-border/60 border border-transparent text-slate-light dark:text-dark-dim hover:bg-cream-dark dark:hover:bg-dark-border hover:border-cream-dark dark:hover:border-dark-border"
-            }`}
-          >
-            <span className="text-sm" aria-hidden="true">
-              {r.emoji}
-            </span>
-            {count > 0 && (
-              <span className="font-mono text-[11px] tabular-nums">
-                {count}
+    <div className="mt-4 mb-3">
+      <p className="font-body text-[11px] text-slate-light dark:text-dark-dim uppercase tracking-wide font-semibold mb-2">
+        How valuable was this story?
+      </p>
+      <div
+        className="relative flex items-center gap-2 flex-wrap"
+        role="group"
+        aria-label="Quick reactions"
+        onMouseEnter={() => handleGroupHover(true)}
+        onMouseLeave={() => handleGroupHover(false)}
+      >
+        {REACTIONS.map((r) => {
+          const active = selected.has(r.key);
+          const count = counts[r.key] ?? 0;
+          return (
+            <button
+              key={r.key}
+              type="button"
+              onClick={() => toggle(r.key)}
+              aria-label={`React with ${r.label}`}
+              aria-pressed={active}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-body transition-all duration-200 min-h-[32px] ${
+                active
+                  ? "bg-teal/15 border border-teal/30 text-teal dark:text-teal-light font-semibold"
+                  : "bg-cream-dark/60 dark:bg-dark-border/60 border border-transparent text-slate-light dark:text-dark-dim hover:bg-cream-dark dark:hover:bg-dark-border hover:border-cream-dark dark:hover:border-dark-border"
+              }`}
+            >
+              <span className="text-sm" aria-hidden="true">
+                {r.emoji}
               </span>
-            )}
-          </button>
-        );
-      })}
+              <span className="text-[11px]">{r.label}</span>
+              {count > 0 && (
+                <span className="font-mono text-[10px] tabular-nums opacity-70">
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+
+        {showTooltip && (
+          <div className="absolute left-0 -bottom-8 z-30 bg-navy-deep dark:bg-dark-card border border-white/10 dark:border-dark-border rounded-lg px-3 py-1.5 shadow-lg pointer-events-none">
+            <p className="font-body text-[10px] text-slate-light dark:text-dark-dim whitespace-nowrap">
+              Your reaction helps us improve future briefings
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
