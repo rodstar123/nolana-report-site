@@ -1,5 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 export default function StickyMobileCTA() {
   const [visible, setVisible] = useState(false);
@@ -7,6 +9,9 @@ export default function StickyMobileCTA() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const turnstileToken = useRef("");
+  const widgetContainerRef = useRef<HTMLDivElement>(null);
+  const widgetId = useRef<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -39,6 +44,40 @@ export default function StickyMobileCTA() {
     return () => observer.disconnect();
   }, [dismissed]);
 
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !widgetContainerRef.current || widgetId.current)
+      return;
+    const existing = document.getElementById("cf-turnstile-script");
+    const init = () => {
+      if (!widgetContainerRef.current || widgetId.current) return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      widgetId.current = (window as any).turnstile?.render(
+        widgetContainerRef.current,
+        {
+          sitekey: TURNSTILE_SITE_KEY,
+          size: "invisible",
+          callback: (token: string) => {
+            turnstileToken.current = token;
+          },
+          "expired-callback": () => {
+            turnstileToken.current = "";
+          },
+        },
+      );
+    };
+    if (existing) {
+      init();
+    } else {
+      const script = document.createElement("script");
+      script.id = "cf-turnstile-script";
+      script.src =
+        "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.onload = init;
+      document.head.appendChild(script);
+    }
+  }, []);
+
   const dismiss = () => {
     setDismissed(true);
     try {
@@ -56,7 +95,7 @@ export default function StickyMobileCTA() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: email.toLowerCase().trim(),
-          turnstileToken: "",
+          turnstileToken: turnstileToken.current,
           website: "",
         }),
       });
@@ -84,6 +123,7 @@ export default function StickyMobileCTA() {
           </p>
         ) : (
           <form onSubmit={handleSubmit} className="flex items-center gap-2">
+            <div ref={widgetContainerRef} aria-hidden="true" />
             <input
               type="email"
               value={email}

@@ -8,13 +8,19 @@ function isValidEmail(email: string) {
 
 function isBotEmail(email: string): boolean {
   const local = email.split("@")[0];
+  // Consecutive dots (RFC violation — Resend rejects these too)
+  if (/\.{2,}/.test(local)) return true;
+  // 4+ dots in local part — heavy dot-stuffing
   const dots = (local.match(/\./g) ?? []).length;
   if (dots >= 4) return true;
-  if (/\.\d{2}$/.test(local)) return true;
+  // Ends in .NN digits (e.g. "name.62", "user.158")
+  if (/\.\d+$/.test(local)) return true;
   // Dot-separated single chars: "v.i.n.b.o.y" pattern
   const segments = local.split(".");
   const singleCharSegments = segments.filter((s) => s.length === 1).length;
   if (singleCharSegments >= 3) return true;
+  // High dot-to-length ratio — "a.bc.d.ef.g" style gibberish
+  if (dots >= 3 && dots / local.length > 0.25) return true;
   return false;
 }
 
