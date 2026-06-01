@@ -113,6 +113,18 @@ export async function GET(req: NextRequest) {
       errors: [],
     });
 
+    // Warm the ISR cache so the first subscriber click doesn't cold-start
+    const slug = new Date().toISOString().slice(0, 10);
+    const baseUrl =
+      process.env.NEXT_PUBLIC_APP_URL ?? "https://nolanareport.com";
+    try {
+      await fetch(`${baseUrl}/issues/${slug}`, {
+        headers: { "x-purpose": "cache-warm" },
+      });
+    } catch {
+      // Non-fatal — page will still build on first visitor click
+    }
+
     return NextResponse.json({
       ok: true,
       poolSize: poolItems.length,

@@ -119,5 +119,15 @@ export async function GET(req: NextRequest) {
     await new Promise((r) => setTimeout(r, 250));
   }
 
+  // Warm ISR cache before subscribers click — guarantees no cold-start 500
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://nolanareport.com";
+  try {
+    await fetch(`${baseUrl}/issues/${issue.slug}`, {
+      headers: { "x-purpose": "cache-warm" },
+    });
+  } catch {
+    // Non-fatal
+  }
+
   return NextResponse.json(results);
 }
