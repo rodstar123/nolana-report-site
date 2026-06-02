@@ -1,7 +1,5 @@
 "use client";
 import NRITooltip from "./NRITooltip";
-import QuickReactions from "./QuickReactions";
-import ReadersPickBadge from "./ReadersPickBadge";
 
 const SECTION_LABELS: Record<string, string> = {
   new_business_pulse: "New Business Pulse",
@@ -51,10 +49,9 @@ export interface StoryData {
 interface Props {
   story: StoryData;
   locked?: boolean;
-  issueSlug?: string;
 }
 
-export function StoryCard({ story, locked = false, issueSlug }: Props) {
+export function StoryCard({ story, locked = false }: Props) {
   const tagStyle = SECTION_COLORS[story.section] ?? {
     bg: "rgba(74,85,104,0.10)",
     color: "#4a5568",
@@ -74,9 +71,6 @@ export function StoryCard({ story, locked = false, issueSlug }: Props) {
           {SECTION_LABELS[story.section] ?? story.section}
         </span>
         <div className="flex items-center gap-2 flex-shrink-0">
-          {issueSlug && (
-            <ReadersPickBadge issueSlug={issueSlug} storyId={story.id} />
-          )}
           {story.nolana_score && (
             <NRITooltip>
               <span
@@ -151,10 +145,6 @@ export function StoryCard({ story, locked = false, issueSlug }: Props) {
               </p>
             </div>
           )}
-
-          <div className="mt-4 mb-3">
-            <QuickReactions storyId={story.id} />
-          </div>
 
           <div className="flex items-center justify-between gap-3 flex-wrap mt-3">
             <div className="flex items-center gap-3 flex-wrap">

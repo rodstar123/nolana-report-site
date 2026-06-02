@@ -7,7 +7,6 @@ import { UpgradeBanner } from "@/components/UpgradeBanner";
 import { IssueFooter } from "@/components/IssueFooter";
 import NRIHeatmap from "@/components/NRIHeatmap";
 import NRITooltip from "@/components/NRITooltip";
-import ReadersPickVote from "@/components/ReadersPickVote";
 import { TrackBriefingView } from "@/components/TrackBriefingView";
 
 export const revalidate = 3600;
@@ -49,6 +48,12 @@ function parseMoves(md: string) {
     .split("\n")
     .filter((l) => /^\d+\./.test(l.trim()))
     .map((l) => l.replace(/^\d+\.\s*/, "").trim());
+}
+
+function extractOpening(text: string): string {
+  const cut = text.search(/\n---|\n##/);
+  const intro = cut > 0 ? text.slice(0, cut) : text;
+  return intro.trim();
 }
 
 export async function generateStaticParams() {
@@ -151,7 +156,6 @@ export default async function IssuePage({
     { label: "Policy", value: iss.nri_sub_policy as number | null },
     { label: "Trade", value: iss.nri_sub_trade as number | null },
   ].filter((s) => s.value !== null && s.value !== undefined);
-  const moveBarText = (iss.move_bar as string | null) ?? null;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
   const articleSchema = {
@@ -249,7 +253,7 @@ export default async function IssuePage({
 
         {issue.opening && (
           <div className="mb-12 pb-10 border-b border-cream-dark dark:border-dark-border space-y-4">
-            {issue.opening
+            {extractOpening(issue.opening)
               .split("\n\n")
               .filter(Boolean)
               .map((para: string, i: number) => (
@@ -330,26 +334,13 @@ export default async function IssuePage({
           </div>
         )}
 
-        {/* Move Bar */}
-        {moveBarText && (
-          <div className="mb-10 p-4 bg-navy/[0.04] dark:bg-dark-card border border-navy/10 dark:border-dark-border rounded-lg flex items-start gap-3">
-            <span className="shrink-0 mt-0.5 w-1.5 h-1.5 rounded-full bg-teal dark:bg-teal-light" />
-            <p className="font-body text-[15px] text-charcoal dark:text-dark-text leading-relaxed">
-              <span className="font-semibold text-teal dark:text-teal-light">
-                The move:
-              </span>{" "}
-              {moveBarText}
-            </p>
-          </div>
-        )}
-
         {/* Free stories */}
         <h2 className="font-display font-bold text-navy dark:text-dark-text text-2xl mb-6">
           Top Stories This Week
         </h2>
         <div className="space-y-4 mb-8">
           {freeStories.map((story) => (
-            <StoryCard key={story.id} story={story} issueSlug={issue.slug} />
+            <StoryCard key={story.id} story={story} />
           ))}
         </div>
 
@@ -371,21 +362,43 @@ export default async function IssuePage({
             <div className="space-y-4">
               {proStories.map((story) => (
                 <div key={story.id} className="pro-story">
-                  <StoryCard story={story} issueSlug={issue.slug} />
+                  <StoryCard story={story} />
                 </div>
               ))}
             </div>
           </>
         )}
 
-        {/* Locked preview for free users */}
+        {/* Locked story previews for free users */}
         {!canSeePro && proStories.length > 0 && (
-          <div className="mt-4 space-y-4 pointer-events-none select-none opacity-40">
-            {proStories.slice(0, 2).map((story) => (
-              <div key={story.id} className="pro-story">
-                <StoryCard story={story} locked />
-              </div>
-            ))}
+          <div className="mt-6 mb-8 p-6 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl">
+            <p className="font-body text-sm text-slate-light dark:text-dark-dim font-semibold mb-4">
+              {proStories.length} more{" "}
+              {proStories.length === 1 ? "story" : "stories"} in the full
+              briefing
+            </p>
+            <ul className="space-y-2">
+              {proStories.map((story) => (
+                <li key={story.id} className="flex items-center gap-3">
+                  <svg
+                    className="w-3 h-3 text-gold/60 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z" />
+                  </svg>
+                  <span className="font-body text-sm text-charcoal dark:text-dark-text">
+                    {story.headline}
+                  </span>
+                  {story.nolana_score && (
+                    <span className="font-mono text-[11px] text-slate-light dark:text-dark-dim ml-auto flex-shrink-0">
+                      NRI {story.nolana_score}/10
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
@@ -484,17 +497,6 @@ export default async function IssuePage({
               ))}
           </div>
         )}
-
-        {/* Reader's Pick vote */}
-        <ReadersPickVote
-          issueSlug={issue.slug}
-          stories={allStories.map((s) => ({
-            id: s.id,
-            headline: s.headline,
-            is_free: s.is_free,
-          }))}
-          canSeePro={canSeePro}
-        />
 
         {/* Bottom conversion / actions footer */}
         {canSeePro ? (
