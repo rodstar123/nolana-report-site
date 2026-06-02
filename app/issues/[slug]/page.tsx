@@ -6,6 +6,7 @@ import { StoryCard, type StoryData } from "@/components/StoryCard";
 import { UpgradeBanner } from "@/components/UpgradeBanner";
 import { IssueFooter } from "@/components/IssueFooter";
 import NRIHeatmap from "@/components/NRIHeatmap";
+import NRITooltip from "@/components/NRITooltip";
 import ReadersPickVote from "@/components/ReadersPickVote";
 import { TrackBriefingView } from "@/components/TrackBriefingView";
 
@@ -202,15 +203,49 @@ export default async function IssuePage({
             year: "numeric",
           })}
         </span>
-        <h1 className="font-display font-bold text-navy dark:text-dark-text text-4xl mt-2 mb-2">
+        <h1 className="font-display font-bold text-navy dark:text-dark-text text-4xl mt-2 mb-4">
           {issue.title}
         </h1>
-        <p className="font-body text-slate-light dark:text-dark-muted text-sm mb-8">
-          {issue.stories_count} stories scored
-          {canSeePro ? " · Full access" : " · 5 free stories"}
-          {" · ~"}
-          {readingTime} min read
-        </p>
+        <div className="flex flex-wrap items-center gap-2 mb-8">
+          <span className="inline-flex items-center gap-1.5 bg-teal/8 dark:bg-teal/15 border border-teal/15 dark:border-teal/25 rounded-full px-3 py-1">
+            <svg
+              className="w-3.5 h-3.5 text-teal dark:text-teal-light"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" strokeWidth={2} />
+              <polyline
+                points="12 6 12 12 16 14"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span className="font-body text-teal dark:text-teal-light text-xs font-semibold">
+              ~{readingTime} min read
+            </span>
+          </span>
+          <span className="inline-flex items-center gap-1.5 bg-slate-light/8 dark:bg-dark-dim/15 border border-slate-light/15 dark:border-dark-border rounded-full px-3 py-1">
+            <span className="font-body text-slate dark:text-dark-muted text-xs font-semibold">
+              {allStories.length} stories
+            </span>
+          </span>
+          {nriScores.length > 0 && (
+            <span className="inline-flex items-center gap-1.5 bg-gold/8 dark:bg-gold/15 border border-gold/15 dark:border-gold/25 rounded-full px-3 py-1">
+              <NRITooltip>
+                <span className="font-body text-gold dark:text-gold text-xs font-semibold">
+                  NRI range {Math.min(...nriScores)}&ndash;
+                  {Math.max(...nriScores)}
+                </span>
+              </NRITooltip>
+            </span>
+          )}
+          <span className="font-body text-slate-light dark:text-dark-dim text-xs">
+            {canSeePro ? "Full access" : `${freeStories.length} free stories`}
+          </span>
+        </div>
 
         {issue.opening && (
           <div className="mb-12 pb-10 border-b border-cream-dark dark:border-dark-border space-y-4">
@@ -259,9 +294,14 @@ export default async function IssuePage({
         {/* NRI Heatmap — score distribution */}
         {nriScores.length > 0 && (
           <div className="mb-10 p-5 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl">
-            <p className="font-body text-xs text-slate-light dark:text-dark-dim uppercase tracking-wide font-semibold mb-3">
-              Score Distribution
-            </p>
+            <div className="flex items-center gap-2 mb-3">
+              <p className="font-body text-xs text-slate-light dark:text-dark-dim uppercase tracking-wide font-semibold">
+                Score Distribution
+              </p>
+              <NRITooltip>
+                <span className="sr-only">What is the NRI?</span>
+              </NRITooltip>
+            </div>
             <NRIHeatmap scores={nriScores} />
           </div>
         )}
@@ -461,6 +501,7 @@ export default async function IssuePage({
           <IssueFooter
             variant="pro"
             issueUrl={`https://nolanareport.com/issues/${issue.slug}`}
+            referralCode={subscriber?.referral_code}
           />
         ) : (
           <IssueFooter

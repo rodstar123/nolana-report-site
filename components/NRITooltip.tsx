@@ -57,38 +57,85 @@ export default function NRITooltip({ children }: Props) {
         <div
           id="nri-tooltip"
           role="tooltip"
-          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 bg-navy-deep border border-white/10 rounded-xl p-4 shadow-2xl"
+          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 bg-navy-deep border border-white/10 rounded-xl p-4 shadow-2xl"
         >
           <p className="font-body text-warm-white text-sm font-semibold mb-1.5">
             Nolana Relevance Index (NRI)
           </p>
           <p className="font-body text-slate-light text-xs leading-relaxed mb-3">
-            Every story is scored 0&ndash;100 by business relevance, urgency,
-            and market impact. Higher scores mean a stronger signal for Valley
-            business owners.
+            Each story is scored 1&ndash;10 based on four dimensions. A score of
+            9&ndash;10 means high money + high urgency + wide RGV reach. A score
+            of 3&ndash;4 means narrow impact or low urgency. Stories below 3 are
+            excluded from the briefing.
           </p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 mb-3">
             {[
               {
-                label: "85-100",
-                name: "Critical",
+                icon: "M12 2v10l4.5 4.5",
+                label: "Money Impact",
+                desc: "Revenue, cost, or capital effect",
+              },
+              {
+                icon: "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
+                label: "Urgency",
+                desc: "Deadline or time-sensitive window",
+              },
+              {
+                icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2",
+                label: "Local Reach",
+                desc: "How many Valley operators affected",
+              },
+              {
+                icon: "M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z",
+                label: "Risk",
+                desc: "Downside exposure if you miss it",
+              },
+            ].map((dim) => (
+              <div key={dim.label} className="flex items-start gap-2">
+                <svg
+                  className="w-3.5 h-3.5 text-teal-light flex-shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d={dim.icon} />
+                </svg>
+                <div>
+                  <p className="font-body text-warm-white text-[11px] font-semibold leading-tight">
+                    {dim.label}
+                  </p>
+                  <p className="font-body text-slate-light text-[10px] leading-snug">
+                    {dim.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-white/10">
+            {[
+              {
+                range: "8–10",
+                label: "Act now",
                 color: "var(--nri-critical-ring)",
               },
-              { label: "70-84", name: "High", color: "var(--nri-high-ring)" },
               {
-                label: "55-69",
-                name: "Moderate",
+                range: "5–7",
+                label: "Monitor",
                 color: "var(--nri-moderate-ring)",
               },
-              { label: "<55", name: "Watch", color: "var(--nri-watch-ring)" },
+              { range: "1–4", label: "Aware", color: "var(--nri-watch-ring)" },
             ].map((t) => (
-              <div key={t.name} className="flex items-center gap-2">
+              <div key={t.label} className="flex items-center gap-1.5">
                 <span
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                  className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{ background: t.color }}
                 />
                 <span className="font-mono text-[10px] text-slate-light">
-                  {t.label} {t.name}
+                  {t.range} {t.label}
                 </span>
               </div>
             ))}

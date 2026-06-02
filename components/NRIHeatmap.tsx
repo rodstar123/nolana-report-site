@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 
 interface ScoreBucket {
   range: string;
@@ -40,8 +41,14 @@ interface Props {
 export default function NRIHeatmap({ scores, animated }: Props) {
   const buckets = buildBuckets(scores);
   const total = scores.length;
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   if (total === 0) return null;
+
+  const summaryParts = buckets.filter((b) => b.count > 0);
+  const summaryText = summaryParts
+    .map((b) => `${b.count} stories scored ${b.range}`)
+    .join(", ");
 
   return (
     <div
@@ -52,30 +59,65 @@ export default function NRIHeatmap({ scores, animated }: Props) {
       <p className="font-body text-xs text-slate-light dark:text-dark-dim leading-relaxed mb-3">
         How this week&apos;s stories scored on the Nolana Relevance Index
       </p>
-      <div className="flex h-4 rounded-full overflow-hidden gap-0.5">
-        {buckets.map((bucket) =>
+
+      {/* Heat strip with hover tooltips */}
+      <div className="relative flex h-5 rounded-full overflow-hidden gap-0.5">
+        {buckets.map((bucket, idx) =>
           bucket.count > 0 ? (
             <div
               key={bucket.label}
-              className={`h-full rounded-full ${animated ? "nri-heatmap-bar origin-left" : "transition-all duration-500"}`}
+              className={`h-full rounded-full cursor-default transition-opacity ${animated ? "nri-heatmap-bar origin-left" : "transition-all duration-500"} ${hoveredIdx !== null && hoveredIdx !== idx ? "opacity-40" : "opacity-85"}`}
               style={{
                 width: `${(bucket.count / total) * 100}%`,
                 background: bucket.color,
-                opacity: 0.85,
                 ...(animated ? { transform: "scaleX(0)" } : {}),
+              }}
+              onMouseEnter={() => setHoveredIdx(idx)}
+              onMouseLeave={() => setHoveredIdx(null)}
+              onClick={() => setHoveredIdx(hoveredIdx === idx ? null : idx)}
+              role="button"
+              tabIndex={0}
+              aria-label={`${bucket.count} stories scored ${bucket.range} (${bucket.label})`}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ")
+                  setHoveredIdx(hoveredIdx === idx ? null : idx);
               }}
             />
           ) : null,
         )}
       </div>
-      <div className="grid grid-cols-2 sm:flex sm:justify-between gap-1.5 sm:gap-0 mt-3">
-        {buckets.map((bucket) => {
+
+      {/* Hover/tap summary */}
+      <div className="h-6 mt-1.5">
+        {hoveredIdx !== null && buckets[hoveredIdx].count > 0 ? (
+          <p className="font-mono text-xs text-slate dark:text-dark-muted animate-in fade-in duration-150">
+            <span
+              className="inline-block w-2 h-2 rounded-full mr-1.5 align-middle"
+              style={{ background: buckets[hoveredIdx].color }}
+            />
+            {buckets[hoveredIdx].count}{" "}
+            {buckets[hoveredIdx].count === 1 ? "story" : "stories"} scored{" "}
+            {buckets[hoveredIdx].range} ({buckets[hoveredIdx].label})
+          </p>
+        ) : (
+          <p className="font-body text-[11px] text-slate-light/60 dark:text-dark-dim/60">
+            {summaryText}
+          </p>
+        )}
+      </div>
+
+      {/* Legend */}
+      <div className="grid grid-cols-2 sm:flex sm:justify-between gap-1.5 sm:gap-0 mt-1">
+        {buckets.map((bucket, idx) => {
           const dimmed = bucket.count === 0;
+          const active = hoveredIdx === idx;
           return (
             <div
               key={bucket.label}
-              className={`flex items-center gap-1.5 ${animated ? "nri-heatmap-label" : ""} ${dimmed ? "opacity-30" : ""}`}
+              className={`flex items-center gap-1.5 cursor-default transition-opacity ${animated ? "nri-heatmap-label" : ""} ${dimmed ? "opacity-30" : active ? "opacity-100" : hoveredIdx !== null ? "opacity-40" : ""}`}
               style={animated ? { opacity: dimmed ? 0.3 : 0 } : undefined}
+              onMouseEnter={() => !dimmed && setHoveredIdx(idx)}
+              onMouseLeave={() => setHoveredIdx(null)}
             >
               <span
                 className="w-2.5 h-2.5 rounded-full flex-shrink-0"

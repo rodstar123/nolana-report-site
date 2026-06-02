@@ -11,6 +11,7 @@ interface FreeFooterProps {
 interface ProFooterProps {
   variant: "pro";
   issueUrl: string;
+  referralCode?: string | null;
 }
 
 type Props = FreeFooterProps | ProFooterProps;
@@ -45,38 +46,48 @@ function FreeConversion({
 
   return (
     <div className="mt-16 mb-8 rounded-2xl px-8 py-12 text-center bg-teal/[0.06] dark:bg-teal/[0.08] border border-teal/20">
+      <p className="font-editorial text-slate dark:text-dark-muted text-base mb-4">
+        That&rsquo;s this week&rsquo;s read. The Nolana Report publishes every
+        Monday.
+      </p>
       <p className="font-display font-bold text-charcoal dark:text-dark-text text-2xl mb-3">
         You&rsquo;re seeing {freeCount} of {totalCount} stories this week.
       </p>
       <p className="font-body text-slate dark:text-dark-muted text-base max-w-md mx-auto mb-8 leading-relaxed">
-        RGV business owners use The Nolana Report to spot opportunities before
-        the competition.
+        Unlock the full briefing &mdash; Valley Money Map, 3 Moves, and every
+        scored story with sub-breakdowns.
       </p>
       <button
         onClick={handleUpgrade}
         disabled={loading}
         className="inline-block bg-teal hover:bg-teal-light text-white font-body font-bold px-10 py-4 rounded-xl text-base transition-colors duration-200 min-h-[52px] disabled:opacity-60 disabled:cursor-wait cursor-pointer"
       >
-        {loading ? "Loading…" : "Unlock the full briefing →"}
+        {loading ? "Loading..." : "Upgrade to Pro →"}
       </button>
       <p className="font-body text-slate-light dark:text-dark-dim text-xs mt-4">
-        Founding members lock in $7/mo forever.
+        $7/mo founding rate &middot; locked forever for the first 100
+        subscribers
       </p>
     </div>
   );
 }
 
-function ProActions({ issueUrl }: Omit<ProFooterProps, "variant">) {
+function ProActions({
+  issueUrl,
+  referralCode,
+}: Omit<ProFooterProps, "variant">) {
   const [copied, setCopied] = useState(false);
+
+  const shareUrl = referralCode ? `${issueUrl}?ref=${referralCode}` : issueUrl;
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(issueUrl);
+      await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
       const input = document.createElement("input");
-      input.value = issueUrl;
+      input.value = shareUrl;
       document.body.appendChild(input);
       input.select();
       document.execCommand("copy");
@@ -87,22 +98,49 @@ function ProActions({ issueUrl }: Omit<ProFooterProps, "variant">) {
   };
 
   return (
-    <div className="mt-16 mb-8 pt-8 border-t border-cream-dark dark:border-dark-border flex items-center justify-center gap-6 flex-wrap">
+    <div className="mt-16 mb-8 rounded-2xl px-8 py-10 text-center bg-navy/[0.03] dark:bg-dark-card border border-cream-dark dark:border-dark-border">
+      <p className="font-editorial text-slate dark:text-dark-muted text-base mb-4">
+        That&rsquo;s this week&rsquo;s read. The Nolana Report publishes every
+        Monday.
+      </p>
+      <p className="font-display font-bold text-charcoal dark:text-dark-text text-xl mb-5">
+        Share The Nolana Report with a Valley operator who needs it.
+      </p>
       <button
         onClick={handleCopy}
-        className="font-body text-sm font-medium text-slate dark:text-dark-muted hover:text-teal dark:hover:text-teal-light transition-colors"
+        className="inline-flex items-center gap-2 bg-teal/10 hover:bg-teal/15 dark:bg-teal/20 dark:hover:bg-teal/25 text-teal dark:text-teal-light font-body font-bold px-6 py-3 rounded-xl text-sm transition-colors duration-200 cursor-pointer border border-teal/20"
       >
-        {copied ? "Link copied!" : "Share this briefing"}
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <rect
+            x="9"
+            y="9"
+            width="13"
+            height="13"
+            rx="2"
+            ry="2"
+            strokeWidth={2}
+          />
+          <path
+            d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+            strokeWidth={2}
+          />
+        </svg>
+        {copied ? "Link copied!" : "Copy referral link"}
       </button>
-      <span className="text-cream-dark dark:text-dark-border select-none">
-        |
-      </span>
-      <a
-        href="/api/billing-portal"
-        className="font-body text-sm font-medium text-slate dark:text-dark-muted hover:text-teal dark:hover:text-teal-light transition-colors"
-      >
-        Manage subscription
-      </a>
+      <div className="mt-6 flex items-center justify-center gap-4 text-sm">
+        <a
+          href="/api/billing-portal"
+          className="font-body font-medium text-slate-light dark:text-dark-dim hover:text-teal dark:hover:text-teal-light transition-colors"
+        >
+          Manage subscription
+        </a>
+      </div>
     </div>
   );
 }
