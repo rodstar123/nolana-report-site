@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const validReactions = ["useful", "important", "watching"];
+  const validReactions = ["useful", "interesting", "noted"];
   if (!validReactions.includes(reaction)) {
     return NextResponse.json({ error: "Invalid reaction" }, { status: 400 });
   }

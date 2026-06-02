@@ -7,8 +7,8 @@ interface Props {
 
 const REACTIONS = [
   { emoji: "\u{1F44D}", label: "Useful", key: "useful" },
-  { emoji: "\u{1F525}", label: "Big Deal", key: "important" },
-  { emoji: "\u{1F4AC}", label: "Discuss", key: "watching" },
+  { emoji: "\u{1F4A1}", label: "Interesting", key: "interesting" },
+  { emoji: "\u{1F610}", label: "Noted", key: "noted" },
 ] as const;
 
 type ReactionKey = (typeof REACTIONS)[number]["key"];
