@@ -8,6 +8,7 @@ import { ManageBillingButton } from "@/components/ManageBillingButton";
 import { CopyButton } from "@/components/CopyButton";
 import { LogOutButton } from "@/components/LogOutButton";
 import { PreferencesCard } from "@/components/PreferencesCard";
+import { TrackEmailVerified } from "@/components/TrackEmailVerified";
 
 const TIER_CONFIG = {
   free: {
@@ -84,6 +85,7 @@ export default async function AccountPage({
           "linear-gradient(160deg, #0b1320 0%, #0f1722 40%, #111d2e 100%)",
       }}
     >
+      <TrackEmailVerified />
       {/* pt-20 clears the fixed global Navigation (h-16 = 64px) */}
       <div className="max-w-3xl mx-auto px-4 pt-20 space-y-5">
         {/* ── Section 1: Welcome header ── */}

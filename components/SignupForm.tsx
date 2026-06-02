@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { trackEvent } from "@/lib/analytics";
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
@@ -246,6 +247,7 @@ export default function SignupForm({ lang = "en", variant = "dark" }: Props) {
         setSubmittedEmail(normalized);
         setEmail("");
         setStatus("success");
+        trackEvent("subscribe_free", { tier: "free" });
       } else {
         setErrorMsg(data.error ?? t.errorFallback);
         setStatus("error");

@@ -5,6 +5,7 @@ import SectionReveal from "./SectionReveal";
 import { pricingEntrance } from "@/lib/animations";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { BillingToggle } from "./BillingToggle";
+import { trackEvent } from "@/lib/analytics";
 
 const YEARLY: Record<string, { label: string; savings: string; plan: string }> =
   {
@@ -70,6 +71,10 @@ export default function Pricing() {
     });
     const data = (await res.json()) as { url?: string; error?: string };
     if (data.url) {
+      const eventName = tierId.startsWith("intel")
+        ? "subscribe_intel"
+        : "upgrade_click";
+      trackEvent(eventName, { plan: tierId, source: "pricing" });
       window.location.href = data.url;
     } else {
       setLoadingPlan(null);

@@ -30,5 +30,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(new URL(redirectTo, req.url));
+  const dest = new URL(redirectTo, req.url);
+  dest.searchParams.set("verified", "1");
+  return NextResponse.redirect(dest);
 }

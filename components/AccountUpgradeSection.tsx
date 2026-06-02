@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { BillingToggle } from "./BillingToggle";
+import { trackEvent } from "@/lib/analytics";
 
 interface Props {
   email: string;
@@ -31,6 +32,7 @@ export function AccountUpgradeSection({ email }: Props) {
     });
     const data = (await res.json()) as { url?: string };
     if (data.url) {
+      trackEvent("upgrade_click", { plan, source: "account_upgrade" });
       window.location.href = data.url;
     } else {
       setLoadingPlan(null);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 interface Props {
   remaining: number;
@@ -21,6 +22,7 @@ export function UpgradeBanner({ total }: Props) {
       });
       const data = (await res.json()) as { url?: string };
       if (data.url) {
+        trackEvent("upgrade_click", { plan: "pro", source: "paywall" });
         window.location.href = data.url;
         return;
       }

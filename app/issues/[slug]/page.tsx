@@ -7,6 +7,7 @@ import { UpgradeBanner } from "@/components/UpgradeBanner";
 import { IssueFooter } from "@/components/IssueFooter";
 import NRIHeatmap from "@/components/NRIHeatmap";
 import ReadersPickVote from "@/components/ReadersPickVote";
+import { TrackBriefingView } from "@/components/TrackBriefingView";
 
 export const revalidate = 3600;
 
@@ -168,6 +169,11 @@ export default async function IssuePage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <TrackBriefingView
+        issueSlug={issue.slug}
+        issueTitle={issue.title}
+        tier={subscriber?.tier}
       />
 
       <div className="max-w-4xl mx-auto">

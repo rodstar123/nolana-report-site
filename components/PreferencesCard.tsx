@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 interface Props {
   initialUnsubscribed: boolean;
@@ -70,6 +71,7 @@ export function PreferencesCard({
   function toggleBriefing(val: boolean) {
     setBriefingOn(val);
     updatePref({ unsubscribed: !val });
+    if (!val) trackEvent("unsubscribe", { source: "preferences" });
   }
 
   function toggleAlert(val: boolean) {

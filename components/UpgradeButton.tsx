@@ -1,5 +1,7 @@
 "use client";
 
+import { trackEvent } from "@/lib/analytics";
+
 interface Props {
   label: string;
   email: string;
@@ -16,7 +18,13 @@ export function UpgradeButton({ label, plan, priceId, email }: Props) {
       body: JSON.stringify(payload),
     });
     const data = (await res.json()) as { url?: string };
-    if (data.url) window.location.href = data.url;
+    if (data.url) {
+      trackEvent("upgrade_click", {
+        plan: plan ?? "custom",
+        source: "account",
+      });
+      window.location.href = data.url;
+    }
   };
 
   return (
