@@ -260,13 +260,23 @@ export default function Pricing() {
         </div>
 
         <SectionReveal delay={0.3}>
-          <div className="text-center space-y-2">
-            <p className="font-body text-warm-white/70 text-sm font-semibold">
-              First month free &middot; Cancel anytime
-            </p>
-            <p className="font-body text-slate-light text-xs">
-              Founding member pricing locks in permanently for the first 100 Pro
-              subscribers. No contracts.
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-lg px-5 py-2.5">
+              <svg
+                className="w-4 h-4 text-gold flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              <p className="font-body text-gold text-sm font-bold">
+                $7/mo founding rate &mdash; locked forever for the first 100
+                subscribers
+              </p>
+            </div>
+            <p className="font-body text-warm-white/50 text-xs">
+              First month free &middot; Cancel anytime &middot; No contracts
             </p>
           </div>
         </SectionReveal>

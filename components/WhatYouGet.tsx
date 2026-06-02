@@ -1,307 +1,93 @@
 "use client";
-import { useRef, useEffect } from "react";
 import SectionReveal from "./SectionReveal";
-import ScoreBadge from "./ScoreBadge";
-import { whatYouGetRows } from "@/lib/animations";
 
-type Section = {
-  num: string;
-  title: string;
+interface TierCard {
+  tier: string;
+  badge: string | null;
+  badgeColor: string;
+  price: string;
+  headline: string;
+  items: { label: string; highlight?: boolean }[];
   accent: string;
-  accentSoft: string;
-  tagline: string;
-  sample: string;
-  score: number;
-  sourceLabel: string;
-  exclusive: boolean;
-  icon: React.ReactNode;
-};
+  accentBg: string;
+  borderColor: string;
+}
 
-const SECTIONS: Section[] = [
+const TIERS: TierCard[] = [
   {
-    num: "01",
-    title: "New Business Pulse",
+    tier: "Free",
+    badge: null,
+    badgeColor: "",
+    price: "$0",
+    headline: "Stay Aware",
     accent: "#0d7377",
-    accentSoft: "rgba(13,115,119,0.08)",
-    tagline: "Who's opening, expanding, or closing — before the signs go up.",
-    sample: "HEB breaks ground on third Valley store — 400 jobs expected",
-    score: 87,
-    sourceLabel: "RGV Business Monitor",
-    exclusive: false,
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-6 h-6"
-        aria-hidden="true"
-      >
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-        <polyline points="9,22 9,12 15,12 15,22" />
-      </svg>
-    ),
+    accentBg: "rgba(13,115,119,0.06)",
+    borderColor: "rgba(13,115,119,0.2)",
+    items: [
+      { label: "Business Temperature reading" },
+      { label: "5 scored stories every Monday" },
+      { label: "The Quiet Signal (closing insight)" },
+      { label: "Live data bar (USD/MXN, bridge wait)" },
+      { label: "Telegram breaking alerts" },
+    ],
   },
   {
-    num: "02",
-    title: "Opportunity Radar",
+    tier: "Pro",
+    badge: "$7/mo — founding rate",
+    badgeColor: "#d4a843",
+    price: "$7/mo",
+    headline: "Stay Ahead",
     accent: "#0d7377",
-    accentSoft: "rgba(13,115,119,0.06)",
-    tagline: "Grants, RFPs, permits, and incentives you can pursue.",
-    sample: "BCIC Opens $50K BIG LIFT Grant — RGV Businesses Eligible Now",
-    score: 74,
-    sourceLabel: "City Hall",
-    exclusive: false,
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-6 h-6"
-        aria-hidden="true"
-      >
-        <line x1="3" y1="22" x2="21" y2="22" />
-        <rect x="2" y="8" width="20" height="14" rx="1" />
-        <path d="M12 2L2 8h20L12 2z" />
-        <line x1="8" y1="12" x2="8" y2="18" />
-        <line x1="12" y1="12" x2="12" y2="18" />
-        <line x1="16" y1="12" x2="16" y2="18" />
-      </svg>
-    ),
+    accentBg: "rgba(13,115,119,0.04)",
+    borderColor: "rgba(13,115,119,0.35)",
+    items: [
+      { label: "Everything in Free", highlight: true },
+      { label: "Full briefing — all scored stories" },
+      { label: "NRI sub-score breakdowns (Money, Urgency, Reach, Risk)" },
+      { label: "Valley Money Map" },
+      { label: "3 Moves This Week" },
+      { label: "Full archive access" },
+      { label: "Breaking news email alerts" },
+    ],
   },
   {
-    num: "03",
-    title: "Cross-Border & Trade",
+    tier: "Intel",
+    badge: null,
+    badgeColor: "",
+    price: "$19/mo",
+    headline: "See the Bigger Moves",
     accent: "#d4a843",
-    accentSoft: "rgba(212,168,67,0.08)",
-    tagline:
-      "Bridge waits, FX shifts, and tariff changes — the numbers that move the Valley.",
-    sample: "USD/MXN hits 19.85 — cross-border shoppers surge at La Plaza",
-    score: 82,
-    sourceLabel: "Border Report",
-    exclusive: false,
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-6 h-6"
-        aria-hidden="true"
-      >
-        <line x1="2" y1="12" x2="22" y2="12" />
-        <polyline points="8,6 2,12 8,18" />
-        <polyline points="16,6 22,12 16,18" />
-      </svg>
-    ),
-  },
-  {
-    num: "04",
-    title: "Community Buzz",
-    accent: "#6366f1",
-    accentSoft: "rgba(99,102,241,0.06)",
-    tagline: "Events, sentiment, and the stories everyone's talking about.",
-    sample: "SpaceX 12th launch draws thousands to Isla Blanca Park",
-    score: 68,
-    sourceLabel: "SpaceX | Isla Blanca",
-    exclusive: false,
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-6 h-6"
-        aria-hidden="true"
-      >
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
-  },
-  {
-    num: "05",
-    title: "Industrial & Investment Watch",
-    accent: "#d4a843",
-    accentSoft: "rgba(212,168,67,0.10)",
-    tagline:
-      "Manufacturing moves, corporate relocations, and the big money bets.",
-    sample: "Monterrey auto supplier announces $14M Edinburg FTZ facility",
-    score: 91,
-    sourceLabel: "FTZ Filing",
-    exclusive: true,
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-6 h-6"
-        aria-hidden="true"
-      >
-        <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
-        <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
-        <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
-        <path d="M10 6h4" />
-        <path d="M10 10h4" />
-        <path d="M10 14h4" />
-        <path d="M10 18h4" />
-      </svg>
-    ),
+    accentBg: "rgba(212,168,67,0.04)",
+    borderColor: "rgba(212,168,67,0.25)",
+    items: [
+      { label: "Everything in Pro", highlight: true },
+      { label: "Custom keyword alerts" },
+      { label: "Monthly Intel deep dives" },
+      { label: "Priority access to new features" },
+    ],
   },
 ];
 
-interface RowProps {
-  section: Section;
-  isLast: boolean;
-}
-
-function SectionRow({ section, isLast }: RowProps) {
-  const ex = section.exclusive;
-  const accentColor = ex ? "#d4a843" : section.accent;
-
+function CheckIcon({ color }: { color: string }) {
   return (
-    <div
-      className={`group relative whatyouget-row ${!isLast ? "border-b" : ""}`}
-      style={{
-        borderLeftWidth: "4px",
-        borderLeftStyle: "solid",
-        borderLeftColor: accentColor,
-        borderBottomColor: "var(--cream-dark)",
-        background: ex ? "rgba(212,168,67,0.04)" : "var(--warm-white)",
-      }}
+    <svg
+      className="w-4 h-4 mt-0.5 flex-shrink-0"
+      fill="none"
+      stroke={color}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
     >
-      {/* Watermark number */}
-      <span
-        className="absolute top-1/2 -translate-y-1/2 left-4 font-display font-bold pointer-events-none select-none"
-        style={{
-          fontSize: "clamp(72px, 8.5vw, 96px)",
-          lineHeight: 1,
-          color: "var(--charcoal)",
-          opacity: 0.05,
-          zIndex: 0,
-        }}
-        aria-hidden="true"
-      >
-        {section.num}
-      </span>
-
-      <div className="relative z-10 flex flex-col md:flex-row w-full transition-transform duration-200 ease-out group-hover:translate-x-[4px]">
-        {/* Left: icon + title + tagline */}
-        <div className="flex items-center gap-3 sm:gap-5 flex-1 py-5 pl-5 pr-4 md:py-9 md:pl-16 md:pr-10">
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: section.accentSoft, color: accentColor }}
-          >
-            {section.icon}
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2 mb-1.5">
-              <h3
-                className="font-display font-bold leading-tight"
-                style={{
-                  fontSize: "clamp(1.05rem, 1.7vw, 1.3rem)",
-                  color: accentColor,
-                }}
-              >
-                {section.title}
-              </h3>
-
-              {ex && (
-                <span
-                  className="inline-flex items-center gap-1.5 font-body font-bold uppercase tracking-widest flex-shrink-0"
-                  style={{
-                    fontSize: "9.5px",
-                    padding: "2px 7px",
-                    borderRadius: "4px",
-                    background: "rgba(212,168,67,0.15)",
-                    color: "#b8860b",
-                    border: "1px solid rgba(212,168,67,0.35)",
-                  }}
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-2.5 h-2.5 flex-shrink-0"
-                    aria-hidden="true"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Intel Exclusive
-                </span>
-              )}
-            </div>
-
-            <p className="font-body text-[15px] leading-relaxed text-slate">
-              {section.tagline}
-            </p>
-          </div>
-        </div>
-
-        {/* Right: mini story with NRI ring */}
-        <div
-          className="flex-shrink-0 w-full md:w-72 lg:w-80 px-4 sm:px-6 py-4 md:py-9 border-t md:border-t-0 md:border-l flex items-center gap-3 sm:gap-4"
-          style={{
-            borderColor: "var(--cream-dark)",
-            background: ex ? "rgba(212,168,67,0.03)" : "transparent",
-          }}
-        >
-          <ScoreBadge score={section.score} size={38} />
-          <div className="flex-1 min-w-0">
-            <p
-              className="font-editorial italic leading-snug text-charcoal/85"
-              style={{ fontSize: "13.5px" }}
-            >
-              &ldquo;{section.sample}&rdquo;
-            </p>
-            <span
-              className="font-mono uppercase tracking-wider text-slate-light"
-              style={{ fontSize: "10px" }}
-            >
-              {section.sourceLabel}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2.5}
+        d="M5 13l4 4L19 7"
+      />
+    </svg>
   );
 }
 
 export default function WhatYouGet() {
-  const rowContainerRef = useRef<HTMLDivElement>(null);
-  const fired = useRef(false);
-
-  useEffect(() => {
-    const el = rowContainerRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !fired.current) {
-          fired.current = true;
-          observer.disconnect();
-          whatYouGetRows(el);
-        }
-      },
-      { threshold: 0.1 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <section
       className="py-12 md:py-28 relative overflow-hidden"
@@ -309,7 +95,6 @@ export default function WhatYouGet() {
         background: "linear-gradient(to bottom, #f4f1ec 0%, #e8e3db 100%)",
       }}
     >
-      {/* Ambient orbs */}
       <div
         className="ambient-orb"
         style={
@@ -324,55 +109,116 @@ export default function WhatYouGet() {
         }
         aria-hidden="true"
       />
-      <div
-        className="ambient-orb"
-        style={
-          {
-            width: "40px",
-            height: "40px",
-            top: "68%",
-            right: "7%",
-            "--float-duration": "12s",
-            "--float-delay": "-5s",
-          } as React.CSSProperties
-        }
-        aria-hidden="true"
-      />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8">
         <SectionReveal>
           <div className="text-center mb-8 md:mb-16">
             <span className="section-label justify-center mb-4">
-              The Weekly Briefing
+              What You Get
             </span>
             <h2
               className="font-display font-bold text-navy mt-4 mb-5"
               style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)" }}
             >
-              The signals Valley business owners usually notice too late.
+              Three tiers. One goal: better decisions.
             </h2>
             <p className="font-body text-slate max-w-xl mx-auto text-lg leading-relaxed">
-              Every Monday, five sections cover every angle of Valley business —
-              so you don&apos;t have to chase the news yourself.
+              Start free. Upgrade when you want the full picture.
             </p>
           </div>
         </SectionReveal>
 
-        <SectionReveal>
-          <div
-            ref={rowContainerRef}
-            className="rounded-xl overflow-hidden shadow-lg"
-            style={{ border: "1px solid var(--cream-dark)" }}
-          >
-            {SECTIONS.map((section, i) => (
-              <SectionRow
-                key={section.num}
-                section={section}
-                isLast={i === SECTIONS.length - 1}
-              />
-            ))}
-          </div>
-        </SectionReveal>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          {TIERS.map((card, i) => (
+            <SectionReveal key={card.tier} delay={i * 0.1}>
+              <div
+                className="relative rounded-2xl p-7 sm:p-8 flex flex-col h-full transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                style={{
+                  background:
+                    card.tier === "Pro"
+                      ? "var(--warm-white)"
+                      : "var(--warm-white)",
+                  border: `1.5px solid ${card.borderColor}`,
+                }}
+              >
+                {/* Founding badge */}
+                {card.badge && (
+                  <div
+                    className="absolute -top-3.5 left-1/2 -translate-x-1/2 text-xs font-bold font-body px-4 py-1 rounded-full uppercase tracking-wide whitespace-nowrap shadow-sm"
+                    style={{
+                      background: card.badgeColor,
+                      color: "#1a2332",
+                    }}
+                  >
+                    {card.badge}
+                  </div>
+                )}
+
+                {/* Tier name + price */}
+                <div className="mb-5">
+                  <div className="flex items-baseline gap-3 mb-1">
+                    <h3
+                      className="font-display font-bold text-2xl"
+                      style={{ color: card.accent }}
+                    >
+                      {card.tier}
+                    </h3>
+                    <span className="font-mono font-bold text-navy text-xl">
+                      {card.price}
+                    </span>
+                  </div>
+                  <p className="font-body text-slate text-sm font-semibold">
+                    {card.headline}
+                  </p>
+                </div>
+
+                {/* Feature list */}
+                <ul className="space-y-3 flex-1">
+                  {card.items.map((item) => (
+                    <li
+                      key={item.label}
+                      className="flex items-start gap-2.5 text-sm font-body"
+                    >
+                      <CheckIcon color={card.accent} />
+                      <span
+                        className={
+                          item.highlight
+                            ? "text-slate font-semibold"
+                            : "text-slate"
+                        }
+                      >
+                        {item.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA */}
+                <a
+                  href={card.tier === "Free" ? "#signup" : "#pricing"}
+                  className="mt-6 block w-full text-center py-3 px-6 rounded-xl font-body font-bold text-sm transition-all duration-200 hover:-translate-y-0.5"
+                  style={
+                    card.tier === "Pro"
+                      ? {
+                          background: card.accent,
+                          color: "#fff",
+                        }
+                      : {
+                          border: `1.5px solid ${card.borderColor}`,
+                          color: card.accent,
+                        }
+                  }
+                >
+                  {card.tier === "Free"
+                    ? "Subscribe Free"
+                    : card.tier === "Pro"
+                      ? "Join Pro"
+                      : "Join Intel"}
+                </a>
+              </div>
+            </SectionReveal>
+          ))}
+        </div>
       </div>
     </section>
   );

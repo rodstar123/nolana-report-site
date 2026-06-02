@@ -1,4 +1,5 @@
 import Hero from "@/components/Hero";
+import SocialProof from "@/components/SocialProof";
 import DataBar from "@/components/DataBar";
 import SampleBriefing from "@/components/SampleBriefing";
 import NRIFeature from "@/components/NRIFeature";
@@ -39,7 +40,7 @@ const faqSchema = {
       name: "How much does The Nolana Report cost?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "The Nolana Report offers three tiers: Free (weekly summary email + live data bar), Pro at $9/month (full 30-story briefing with score badges and archive access), and Intel at $19/month (Pro features plus monthly deep-dive industry analysis). Founding members get Pro locked at $7/month forever.",
+        text: "The Nolana Report offers three tiers: Free (weekly summary email + live data bar), Pro at $7/month founding rate (full briefing with score badges, Valley Money Map, and 3 Moves This Week), and Intel at $19/month (Pro features plus custom alerts and priority access). Founding members get Pro locked at $7/month forever.",
       },
     },
     {
@@ -72,6 +73,7 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       <Hero />
+      <SocialProof />
       <SectionReveal>
         <DataBar metrics={snapshot.metrics} updatedLabel={updatedLabel} />
       </SectionReveal>
