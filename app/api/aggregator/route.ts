@@ -94,12 +94,20 @@ export async function GET(req: NextRequest) {
       (opusJson.usage?.input_tokens ?? 0) +
       (opusJson.usage?.output_tokens ?? 0);
 
-    const { opening, stories } = parseOpusOutput(briefingMarkdown);
+    const {
+      opening,
+      stories,
+      businessTemperature,
+      valleyMoneyMap,
+      threeMoves,
+      quietSignal,
+    } = parseOpusOutput(briefingMarkdown);
     const { issueId, storiesWritten } = await writeBriefing(
       supabase,
       opening,
       stories,
       poolItems,
+      { businessTemperature, valleyMoneyMap, threeMoves, quietSignal },
     );
 
     await supabase.from("agent_logs").insert({

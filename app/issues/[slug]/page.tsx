@@ -17,6 +17,38 @@ function getSupabase() {
   );
 }
 
+function parseTemperature(md: string) {
+  const lines = md.split("\n");
+  const label = (lines[0] || "")
+    .replace(/^##\s*This Week's Business Temperature:\s*/, "")
+    .trim();
+  const body = lines.slice(1).join("\n").trim();
+  const moveMatch = body.match(/\*\*The move:\*\*\s*(.+)/);
+  return {
+    label,
+    content: body.replace(/\*\*The move:\*\*.+/, "").trim(),
+    move: moveMatch ? moveMatch[1].trim() : null,
+  };
+}
+
+function parseMoneyMap(md: string) {
+  const lines = md.split("\n").filter((l) => l.trim().startsWith("|"));
+  if (lines.length < 3) return null;
+  const parseRow = (line: string) =>
+    line
+      .split("|")
+      .slice(1, -1)
+      .map((c) => c.trim());
+  return { headers: parseRow(lines[0]), rows: lines.slice(2).map(parseRow) };
+}
+
+function parseMoves(md: string) {
+  return md
+    .split("\n")
+    .filter((l) => /^\d+\./.test(l.trim()))
+    .map((l) => l.replace(/^\d+\.\s*/, "").trim());
+}
+
 export async function generateStaticParams() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
   const supabase = getSupabase();
@@ -96,6 +128,22 @@ export default async function IssuePage({
     .map((s) => s.nolana_score)
     .filter((s): s is number => s !== null);
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const iss = issue as any;
+  const tempData = iss.business_temperature
+    ? parseTemperature(iss.business_temperature)
+    : null;
+  const moneyMapData = iss.valley_money_map
+    ? parseMoneyMap(iss.valley_money_map)
+    : null;
+  const movesData = iss.three_moves ? parseMoves(iss.three_moves) : null;
+  const quietSignalText = iss.quiet_signal
+    ? (iss.quiet_signal as string)
+        .replace(/^##\s*The Quiet Signal\s*\n?/, "")
+        .trim() || null
+    : null;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -166,6 +214,34 @@ export default async function IssuePage({
           </div>
         )}
 
+        {/* Business Temperature — free */}
+        {tempData && (
+          <div className="mb-10 p-6 bg-gradient-to-br from-teal/5 to-gold/5 dark:from-teal/10 dark:to-gold/10 border border-teal/20 dark:border-teal/30 rounded-xl">
+            <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-3">
+              This Week&rsquo;s Business Temperature:{" "}
+              <span className="text-teal dark:text-teal-light">
+                {tempData.label}
+              </span>
+            </h2>
+            {tempData.content
+              .split("\n\n")
+              .filter(Boolean)
+              .map((p: string, i: number) => (
+                <p
+                  key={i}
+                  className="font-editorial text-[17px] text-slate dark:text-dark-muted leading-relaxed mb-3"
+                >
+                  {p.trim()}
+                </p>
+              ))}
+            {tempData.move && (
+              <p className="font-body text-[15px] text-teal dark:text-teal-light font-semibold mt-4 pt-4 border-t border-teal/20">
+                The move: {tempData.move}
+              </p>
+            )}
+          </div>
+        )}
+
         {/* NRI Heatmap — score distribution */}
         {nriScores.length > 0 && (
           <div className="mb-10 p-5 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl">
@@ -190,6 +266,7 @@ export default async function IssuePage({
         {!canSeePro && proStories.length > 0 && (
           <UpgradeBanner
             remaining={proStories.length}
+            total={allStories.length}
             email={subscriber?.email}
           />
         )}
@@ -218,6 +295,102 @@ export default async function IssuePage({
                 <StoryCard story={story} locked />
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Valley Money Map — pro only */}
+        {canSeePro && moneyMapData && (
+          <div className="mt-12 mb-8 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl p-7">
+            <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-5">
+              The Valley Money Map
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm font-body">
+                <thead>
+                  <tr className="border-b border-cream-dark dark:border-dark-border">
+                    {moneyMapData.headers.map((h: string, i: number) => (
+                      <th
+                        key={i}
+                        className="text-left py-2.5 px-3 text-slate-light dark:text-dark-dim font-semibold uppercase tracking-wide text-xs"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {moneyMapData.rows.map((row: string[], i: number) => (
+                    <tr
+                      key={i}
+                      className="border-b border-cream-dark/50 dark:border-dark-border/50 last:border-0"
+                    >
+                      {row.map((cell: string, j: number) => (
+                        <td
+                          key={j}
+                          className="py-2.5 px-3 text-charcoal dark:text-dark-text"
+                        >
+                          {cell}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* 3 Moves This Week — pro only */}
+        {canSeePro && movesData && movesData.length > 0 && (
+          <div className="mb-8 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl p-7">
+            <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-5">
+              3 Moves This Week
+            </h2>
+            <ol className="space-y-4">
+              {movesData.map((move: string, i: number) => {
+                const boldMatch = move.match(/^\*\*(.+?)\*\*\s*(.*)/);
+                return (
+                  <li
+                    key={i}
+                    className="font-editorial text-[17px] text-charcoal dark:text-dark-text leading-relaxed pl-2"
+                  >
+                    <span className="font-mono text-sm text-teal dark:text-teal-light font-bold mr-2">
+                      {i + 1}.
+                    </span>
+                    {boldMatch ? (
+                      <>
+                        <strong className="font-body font-semibold text-navy dark:text-dark-text">
+                          {boldMatch[1]}
+                        </strong>{" "}
+                        {boldMatch[2]}
+                      </>
+                    ) : (
+                      move
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        )}
+
+        {/* The Quiet Signal — free */}
+        {quietSignalText && (
+          <div className="mt-12 mb-8 p-6 bg-navy/[0.03] dark:bg-dark-card border-l-4 border-gold dark:border-gold/70 rounded-r-xl">
+            <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-3">
+              The Quiet Signal
+            </h2>
+            {quietSignalText
+              .split("\n\n")
+              .filter(Boolean)
+              .map((p: string, i: number) => (
+                <p
+                  key={i}
+                  className="font-editorial text-[17px] text-slate dark:text-dark-muted leading-relaxed mb-3 last:mb-0"
+                >
+                  {p.trim()}
+                </p>
+              ))}
           </div>
         )}
 

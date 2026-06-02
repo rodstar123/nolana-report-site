@@ -42,6 +42,10 @@ export interface StoryData {
   section: string;
   is_free: boolean;
   position: number;
+  money_impact: string | null;
+  urgency: string | null;
+  local_reach: string | null;
+  risk: string | null;
 }
 
 interface Props {
@@ -89,9 +93,43 @@ export function StoryCard({ story, locked = false, issueSlug }: Props) {
         </div>
       </div>
 
-      <h3 className="font-display font-bold text-charcoal dark:text-dark-text text-[21px] leading-snug mb-4">
+      <h3 className="font-display font-bold text-charcoal dark:text-dark-text text-[21px] leading-snug mb-3">
         {story.headline}
       </h3>
+
+      {!locked &&
+        (story.money_impact ||
+          story.urgency ||
+          story.local_reach ||
+          story.risk) && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {(
+              [
+                { label: "Money", value: story.money_impact },
+                { label: "Urgency", value: story.urgency },
+                { label: "Reach", value: story.local_reach },
+                { label: "Risk", value: story.risk },
+              ] as { label: string; value: string | null }[]
+            )
+              .filter(
+                (s): s is { label: string; value: string } => s.value !== null,
+              )
+              .map((s) => (
+                <span
+                  key={s.label}
+                  className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium tracking-wide ${
+                    s.value === "High"
+                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                      : s.value === "Med"
+                        ? "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                        : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500"
+                  }`}
+                >
+                  {s.label}: {s.value}
+                </span>
+              ))}
+          </div>
+        )}
 
       {locked ? (
         <p className="font-body text-slate-light dark:text-dark-dim italic text-sm">

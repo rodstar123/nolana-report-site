@@ -113,6 +113,10 @@ export type Database = {
           id: string;
           is_published: boolean | null;
           opening: string | null;
+          business_temperature: string | null;
+          valley_money_map: string | null;
+          three_moves: string | null;
+          quiet_signal: string | null;
           published_at: string | null;
           slug: string;
           stories_count: number | null;
@@ -123,6 +127,10 @@ export type Database = {
           id?: string;
           is_published?: boolean | null;
           opening?: string | null;
+          business_temperature?: string | null;
+          valley_money_map?: string | null;
+          three_moves?: string | null;
+          quiet_signal?: string | null;
           published_at?: string | null;
           slug: string;
           stories_count?: number | null;
@@ -133,6 +141,10 @@ export type Database = {
           id?: string;
           is_published?: boolean | null;
           opening?: string | null;
+          business_temperature?: string | null;
+          valley_money_map?: string | null;
+          three_moves?: string | null;
+          quiet_signal?: string | null;
           published_at?: string | null;
           slug?: string;
           stories_count?: number | null;
@@ -257,6 +269,10 @@ export type Database = {
           source_url: string | null;
           summary: string;
           why_it_matters: string | null;
+          money_impact: string | null;
+          urgency: string | null;
+          local_reach: string | null;
+          risk: string | null;
         };
         Insert: {
           created_at?: string | null;
@@ -272,6 +288,10 @@ export type Database = {
           source_url?: string | null;
           summary: string;
           why_it_matters?: string | null;
+          money_impact?: string | null;
+          urgency?: string | null;
+          local_reach?: string | null;
+          risk?: string | null;
         };
         Update: {
           created_at?: string | null;
@@ -287,6 +307,10 @@ export type Database = {
           source_url?: string | null;
           summary?: string;
           why_it_matters?: string | null;
+          money_impact?: string | null;
+          urgency?: string | null;
+          local_reach?: string | null;
+          risk?: string | null;
         };
         Relationships: [
           {

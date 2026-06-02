@@ -293,24 +293,64 @@ Assign each story to exactly one section:
 
 IMPORTANT: Healthcare construction, university building projects, large real estate investment, and capital expenditure projects go to Industrial & Investment Watch, NOT Cross-Border & Trade Monitor.
 
-## NRI Scoring (Nolana Relevance Index, 1-10)
-Re-score each story you include. Show the score in the output. The NRI is The Nolana Report's proprietary relevance scoring.
-- 9-10: Major new business opening, $10M+ investment, policy change with direct and immediate RGV business impact
-- 7-8: Significant business activity, meaningful grant ($500K+), infrastructure with clear business impact, bridge/trade anomaly
-- 5-6: Moderate relevance, indirect business impact, workforce or education with clear business angle
-- Below 5: DO NOT INCLUDE.
-Target: 20-30 stories total per issue. Quality over quantity.
+## NRI Scoring (Nolana Relevance Index, 1–10)
+
+Re-score each story you include. The NRI is The Nolana Report's proprietary relevance index.
+
+Score definitions:
+- 9–10: Major new business opening, $10M+ investment, policy change with direct and immediate RGV business impact. Rare — but use it when earned.
+- 7–8: Significant business activity, meaningful grant ($500K+), infrastructure with clear business impact, bridge/trade anomaly.
+- 5–6: Moderate relevance, indirect business impact, workforce or education with clear business angle.
+- 3–4: Marginal, narrow-audience, or low-urgency signal. Use it when earned.
+- Below 3: DO NOT INCLUDE.
+
+**Forced spread rule:** Use the FULL 1–10 range every week. A week where nothing scores a 9 and nothing scores a 4 or below means the index failed — rescore. Do not cluster everything into 5–8.
+
+**Sub-scores:** Assign four sub-scores to each story, each rated Low / Med / High:
+- **Money Impact**: Can this create or protect revenue for RGV businesses?
+- **Urgency**: Does action need to happen soon?
+- **Local Reach**: How many RGV businesses or industries are affected?
+- **Risk**: Could this hurt unprepared businesses?
+
+The four sub-scores MUST vary across the issue. If most stories read Money:High / Urgency:Med / Reach:High / Risk:Low, the sub-scores are decorative noise — rescore until they differentiate. The overall NRI should roughly track the sub-scores.
+
+Target: 20–30 stories total per issue. Quality over quantity.
+
+## The Move Bar (most important editorial rule)
+
+Every story's "The Bottom Line" MUST end in ONE specific, this-week action a named type of operator can take.
+
+PASS — specific and do-able now:
+- "get your SAM registration moving"
+- "reroute time-sensitive runs to alternate crossings during peak hours"
+- "get in front of Mission's buyers before the new org chart hardens"
+- "pull your last 90 days of bridge crossing data and identify your slowest windows"
+- "call your Brownsville sign vendor and get a storefront quote package ready"
+
+BANNED — never output these or anything like them:
+- "get your documents ready"
+- "be prepared"
+- "stay informed"
+- "keep an eye on this"
+- "consider your options"
+- "monitor the situation"
+- "businesses should take note"
+- "stay ahead of the curve"
+
+If a story has NO sharp move, do NOT fake one. Instead name the single thing to watch AND the trigger that would make it actionable. A real "watch" beats a fake "move."
+
+Example of an honest watch: "No move yet — but watch for the RFP posting on the Pharr EDC site. The day it drops, have your capability statement ready to submit same-week."
 
 ## Content Transformation Rules (NON-NEGOTIABLE)
 1. Never copy 3 or more consecutive words from the source headline or snippet. Every headline and summary must be original writing.
 2. Headlines must be original and punchy. Never restate the source headline. Use a business angle. Example: "McAllen Airport receives federal grant" becomes "McAllen Airport Lands $7M — Cargo Corridor Eyes Long-Term Growth"
 3. Summaries are original analysis, not paraphrase. Write what the news means for RGV business owners.
-4. "The Bottom Line" is proprietary forward-looking analysis. One original sentence telling a business owner what to watch, prepare for, or act on. Never repeat the headline or summary.
+4. "The Bottom Line" is proprietary forward-looking analysis. One original sentence telling a business owner what to watch, prepare for, or act on — and it MUST clear the Move Bar above.
 5. NRI scores are proprietary. Never attribute them to the source.
 6. 2-sentence max for the main summary. "The Bottom Line" is exactly 1 sentence.
 
 ## Morning Brew Style Guide
-- Voice: Conversational but precise. Use contractions. Be direct.
+- Voice: Conversational but precise. Use contractions. Be direct. Open with "Good morning, Valley."
 - Specificity: Always use the actual city name (McAllen, Edinburg, Pharr, Brownsville, Harlingen, Mission, Weslaco). Never "a named RGV city."
 - Headlines: Present-tense, active voice, punchy. Use an em dash to add a hook.
 - Section intros: Each section opens with ONE italicized editorial sentence framing the week's theme.
@@ -328,16 +368,19 @@ When the same story appears from multiple sources, prefer in this order:
 Cap any single source at 8 stories, choosing the highest-scored ones.
 
 ## Output Format
-Write the full briefing starting with an Opening section, then the 5 section bodies.
 
-**Opening (write this first):**
+Write the full briefing in this exact order. Each major section is separated by a horizontal rule (---).
+
+---
+
+### 1. OPENING
 
 ## Opening
 [Exactly 3 paragraphs separated by blank lines (\\n\\n). Morning Brew editorial voice. Never one dense block.
 
 **Paragraph 1 — The Hook** (1 sentence): Start with "Good morning, Valley." + one bold sentence naming the week's single biggest theme. Sets the tone.
 
-**Paragraph 2 — The Tease** (2-4 sentences): The "here's what's inside" paragraph. Name specific stories with exact dollar amounts, city names, company names. Pack in the detail — investors, projects, addresses. This is what earns the open.
+**Paragraph 2 — The Tease** (2–4 sentences): The "here's what's inside" paragraph. Name specific stories with exact dollar amounts, city names, company names. Pack in the detail — investors, projects, addresses. This is what earns the open.
 
 **Paragraph 3 — The Forward Hook** (1 sentence): One short sentence that pulls the reader into the briefing. "Let's unpack what it means for your business." energy — not a summary, a door handle.
 
@@ -349,15 +392,84 @@ A $42.3M UTRGV healthcare campus rising from a former Harlingen retail shell, a 
 
 Let's unpack what it all means for your business."]
 
-**Then write the 5 section bodies** with exactly these section headers. Open each section with one italicized editorial sentence. If a section has no qualifying stories, write "No items this week."
+---
+
+### 2. THIS WEEK'S BUSINESS TEMPERATURE
+
+Write a section headed:
+
+## This Week's Business Temperature: [2–4 word label]
+
+[2–3 sentences: the strategic read on the week. Where money is moving vs. where pressure is building. End with exactly one line starting with "**The move:**" — this line must clear the Move Bar.]
+
+Example:
+## This Week's Business Temperature: Opportunity Rising, Pressure Building
+
+Money is moving into storefronts, airport infrastructure, workforce programs, and supply-chain consolidation. But delays at the bridge, labor uncertainty, and trade questions are creating pressure for operators who depend on timing, compliance, and cross-border movement.
+
+**The move:** lock in your vendor quotes and delivery windows this week — the businesses that move first on these grants and contracts won't wait for stragglers.
+
+This section is shown FREE to all readers.
+
+---
+
+### 3. STORY SECTIONS
+
+Write the 5 section bodies with exactly these section headers. Open each section with one italicized editorial sentence. If a section has no qualifying stories, write "No items this week."
 
 Format each story exactly as:
+
 ### [PUNCHY ORIGINAL HEADLINE] (NRI: X/10)
+Money: [Low/Med/High] · Urgency: [Low/Med/High] · Reach: [Low/Med/High] · Risk: [Low/Med/High]
 [2-sentence original analysis in Morning Brew voice]
-**The Bottom Line:** [1 sentence of original forward-looking insight]
+**The Bottom Line:** [1 sentence — MUST clear the Move Bar. Specific operator, specific action, this week.]
 Source: [source name](url) · [Read the full story →](url)
 
-Use the rocket emoji prefix on the headline for any story where instantAlerted=true.`;
+Use the rocket emoji prefix on the headline for any story where instantAlerted=true.
+
+---
+
+### 4. PRO-ONLY SECTIONS
+
+After all 5 story sections, write two Pro-gated sections:
+
+## The Valley Money Map
+
+| Signal | Where Money Is Moving | Who Wins |
+|--------|----------------------|----------|
+[3–6 rows synthesized from the highest-NRI stories. Each row names a specific signal, where the money flows, and which operator types benefit.]
+
+## 3 Moves This Week
+
+[Exactly 3 cross-story actions. Each tagged by operator type. Each MUST clear the Move Bar.]
+
+Format:
+1. **If you [operator type]:** [specific action that clears the Move Bar]
+2. **If you [operator type]:** [specific action that clears the Move Bar]
+3. **If you [operator type]:** [specific action that clears the Move Bar]
+
+These two sections are marked PRO-ONLY in the output. The frontend will gate them behind the paywall.
+
+---
+
+### 5. THE QUIET SIGNAL (closer)
+
+## The Quiet Signal
+
+[One non-obvious insight — the story that matters MORE than its noise level suggests. 2–3 sentences explaining why this under-the-radar signal deserves attention and what it could mean if it develops. End with one sentence naming what to watch for next.]
+
+This section is shown FREE to all readers. It closes the briefing.
+
+---
+
+## Final Checklist (verify before outputting)
+
+1. Move Bar: Every "The Bottom Line" names a specific operator and a specific this-week action — or honestly states what to watch and what trigger to wait for. Zero banned phrases anywhere in the briefing.
+2. NRI spread: At least one story scores 9+ and at least one scores 4 or below. No clustering in 5–8.
+3. Sub-score variance: The four sub-scores vary meaningfully across stories. If they all read the same pattern, rescore.
+4. Dedup: No two stories describe the same event.
+5. Content originality: No 3+ consecutive words copied from any source headline or snippet.
+6. Section order: Opening → Business Temperature → 5 Story Sections → Valley Money Map (PRO) → 3 Moves (PRO) → The Quiet Signal.`;
 
 const SECTION_HEADERS = [
   "New Business Pulse",
@@ -384,16 +496,44 @@ interface ParsedStory {
   sourceName: string;
   section: string;
   instantAlerted: boolean;
+  moneyImpact: string | null;
+  urgency: string | null;
+  localReach: string | null;
+  risk: string | null;
+}
+
+function extractSectionBlock(
+  text: string,
+  sectionPrefix: string,
+): string | null {
+  const idx = text.indexOf(sectionPrefix);
+  if (idx < 0) return null;
+  const rest = text.slice(idx + 1);
+  const nextH2 = rest.search(/\n## /);
+  const raw = text.slice(idx, nextH2 >= 0 ? idx + 1 + nextH2 : text.length);
+  return raw.replace(/\n---\s*$/, "").trim() || null;
 }
 
 export function parseOpusOutput(markdown: string): {
   opening: string;
   stories: ParsedStory[];
+  businessTemperature: string | null;
+  valleyMoneyMap: string | null;
+  threeMoves: string | null;
+  quietSignal: string | null;
 } {
   const bom = markdown.replace(/^﻿/, "");
 
   const openingMatch = bom.match(/## Opening\s*\n([\s\S]*?)(?=\n## )/);
   const opening = openingMatch ? openingMatch[1].trim() : "";
+
+  const businessTemperature = extractSectionBlock(
+    bom,
+    "## This Week's Business Temperature",
+  );
+  const valleyMoneyMap = extractSectionBlock(bom, "## The Valley Money Map");
+  const threeMoves = extractSectionBlock(bom, "## 3 Moves This Week");
+  const quietSignal = extractSectionBlock(bom, "## The Quiet Signal");
 
   const storyBlocks = bom
     .split(/\n(?=###\s)/)
@@ -442,7 +582,11 @@ export function parseOpusOutput(markdown: string): {
 
     const headline = headlineMatch[1].trim();
     const nri = parseInt(headlineMatch[2], 10);
-    if (nri < 5) continue;
+    if (nri < 3) continue;
+
+    const subScoreMatch = block.match(
+      /Money:\s*(Low|Med|High)\s*·\s*Urgency:\s*(Low|Med|High)\s*·\s*Reach:\s*(Low|Med|High)\s*·\s*Risk:\s*(Low|Med|High)/i,
+    );
 
     const instantAlerted =
       block.startsWith("### 🚀") || block.startsWith("### 🚨");
@@ -467,6 +611,7 @@ export function parseOpusOutput(markdown: string): {
       if (!pastHeadline) continue;
       if (line.startsWith("**The Bottom Line")) break;
       if (line.startsWith("Source:")) break;
+      if (line.startsWith("Money:") && line.includes("Urgency:")) continue;
       if (line.trim()) summaryLines.push(line.trim());
     }
     const summary = summaryLines.join(" ");
@@ -480,10 +625,21 @@ export function parseOpusOutput(markdown: string): {
       sourceName,
       section: currentSection,
       instantAlerted,
+      moneyImpact: subScoreMatch ? subScoreMatch[1] : null,
+      urgency: subScoreMatch ? subScoreMatch[2] : null,
+      localReach: subScoreMatch ? subScoreMatch[3] : null,
+      risk: subScoreMatch ? subScoreMatch[4] : null,
     });
   }
 
-  return { opening, stories: stories.slice(0, 30) };
+  return {
+    opening,
+    stories: stories.slice(0, 30),
+    businessTemperature,
+    valleyMoneyMap,
+    threeMoves,
+    quietSignal,
+  };
 }
 
 function normalizeUrl(url: string): string {
@@ -514,6 +670,12 @@ export async function writeBriefing(
   opening: string,
   stories: ParsedStory[],
   rawItems: RawItemRow[],
+  sections: {
+    businessTemperature: string | null;
+    valleyMoneyMap: string | null;
+    threeMoves: string | null;
+    quietSignal: string | null;
+  },
 ): Promise<{ issueId: string; storiesWritten: number }> {
   const slug = new Date().toISOString().slice(0, 10);
   const title = `The Nolana Report — Week of ${slug}`;
@@ -536,6 +698,10 @@ export async function writeBriefing(
       is_published: true,
       published_at: new Date().toISOString(),
       stories_count: stories.length,
+      business_temperature: sections.businessTemperature,
+      valley_money_map: sections.valleyMoneyMap,
+      three_moves: sections.threeMoves,
+      quiet_signal: sections.quietSignal,
     })
     .select("id")
     .single();
@@ -553,6 +719,10 @@ export async function writeBriefing(
     source_url: s.sourceUrl || null,
     position: i + 1,
     is_free: i < 5,
+    money_impact: s.moneyImpact,
+    urgency: s.urgency,
+    local_reach: s.localReach,
+    risk: s.risk,
   }));
 
   const { error: storiesErr } = await supabase
