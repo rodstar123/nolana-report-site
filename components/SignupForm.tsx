@@ -25,19 +25,19 @@ const copy = {
     submitLoading: "Subscribing…",
     checkbox: "I agree to receive The Nolana Report weekly via email",
     // new subscriber
-    confirmHeading: "You're on the list",
+    confirmHeading: "Almost there! Confirm your email.",
     confirmBody: (email: string) =>
-      `Welcome! We just sent a welcome note to ${email}. Your first Monday brief arrives this Monday before 7 AM.`,
-    confirmSmall:
-      "Didn't get the welcome email? Check spam, or sign in at nolanareport.com/login.",
+      `We just sent a confirmation link to ${email}. Click it to activate your subscription. No confirmation = no briefing.`,
+    confirmSmall: "Don't see it? Check your spam folder.",
     // already active
-    alreadyHeading: "You're already subscribed! ✅",
+    alreadyHeading: "You're already subscribed!",
     alreadyBody:
       "This email is already receiving The Nolana Report. Check your inbox on Mondays at 7 AM CST.",
     // pending — resent
-    pendingHeading: "Check your inbox 📬",
+    pendingHeading: "Almost there! Confirm your email.",
     pendingBody: (email: string) =>
-      `We resent the confirmation email to ${email}. Click the link inside to activate your subscription.`,
+      `We just sent a confirmation link to ${email}. Click it to activate your subscription. No confirmation = no briefing.`,
+    pendingSmall: "Don't see it? Check your spam folder.",
     // real error
     errorFallback: "Something went wrong.",
     errorConn: "Connection error — try again.",
@@ -48,17 +48,17 @@ const copy = {
     submitLoading: "Suscribiendo…",
     checkbox:
       "Acepto recibir El Reporte Nolana semanalmente por correo electrónico",
-    confirmHeading: "Revisa tu bandeja de entrada 📬",
+    confirmHeading: "¡Casi listo! Confirma tu correo.",
     confirmBody: (email: string) =>
-      `Acabamos de enviar un correo de confirmación a ${email}. Debes hacer clic en el enlace de confirmación para comenzar a recibir El Reporte Nolana. Si no lo ves, revisa tu carpeta de spam o promociones.`,
-    confirmSmall:
-      "¿No lo recibiste? Espera un momento y revisa spam, o intenta suscribirte de nuevo.",
-    alreadyHeading: "¡Ya estás suscrito! ✅",
+      `Acabamos de enviar un enlace de confirmación a ${email}. Haz clic para activar tu suscripción. Sin confirmación = sin reporte.`,
+    confirmSmall: "¿No lo ves? Revisa tu carpeta de spam.",
+    alreadyHeading: "¡Ya estás suscrito!",
     alreadyBody:
       "Este correo ya está recibiendo El Reporte Nolana. Revisa tu bandeja los lunes a las 7 AM CST.",
-    pendingHeading: "Revisa tu bandeja 📬",
+    pendingHeading: "¡Casi listo! Confirma tu correo.",
     pendingBody: (email: string) =>
-      `Reenviamos el correo de confirmación a ${email}. Haz clic en el enlace para activar tu suscripción.`,
+      `Acabamos de enviar un enlace de confirmación a ${email}. Haz clic para activar tu suscripción. Sin confirmación = sin reporte.`,
+    pendingSmall: "¿No lo ves? Revisa tu carpeta de spam.",
     errorFallback: "Algo salió mal.",
     errorConn: "Error de conexión — intenta de nuevo.",
   },
@@ -78,31 +78,71 @@ function InfoCard({
   lightMode?: boolean;
 }) {
   const isTeal = variant === "teal";
+
+  if (!isTeal) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 14, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="max-w-lg w-full rounded-2xl bg-white border-2 border-amber-400 px-8 py-8 shadow-[0_4px_32px_rgba(245,158,11,0.18)]"
+        role="alert"
+        aria-live="polite"
+      >
+        <div className="flex flex-col items-center text-center gap-4">
+          <motion.div
+            animate={{ scale: [1, 1.08, 1] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center"
+          >
+            <svg
+              className="w-8 h-8 text-amber-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+          </motion.div>
+          <h3 className="font-display font-bold text-2xl leading-tight text-gray-900">
+            {heading}
+          </h3>
+          <p className="font-body text-lg leading-relaxed text-gray-700">
+            {body}
+          </p>
+          {small && (
+            <p className="font-body text-sm leading-relaxed text-gray-400">
+              {small}
+            </p>
+          )}
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
       className={`max-w-md w-full rounded-xl px-6 py-5 ${
-        isTeal
-          ? lightMode
-            ? "border border-teal/30 bg-teal/5"
-            : "border border-teal/40 bg-teal/10"
-          : lightMode
-            ? "border border-amber-400/30 bg-amber-100/40"
-            : "border border-amber-400/40 bg-amber-400/10"
+        lightMode
+          ? "border border-teal/30 bg-teal/5"
+          : "border border-teal/40 bg-teal/10"
       }`}
       role="alert"
       aria-live="polite"
     >
       <div className="flex items-start gap-3 mb-3">
-        <div
-          className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-            isTeal ? "bg-teal/20" : "bg-amber-400/20"
-          }`}
-        >
+        <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-teal/20">
           <svg
-            className={`w-5 h-5 ${isTeal ? "text-teal-light" : "text-amber-300"}`}
+            className="w-5 h-5 text-teal-light"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -118,13 +158,7 @@ function InfoCard({
         </div>
         <h3
           className={`font-display font-bold text-lg leading-tight ${
-            isTeal
-              ? lightMode
-                ? "text-charcoal"
-                : "text-warm-white"
-              : lightMode
-                ? "text-amber-800"
-                : "text-amber-200"
+            lightMode ? "text-charcoal" : "text-warm-white"
           }`}
         >
           {heading}
@@ -132,13 +166,7 @@ function InfoCard({
       </div>
       <p
         className={`font-body text-sm leading-relaxed mb-3 ${
-          isTeal
-            ? lightMode
-              ? "text-slate"
-              : "text-slate-light"
-            : lightMode
-              ? "text-amber-700"
-              : "text-amber-100/80"
+          lightMode ? "text-slate" : "text-slate-light"
         }`}
       >
         {body}
@@ -146,9 +174,7 @@ function InfoCard({
       {small && (
         <p
           className="font-body text-xs leading-relaxed"
-          style={{
-            color: isTeal ? "rgba(148,163,184,0.55)" : "rgba(252,211,77,0.45)",
-          }}
+          style={{ color: "rgba(148,163,184,0.55)" }}
         >
           {small}
         </p>
@@ -261,7 +287,7 @@ export default function SignupForm({ lang = "en", variant = "dark" }: Props) {
   if (status === "success") {
     return (
       <InfoCard
-        variant="teal"
+        variant="amber"
         heading={t.confirmHeading}
         body={t.confirmBody(submittedEmail)}
         small={t.confirmSmall}
@@ -287,6 +313,7 @@ export default function SignupForm({ lang = "en", variant = "dark" }: Props) {
         variant="amber"
         heading={t.pendingHeading}
         body={t.pendingBody(submittedEmail)}
+        small={t.pendingSmall}
         lightMode={isLight}
       />
     );

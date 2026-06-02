@@ -1,78 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { sendWelcomeEmail } from "@/lib/email/welcome";
+import { randomBytes } from "crypto";
+import {
+  getAdminClient,
+  isValidEmail,
+  isBotEmail,
+  isBlockedDomain,
+  isDomainBurst,
+  getClientIp,
+  checkRateLimit,
+  logBlockedSignup,
+} from "@/lib/signup-guards";
+import { sendVerificationEmail } from "@/lib/email/verification";
 
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function isBotEmail(email: string): boolean {
-  const local = email.split("@")[0];
-  // Consecutive dots (RFC violation — Resend rejects these too)
-  if (/\.{2,}/.test(local)) return true;
-  // 4+ dots in local part — heavy dot-stuffing
-  const dots = (local.match(/\./g) ?? []).length;
-  if (dots >= 4) return true;
-  // Ends in .NN digits (e.g. "name.62", "user.158")
-  if (/\.\d+$/.test(local)) return true;
-  // Dot-separated single chars: "v.i.n.b.o.y" pattern
-  const segments = local.split(".");
-  const singleCharSegments = segments.filter((s) => s.length === 1).length;
-  if (singleCharSegments >= 3) return true;
-  // High dot-to-length ratio — "a.bc.d.ef.g" style gibberish
-  if (dots >= 3 && dots / local.length > 0.25) return true;
-  return false;
-}
-
-const BLOCKED_DOMAINS = new Set([
-  "chameleongroup.co",
-  "a7gi.ru",
-  "sigizmundgrp.com",
-  "guerrillamail.com",
-  "tempmail.com",
-  "mailinator.com",
-  "yopmail.com",
-  "throwaway.email",
-  "guerrillamail.info",
-  "grr.la",
-  "sharklasers.com",
-  "guerrillamail.net",
-  "guerrillamail.de",
-  "trbvm.com",
-]);
-
-function isBlockedDomain(email: string): boolean {
-  const domain = email.split("@")[1]?.toLowerCase();
-  if (!domain) return true;
-  if (domain.endsWith(".ru")) return true;
-  return BLOCKED_DOMAINS.has(domain);
-}
-
-// IP rate limiting: 3 signups per hour (in-memory, resets on cold start)
-const ipTimestamps = new Map<string, number[]>();
-const IP_WINDOW_MS = 3_600_000;
-const IP_MAX = 3;
-
-function getClientIp(req: NextRequest): string {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown"
-  );
-}
-
-function isIpLimited(ip: string): boolean {
-  const now = Date.now();
-  const hits = (ipTimestamps.get(ip) ?? []).filter(
-    (t) => now - t < IP_WINDOW_MS,
-  );
-  if (hits.length >= IP_MAX) return true;
-  hits.push(now);
-  ipTimestamps.set(ip, hits);
-  return false;
-}
-
-// Validate Cloudflare Turnstile token — no-op if TURNSTILE_SECRET_KEY not set
 async function verifyTurnstile(token: string): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) return true;
@@ -89,53 +28,23 @@ async function verifyTurnstile(token: string): Promise<boolean> {
     const data = await resp.json();
     return data.success === true;
   } catch {
-    return true; // fail open — don't block real users on Turnstile outage
+    return true;
   }
 }
 
-// Domain burst: block if 3+ signups from the same domain in 24h
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function isDomainBurst(email: string, supabase: any): Promise<boolean> {
-  const domain = email.split("@")[1]?.toLowerCase();
-  if (!domain) return false;
-  // Skip common providers
-  const freeProviders = new Set([
-    "gmail.com",
-    "yahoo.com",
-    "hotmail.com",
-    "outlook.com",
-    "icloud.com",
-    "aol.com",
-    "live.com",
-    "protonmail.com",
-    "proton.me",
-    "me.com",
-    "msn.com",
-    "mail.com",
-  ]);
-  if (freeProviders.has(domain)) return false;
-  const cutoff = new Date(Date.now() - 86_400_000).toISOString();
-  const { count } = await supabase
-    .from("subscribers")
-    .select("id", { count: "exact", head: true })
-    .gte("created_at", cutoff)
-    .like("email", `%@${domain}`);
-  return (count ?? 0) >= 3;
-}
-
 export async function POST(req: NextRequest) {
+  const supabase = getAdminClient();
   const ip = getClientIp(req);
-  if (isIpLimited(ip)) {
+
+  // Supabase-backed IP rate limit: 3 signups per hour
+  const ipLimited = await checkRateLimit(`ip:${ip}`, 3, 3_600_000, supabase);
+  if (ipLimited) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },
       { status: 429 },
     );
   }
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
   let body: {
     email?: string;
     referral_code?: string;
@@ -148,7 +57,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  // Honeypot — bots fill hidden fields
   if (body.website) {
     return NextResponse.json({ ok: true });
   }
@@ -161,15 +69,26 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (isBotEmail(email)) {
-    return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+  const normalized = email.toLowerCase().trim();
+
+  if (isBotEmail(normalized)) {
+    await logBlockedSignup(normalized, ip, "bot_email_pattern", supabase);
+    return NextResponse.json(
+      { error: "Unable to complete signup." },
+      { status: 400 },
+    );
   }
 
-  if (isBlockedDomain(email)) {
-    return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+  const blocked = await isBlockedDomain(normalized, supabase);
+  if (blocked) {
+    await logBlockedSignup(normalized, ip, "blocked_domain", supabase);
+    return NextResponse.json(
+      { error: "Unable to complete signup." },
+      { status: 400 },
+    );
   }
 
-  // Trusted internal callers (NBC proxy) send x-internal-key to bypass Turnstile
+  // Trusted internal callers (NBC proxy) bypass Turnstile
   const internalKey = req.headers.get("x-internal-key");
   const isInternalCaller =
     !!process.env.NOLANA_INTERNAL_KEY &&
@@ -185,21 +104,37 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const normalized = email.toLowerCase().trim();
-
   const burst = await isDomainBurst(normalized, supabase);
   if (burst) {
-    return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+    await logBlockedSignup(normalized, ip, "domain_burst", supabase);
+    return NextResponse.json(
+      { error: "Unable to complete signup." },
+      { status: 400 },
+    );
   }
 
   // Check for existing subscriber
   const { data: existing } = await supabase
     .from("subscribers")
-    .select("id, unsubscribed")
+    .select("id, unsubscribed, email_verified")
     .eq("email", normalized)
     .single();
 
   if (existing && !existing.unsubscribed) {
+    if (!existing.email_verified) {
+      // Resend verification email
+      const token = randomBytes(32).toString("hex");
+      await supabase
+        .from("subscribers")
+        .update({ verification_token: token })
+        .eq("id", existing.id);
+      try {
+        await sendVerificationEmail(normalized, token);
+      } catch (e) {
+        console.error("[subscribe] resend verification failed:", e);
+      }
+      return NextResponse.json({ ok: true, reason: "pending_confirmation" });
+    }
     return NextResponse.json({ ok: false, reason: "already_subscribed" });
   }
 
@@ -214,14 +149,18 @@ export async function POST(req: NextRequest) {
     referredBy = referrer?.id ?? null;
   }
 
-  // Upsert subscriber
+  // Generate verification token
+  const verificationToken = randomBytes(32).toString("hex");
+
+  // Create subscriber (unverified)
   const { error } = await supabase.from("subscribers").upsert(
     {
       email: normalized,
       tier: "free",
-      email_verified: true,
+      email_verified: false,
       unsubscribed: false,
       referred_by: referredBy,
+      verification_token: verificationToken,
     },
     { onConflict: "email" },
   );
@@ -234,13 +173,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Send welcome email
+  // Send verification email (not welcome — that comes after confirmation)
   try {
-    await sendWelcomeEmail(normalized);
+    await sendVerificationEmail(normalized, verificationToken);
   } catch (e) {
-    console.error("[subscribe] welcome email failed:", e);
-    // Don't fail the subscription if email fails
+    console.error("[subscribe] verification email failed:", e);
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, reason: "pending_confirmation" });
 }

@@ -101,7 +101,7 @@ export default function StickyMobileCTA() {
       });
       if (res.ok) {
         setDone(true);
-        setTimeout(dismiss, 2500);
+        setTimeout(dismiss, 5000);
       }
     } catch {
     } finally {
@@ -118,9 +118,32 @@ export default function StickyMobileCTA() {
         style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
       >
         {done ? (
-          <p className="font-body text-teal-light text-sm text-center font-semibold">
-            You&apos;re on the list!
-          </p>
+          <div className="flex items-center gap-3 justify-center py-1">
+            <div className="w-10 h-10 rounded-full bg-amber-400/20 flex items-center justify-center flex-shrink-0 animate-pulse">
+              <svg
+                className="w-5 h-5 text-amber-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            <div className="text-left">
+              <p className="font-body text-amber-300 text-sm font-bold leading-tight">
+                Almost there! Confirm your email.
+              </p>
+              <p className="font-body text-amber-200/60 text-xs leading-tight mt-0.5">
+                Check your inbox and spam folder.
+              </p>
+            </div>
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex items-center gap-2">
             <div ref={widgetContainerRef} aria-hidden="true" />
