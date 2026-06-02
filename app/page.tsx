@@ -2,9 +2,8 @@ import Hero from "@/components/Hero";
 import SocialProof from "@/components/SocialProof";
 import DataBar from "@/components/DataBar";
 import SampleBriefing from "@/components/SampleBriefing";
-import NRIFeature from "@/components/NRIFeature";
+import InsideEveryIssue from "@/components/InsideEveryIssue";
 import WhoItsFor from "@/components/WhoItsFor";
-import WhatYouGet from "@/components/WhatYouGet";
 import Pricing from "@/components/Pricing";
 import About from "@/components/About";
 import FAQ from "@/components/FAQ";
@@ -78,9 +77,8 @@ export default async function Home() {
         <DataBar metrics={snapshot.metrics} updatedLabel={updatedLabel} />
       </SectionReveal>
       <SampleBriefing />
-      <NRIFeature />
+      <InsideEveryIssue />
       <WhoItsFor />
-      <WhatYouGet />
       <Pricing />
       <About />
       <FAQ />

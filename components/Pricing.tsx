@@ -132,7 +132,7 @@ export default function Pricing() {
         <SectionReveal>
           <div className="text-center mb-12">
             <span className="section-label justify-center mb-4">
-              <span className="text-teal-light">Pricing</span>
+              <span className="text-teal-light">What You Get</span>
             </span>
             <h2
               className="font-display font-bold text-warm-white mt-4 mb-5"
