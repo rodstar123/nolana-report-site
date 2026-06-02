@@ -143,6 +143,14 @@ export default async function IssuePage({
         .replace(/^##\s*The Quiet Signal\s*\n?/, "")
         .trim() || null
     : null;
+
+  const nriSubs = [
+    { label: "Growth", value: iss.nri_sub_growth as number | null },
+    { label: "Development", value: iss.nri_sub_development as number | null },
+    { label: "Policy", value: iss.nri_sub_policy as number | null },
+    { label: "Trade", value: iss.nri_sub_trade as number | null },
+  ].filter((s) => s.value !== null && s.value !== undefined);
+  const moveBarText = (iss.move_bar as string | null) ?? null;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
   const articleSchema = {
@@ -255,6 +263,43 @@ export default async function IssuePage({
               Score Distribution
             </p>
             <NRIHeatmap scores={nriScores} />
+          </div>
+        )}
+
+        {/* NRI Sub-Scores — issue-level pulse */}
+        {nriSubs.length > 0 && (
+          <div className="mb-10 flex flex-wrap gap-3">
+            {nriSubs.map((sub) => {
+              const val = sub.value as number;
+              const color =
+                val >= 7
+                  ? "bg-teal/15 text-teal dark:bg-teal/25 dark:text-teal-light border-teal/30"
+                  : val >= 5
+                    ? "bg-gold/15 text-gold-dark dark:bg-gold/25 dark:text-gold border-gold/30"
+                    : "bg-slate-light/15 text-slate dark:bg-dark-dim/25 dark:text-dark-muted border-slate-light/30";
+              return (
+                <span
+                  key={sub.label}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-sm font-body font-semibold ${color}`}
+                >
+                  {sub.label}
+                  <span className="font-mono text-xs opacity-80">{val}/10</span>
+                </span>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Move Bar */}
+        {moveBarText && (
+          <div className="mb-10 p-4 bg-navy/[0.04] dark:bg-dark-card border border-navy/10 dark:border-dark-border rounded-lg flex items-start gap-3">
+            <span className="shrink-0 mt-0.5 w-1.5 h-1.5 rounded-full bg-teal dark:bg-teal-light" />
+            <p className="font-body text-[15px] text-charcoal dark:text-dark-text leading-relaxed">
+              <span className="font-semibold text-teal dark:text-teal-light">
+                The move:
+              </span>{" "}
+              {moveBarText}
+            </p>
           </div>
         )}
 

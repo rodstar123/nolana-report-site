@@ -665,6 +665,53 @@ function normalizeUrl(url: string): string {
   }
 }
 
+function avgNri(stories: ParsedStory[], sectionEnum: string): number | null {
+  const matched = stories.filter((s) => s.section === sectionEnum);
+  if (matched.length === 0) return null;
+  return Math.round(
+    matched.reduce((sum, s) => sum + s.nri, 0) / matched.length,
+  );
+}
+
+function extractMoveBar(bizTemp: string | null): string | null {
+  if (!bizTemp) return null;
+  const m = bizTemp.match(/\*\*The move:\*\*\s*(.+?)(?:\n|$)/i);
+  return m ? m[1].trim() : null;
+}
+
+function buildSynthesis(sections: {
+  businessTemperature: string | null;
+  valleyMoneyMap: string | null;
+  threeMoves: string | null;
+  quietSignal: string | null;
+}): Record<string, unknown> | null {
+  if (
+    !sections.businessTemperature &&
+    !sections.valleyMoneyMap &&
+    !sections.threeMoves &&
+    !sections.quietSignal
+  ) {
+    return null;
+  }
+  const tempMatch = (sections.businessTemperature ?? "").match(
+    /^##\s*This Week's Business Temperature:\s*(.+)/m,
+  );
+  const movesItems = (sections.threeMoves ?? "")
+    .split(/\n\d+\.\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  return {
+    temperature: {
+      label: tempMatch ? tempMatch[1].trim() : null,
+      body: sections.businessTemperature,
+    },
+    moneyMap: sections.valleyMoneyMap,
+    moves: movesItems.length > 0 ? movesItems : null,
+    quietSignal: sections.quietSignal,
+  };
+}
+
 export async function writeBriefing(
   supabase: SupabaseClient,
   opening: string,
@@ -689,6 +736,13 @@ export async function writeBriefing(
     return { issueId: existing.id, storiesWritten: 0 };
   }
 
+  const nriSubGrowth = avgNri(stories, "new_business_pulse");
+  const nriSubDevelopment = avgNri(stories, "industrial_investment");
+  const nriSubPolicy = avgNri(stories, "gov_economic_watch");
+  const nriSubTrade = avgNri(stories, "cross_border_trade");
+  const moveBar = extractMoveBar(sections.businessTemperature);
+  const synthesisSections = buildSynthesis(sections);
+
   const { data: issue, error: issueErr } = await supabase
     .from("issues")
     .insert({
@@ -702,6 +756,12 @@ export async function writeBriefing(
       valley_money_map: sections.valleyMoneyMap,
       three_moves: sections.threeMoves,
       quiet_signal: sections.quietSignal,
+      nri_sub_growth: nriSubGrowth,
+      nri_sub_development: nriSubDevelopment,
+      nri_sub_policy: nriSubPolicy,
+      nri_sub_trade: nriSubTrade,
+      move_bar: moveBar,
+      synthesis_sections: synthesisSections,
     })
     .select("id")
     .single();
