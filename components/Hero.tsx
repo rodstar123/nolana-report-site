@@ -145,27 +145,17 @@ export default function Hero() {
             <div className="flex-shrink-0 flex justify-center lg:justify-end lg:flex-1">
               <div className="hero-mockup opacity-0 relative">
                 <Image
-                  src="/images/hero-iphone-mockup.webp"
-                  alt="iPhone showing The Nolana Report with scored business stories and NRI badges"
-                  width={600}
-                  height={450}
+                  src="/images/nolana-iphone-hand.png"
+                  alt="Hand holding iPhone showing The Nolana Report newsletter with scored business stories"
+                  width={400}
+                  height={500}
                   priority
-                  className="object-contain rounded-2xl"
+                  className="object-contain max-h-[280px] lg:max-h-[460px] w-auto"
                   style={{
-                    maxHeight: "260px",
-                    width: "auto",
-                    filter: "drop-shadow(0 20px 60px rgba(0,0,0,0.15))",
+                    filter: "drop-shadow(0 16px 48px rgba(0,0,0,0.12))",
                   }}
-                  sizes="(max-width: 768px) 320px, 600px"
+                  sizes="(max-width: 768px) 280px, 460px"
                 />
-                {/* Desktop: larger */}
-                <style jsx>{`
-                  @media (min-width: 1024px) {
-                    :global(.hero-mockup img) {
-                      max-height: 420px !important;
-                    }
-                  }
-                `}</style>
               </div>
             </div>
           </div>
