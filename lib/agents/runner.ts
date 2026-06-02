@@ -1,5 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { SOURCES } from "./sources";
+import { SOURCES, getSourceTier, applySourceQualityModifier } from "./sources";
 import { fetchSource } from "./fetcher";
 import { normalize, fetchFullText } from "./normalize";
 import { scoreItem } from "./scorer";
@@ -152,6 +152,9 @@ export async function runAgent(
       });
       continue;
     }
+
+    const tier = getSourceTier(item.title, item.url, item.source);
+    scored.score = applySourceQualityModifier(scored.score, tier);
 
     itemsScored++;
     tokensUsed += scored.tokens;

@@ -1,4 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { getSourceTier } from "./sources";
+import type { SourceTier } from "./types";
 
 const STOPWORDS = new Set([
   "a",
@@ -68,6 +70,26 @@ function extractDollarAmount(text: string): string | null {
   return m ? m[0].toLowerCase().replace(/,/g, "") : null;
 }
 
+const TIER_RANK: Record<SourceTier, number> = {
+  local: 4,
+  regional: 3,
+  national: 2,
+  unknown: 1,
+  international: 0,
+};
+
+function itemTierRank(item: RawItemRow): number {
+  const tier = getSourceTier(item.title, item.url, item.source_name ?? "");
+  return TIER_RANK[tier];
+}
+
+function preferItem(a: RawItemRow, b: RawItemRow): boolean {
+  const tierA = itemTierRank(a);
+  const tierB = itemTierRank(b);
+  if (tierA !== tierB) return tierA >= tierB;
+  return (a.relevance_score ?? 0) >= (b.relevance_score ?? 0);
+}
+
 const TRADE_CATEGORIES = new Set([
   "Tariff",
   "Bridge",
@@ -120,14 +142,11 @@ export function dedup(items: RawItemRow[]): {
   jaccardDedupCount: number;
   reroutedCount: number;
 } {
-  // Pass 1: URL dedup — keep highest score
+  // Pass 1: URL dedup — keep best source tier, then highest score
   const byUrl = new Map<string, RawItemRow>();
   for (const item of items) {
     const existing = byUrl.get(item.url);
-    if (
-      !existing ||
-      (item.relevance_score ?? 0) > (existing.relevance_score ?? 0)
-    ) {
+    if (!existing || preferItem(item, existing)) {
       byUrl.set(item.url, item);
     }
   }
@@ -144,9 +163,7 @@ export function dedup(items: RawItemRow[]): {
     for (let j = i + 1; j < afterUrl.length; j++) {
       if (jaccardDropped.has(j)) continue;
       if (jaccard(tokenized[i], tokenized[j]) >= 0.3) {
-        const keepI =
-          (afterUrl[i].relevance_score ?? 0) >=
-          (afterUrl[j].relevance_score ?? 0);
+        const keepI = preferItem(afterUrl[i], afterUrl[j]);
         jaccardDropped.add(keepI ? j : i);
       }
     }
@@ -175,9 +192,7 @@ export function dedup(items: RawItemRow[]): {
         dollarI === dollarJ &&
         jaccard(tokenized2[i], tokenized2[j]) >= 0.2
       ) {
-        const keepI =
-          (afterJaccard[i].relevance_score ?? 0) >=
-          (afterJaccard[j].relevance_score ?? 0);
+        const keepI = preferItem(afterJaccard[i], afterJaccard[j]);
         dollarDropped.add(keepI ? j : i);
       }
     }
@@ -301,6 +316,13 @@ Target: 20-30 stories total per issue. Quality over quantity.
 - Section intros: Each section opens with ONE italicized editorial sentence framing the week's theme.
 - No filler: Never write "As previously reported," "Sources say," "According to officials," "directly impacts RGV businesses."
 - Vary framing: "For local operators..." / "Owners in [city] should note..." / "The ripple effect..." / "This means..."
+
+## Source Credibility Hierarchy
+When the same story appears from multiple sources, prefer in this order:
+1. **Local RGV** (The Monitor, Valley Business Report, MyRGV, RGV Business Journal, Brownsville Herald, ValleyCentral, KRGV, Texas Border Business, Rio Grande Guardian)
+2. **Texas regional** (Texas Tribune, Houston Chronicle, Dallas Morning News)
+3. **US national / wire** (Reuters, Bloomberg, AP, GlobeNewswire, The Packer, Forbes)
+4. **International** (Manila Times, BBC, Al Jazeera, FreshPlaza, etc.) — use only if no US source covers the story. If an international source is the only one, include the story but note the source limitation in your analysis.
 
 ## Source Diversity
 Cap any single source at 8 stories, choosing the highest-scored ones.

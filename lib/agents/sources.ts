@@ -1,4 +1,4 @@
-import type { AgentName, SourceConfig } from "./types";
+import type { AgentName, SourceConfig, SourceTier } from "./types";
 
 export const SOURCES: Record<AgentName, SourceConfig[]> = {
   "Agent 1": [
@@ -199,4 +199,125 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
 
 export function getSourceCount(): number {
   return Object.values(SOURCES).reduce((sum, arr) => sum + arr.length, 0);
+}
+
+// ---------------------------------------------------------------------------
+// Source quality tier system
+// Classifies the actual publisher behind a story into credibility tiers.
+// Local RGV > Texas regional > US national > international.
+// ---------------------------------------------------------------------------
+
+const SOURCE_TIER_RULES: { tier: SourceTier; patterns: RegExp[] }[] = [
+  {
+    tier: "local",
+    patterns: [
+      /\bthe\s*monitor\b/i,
+      /\bvalley\s*business\s*report\b/i,
+      /\bmyrgv\b/i,
+      /\btexas\s*border\s*business\b/i,
+      /\brio\s*grande\s*guardian\b/i,
+      /\brgv\s*business\s*journal\b/i,
+      /\bbrownsville\s*herald\b/i,
+      /\bvalley\s*central\b/i,
+      /\bvalleycentral\b/i,
+      /\bkrgv\b/i,
+      /\bport\s*of\s*brownsville\b/i,
+      /\bspaceflight\s*now\b/i,
+    ],
+  },
+  {
+    tier: "regional",
+    patterns: [
+      /\btexas\s*tribune\b/i,
+      /\bhouston\s*chronicle\b/i,
+      /\bdallas\s*morning\b/i,
+      /\bsan\s*antonio\s*(express|report|news)/i,
+      /\bfort\s*worth\s*star/i,
+      /\baustin\s*american/i,
+      /\bcorpus\s*christi\s*caller/i,
+    ],
+  },
+  {
+    tier: "national",
+    patterns: [
+      /\breuters\b/i,
+      /\bbloomberg\b/i,
+      /\bap\b\s*news\b|associated\s*press/i,
+      /\bcnbc\b/i,
+      /\bwall\s*street\s*journal\b/i,
+      /\bnew\s*york\s*times\b/i,
+      /\bwashington\s*post\b/i,
+      /\bthe\s*packer\b/i,
+      /\bfood\s*dive\b/i,
+      /\bglobenewswire\b/i,
+      /\bbusiness\s*wire\b/i,
+      /\bpr\s*newswire\b/i,
+      /\bforbes\b/i,
+      /\bfortune\b/i,
+      /\bmarketwatch\b/i,
+      /\busa\s*today\b/i,
+      /\bcbs\s*news\b/i,
+      /\bnbc\s*news\b/i,
+      /\babc\s*news\b/i,
+      /\bfox\s*business\b/i,
+      /\binvesting\.com\b/i,
+      /\bblue\s*book\b/i,
+      /\bfederal\s*register\b/i,
+    ],
+  },
+  {
+    tier: "international",
+    patterns: [
+      /\bmanila\s*times\b/i,
+      /\bbbc\b/i,
+      /\bal\s*jazeera\b/i,
+      /\bguardian\b.*\.co\.uk/i,
+      /\btimes\s*of\s*india\b/i,
+      /\bsouth\s*china\b/i,
+      /\bstraits\s*times\b/i,
+      /\bnikkei\b/i,
+      /\bfreshplaza\b/i,
+      /\bfresh\s*fruit\s*portal\b/i,
+      /\bthe\s*star\b.*\bmalaysia\b/i,
+      /\bgulf\s*news\b/i,
+      /\bindependent\.co\.uk\b/i,
+      /\btelegraph\.co\.uk\b/i,
+      /\bdaily\s*mail\b/i,
+    ],
+  },
+];
+
+export const SOURCE_TIER_MODIFIER: Record<SourceTier, number> = {
+  local: 5,
+  regional: 3,
+  national: 0,
+  international: -8,
+  unknown: 0,
+};
+
+export function extractPublisher(title: string): string | null {
+  const m = title.match(/\s*[-–—|]\s*([^-–—|]+)$/);
+  return m ? m[1].trim() : null;
+}
+
+export function getSourceTier(
+  title: string,
+  url: string,
+  configSourceName: string,
+): SourceTier {
+  const publisher = extractPublisher(title) ?? "";
+  const haystack = `${publisher} ${url} ${configSourceName}`;
+  for (const rule of SOURCE_TIER_RULES) {
+    for (const pattern of rule.patterns) {
+      if (pattern.test(haystack)) return rule.tier;
+    }
+  }
+  return "unknown";
+}
+
+export function applySourceQualityModifier(
+  score: number,
+  tier: SourceTier,
+): number {
+  return Math.max(0, Math.min(100, score + SOURCE_TIER_MODIFIER[tier]));
 }

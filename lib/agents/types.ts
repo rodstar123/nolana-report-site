@@ -36,6 +36,13 @@ export const SECTION_ENUM: Record<AgentName, string> = {
   "Agent 5": "industrial_investment",
 };
 
+export type SourceTier =
+  | "local"
+  | "regional"
+  | "national"
+  | "international"
+  | "unknown";
+
 export type Category =
   | "New Open"
   | "Closing"
