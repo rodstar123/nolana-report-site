@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import LenisProvider from "@/components/LenisProvider";
+import GeoAnalytics from "@/components/GeoAnalytics";
 
 export const metadata: Metadata = {
   title: "The Nolana Report | RGV Business Intelligence & Weekly Business News",
@@ -226,19 +226,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-L73X8VT5S1"
-          strategy="afterInteractive"
-        />
-        <Script id="gtag-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-L73X8VT5S1');
-          `}
-        </Script>
+        <GeoAnalytics />
         <LenisProvider>
           <Navigation />
           <main aria-label="Main content">{children}</main>
