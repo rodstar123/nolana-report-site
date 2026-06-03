@@ -509,8 +509,8 @@ function extractSectionBlock(
   const idx = text.indexOf(sectionPrefix);
   if (idx < 0) return null;
   const rest = text.slice(idx + 1);
-  const nextH2 = rest.search(/\n## /);
-  const raw = text.slice(idx, nextH2 >= 0 ? idx + 1 + nextH2 : text.length);
+  const boundary = rest.search(/\n## |\n---/);
+  const raw = text.slice(idx, boundary >= 0 ? idx + 1 + boundary : text.length);
   return raw.replace(/\n---\s*$/, "").trim() || null;
 }
 

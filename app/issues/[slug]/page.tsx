@@ -19,7 +19,9 @@ function getSupabase() {
 }
 
 function parseTemperature(md: string) {
-  const lines = md.split("\n");
+  const cutoff = md.search(/\n---|\n###/);
+  const safe = cutoff > 0 ? md.slice(0, cutoff) : md;
+  const lines = safe.split("\n");
   const label = (lines[0] || "")
     .replace(/^##\s*This Week's Business Temperature:\s*/, "")
     .trim();
