@@ -8,6 +8,7 @@
     { "path": "/api/aggregator", "schedule": "30 13 * * 1" },
     { "path": "/api/supervisor", "schedule": "0 13 * * 0,2-6" },
     { "path": "/api/supervisor", "schedule": "0 14 * * 1" },
+    { "path": "/api/supervisor", "schedule": "0 16 * * 1" },
     { "path": "/api/watchdog", "schedule": "0 1 * * 0" },
     { "path": "/api/send-briefing", "schedule": "0 15 * * 1" }
   ],

@@ -28,6 +28,23 @@ async function sendTelegram(text: string): Promise<void> {
   }
 }
 
+function getLastMondayBriefingTime(now: Date): Date {
+  const d = new Date(now);
+  const day = d.getUTCDay();
+  const daysSinceMonday = day === 0 ? 6 : day - 1;
+  d.setUTCDate(d.getUTCDate() - daysSinceMonday);
+  d.setUTCHours(13, 30, 0, 0);
+  if (d > now) d.setUTCDate(d.getUTCDate() - 7);
+  return d;
+}
+
+function daysUntilNextMonday(now: Date): number {
+  const day = now.getUTCDay();
+  if (day === 0) return 1;
+  if (day === 1) return 7;
+  return 8 - day;
+}
+
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
   const cronHeader = req.headers.get("x-vercel-cron");
@@ -55,8 +72,11 @@ export async function GET(req: NextRequest) {
   // --- Step 1: Check which agents ran today ---
   const { data: todayLogs } = await supabase
     .from("agent_logs")
-    .select("agent, items_ingested, sources_failed, sources_attempted")
-    .gte("run_started_at", startOfDay.toISOString());
+    .select(
+      "agent, items_ingested, sources_failed, sources_attempted, items_fetched",
+    )
+    .gte("run_started_at", startOfDay.toISOString())
+    .not("agent", "eq", "aggregator");
 
   const ran = new Set((todayLogs ?? []).map((l: { agent: string }) => l.agent));
   const missing = ALL_AGENTS.filter((a) => !ran.has(a));
@@ -149,6 +169,26 @@ export async function GET(req: NextRequest) {
     lines.push("✅ All 5 agents ran today.");
   }
 
+  // --- Step 2b: Per-agent health status ---
+  interface AgentLog {
+    agent: string;
+    items_ingested: number | null;
+    sources_failed: number | null;
+    sources_attempted: number | null;
+    items_fetched: number | null;
+  }
+  for (const log of (todayLogs ?? []) as AgentLog[]) {
+    const failed = log.sources_failed ?? 0;
+    const ingested = log.items_ingested ?? 0;
+    if (failed > 0) {
+      lines.push(
+        `  ⚠️ ${log.agent}: ${ingested} ingested, ${failed} source(s) failed`,
+      );
+    } else if (ingested === 0) {
+      lines.push(`  ℹ️ ${log.agent}: no new content (0 sources failed)`);
+    }
+  }
+
   // --- Step 3: Zero-ingestion check ---
   const { count: todayItemCount } = await supabase
     .from("raw_items")
@@ -159,6 +199,60 @@ export async function GET(req: NextRequest) {
     lines.push("🔴 Zero items ingested today across all agents.");
   } else {
     lines.push(`📊 Items ingested today: ${todayItemCount}`);
+  }
+
+  // --- Step 3b: Weekly pipeline + top stories + source breakdown ---
+  const lastBriefing = getLastMondayBriefingTime(now);
+  const { data: weeklyItems } = await supabase
+    .from("raw_items")
+    .select("title, relevance_score, source_name, date_spotted")
+    .gte("date_spotted", lastBriefing.toISOString())
+    .gte("relevance_score", 50)
+    .order("relevance_score", { ascending: false });
+
+  const pool = weeklyItems ?? [];
+  if (pool.length > 0) {
+    const avgNri =
+      pool.reduce(
+        (sum: number, r: { relevance_score: number }) =>
+          sum + r.relevance_score,
+        0,
+      ) /
+      pool.length /
+      10;
+    lines.push(
+      `📰 Weekly pipeline: ${pool.length} articles since last Monday briefing (avg NRI: ${avgNri.toFixed(1)})`,
+    );
+
+    const top3 = pool.slice(0, 3);
+    const topLine = top3
+      .map(
+        (r: { title: string; relevance_score: number }) =>
+          `${r.title.length > 50 ? r.title.slice(0, 47) + "..." : r.title} (NRI ${(r.relevance_score / 10).toFixed(1)})`,
+      )
+      .join(", ");
+    lines.push(`🏆 Top stories: ${topLine}`);
+  } else {
+    lines.push("📰 Weekly pipeline: 0 articles queued.");
+  }
+
+  // Source breakdown (today's items only)
+  const { data: todayItems } = await supabase
+    .from("raw_items")
+    .select("source_name")
+    .gte("date_spotted", startOfDay.toISOString());
+
+  if (todayItems && todayItems.length > 0) {
+    const counts: Record<string, number> = {};
+    for (const item of todayItems) {
+      const src = (item as { source_name: string }).source_name ?? "Unknown";
+      counts[src] = (counts[src] ?? 0) + 1;
+    }
+    const breakdown = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => `${name} ${count}`)
+      .join(" | ");
+    lines.push(`📡 Source breakdown: ${breakdown}`);
   }
 
   // --- Step 4: Down sources ---
@@ -183,10 +277,7 @@ export async function GET(req: NextRequest) {
     lines.push("✅ All sources healthy.");
   }
 
-  // --- Step 4b: CBP bridge feed shape check (fail loud on shape-change) ---
-  // The bwtnew feed has silently changed shape before, zeroing out Agent 3's
-  // bridge data without any error. Surface a 0-RGV-crossings result the same
-  // way as zero-ingestion so the next shape-change is caught, not hidden.
+  // --- Step 4b: CBP bridge feed shape check ---
   let bridgeShapeBroken = false;
   const bridge = await fetchBridgeReading();
   if (bridge === null) {
@@ -203,6 +294,20 @@ export async function GET(req: NextRequest) {
   } else {
     lines.push(
       `✅ CBP bridge: ${bridge.lanes.length}/${bridge.rgvCrossingsMatched} RGV lanes live, avg ${bridge.avgDelayMinutes} min.`,
+    );
+  }
+
+  // --- Step 4c: Next briefing countdown ---
+  const daysOut =
+    isMonday && now.getUTCHours() >= 13 ? 0 : daysUntilNextMonday(now);
+  const queuedCount = pool.filter(
+    (r: { relevance_score: number }) => r.relevance_score >= 50,
+  ).length;
+  if (daysOut === 0) {
+    lines.push(`📅 Briefing day! | Pipeline: ${queuedCount} articles queued`);
+  } else {
+    lines.push(
+      `📅 Next briefing: Monday (${daysOut} day${daysOut > 1 ? "s" : ""}) | Pipeline: ${queuedCount} articles queued`,
     );
   }
 
@@ -254,6 +359,66 @@ export async function GET(req: NextRequest) {
           `✅ MONDAY CHECK: Briefing ready — ${issue.stories_count} stories, opening present.`,
         );
       }
+    }
+  }
+
+  // --- Step 5b: Monday post-briefing delivery summary ---
+  if (isMonday && now.getUTCHours() >= 15) {
+    const { data: todayIssue } = await supabase
+      .from("issues")
+      .select("id")
+      .eq("slug", dateStr)
+      .maybeSingle();
+
+    if (todayIssue) {
+      const [emailLogResult, subscriberResult] = await Promise.all([
+        supabase
+          .from("email_log")
+          .select("resend_id", { count: "exact" })
+          .eq("issue_id", todayIssue.id)
+          .eq("email_type", "briefing"),
+        supabase
+          .from("subscribers")
+          .select("*", { count: "exact", head: true })
+          .eq("email_verified", true)
+          .eq("unsubscribed", false),
+      ]);
+
+      const delivered = emailLogResult.count ?? 0;
+      const totalSubs = subscriberResult.count ?? 0;
+
+      // Check Resend for bounces/suppressions on today's sends
+      let bounced = 0;
+      let suppressed = 0;
+      const resendKey = process.env.RESEND_API_KEY;
+      if (resendKey && emailLogResult.data) {
+        const resendIds = emailLogResult.data
+          .map((r: { resend_id: string | null }) => r.resend_id)
+          .filter(Boolean) as string[];
+        const checks = resendIds.slice(0, 50).map(async (id: string) => {
+          try {
+            const res = await fetch(`https://api.resend.com/emails/${id}`, {
+              headers: { Authorization: `Bearer ${resendKey}` },
+            });
+            if (!res.ok) return null;
+            return (await res.json()) as { last_event?: string };
+          } catch {
+            return null;
+          }
+        });
+        const statuses = await Promise.all(checks);
+        for (const s of statuses) {
+          if (!s) continue;
+          if (s.last_event === "bounced") bounced++;
+          if (s.last_event === "complained") suppressed++;
+        }
+      }
+
+      const notSent = totalSubs - delivered;
+      lines.push(
+        `📬 Briefing delivered: ${delivered}/${totalSubs}${bounced > 0 ? ` | Bounced: ${bounced}` : ""}${suppressed > 0 ? ` | Suppressed: ${suppressed}` : ""}${notSent > 0 && bounced === 0 && suppressed === 0 ? ` | Skipped: ${notSent}` : ""}`,
+      );
+      lines.push(`👥 Confirmed subscribers: ${totalSubs}`);
     }
   }
 
