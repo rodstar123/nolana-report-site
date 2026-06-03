@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
 import {
   buildBriefingEmail,
-  estimateReadingTime,
+  extractTemperatureLabel,
   type Story,
 } from "@/lib/email/briefing-template";
 
@@ -48,8 +48,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No stories" }, { status: 404 });
   }
 
-  const readingTime = estimateReadingTime(stories as Story[]);
-
   const { data: subscribers } = await supabase
     .from("subscribers")
     .select("*")
@@ -81,25 +79,40 @@ export async function GET(req: NextRequest) {
 
   const results = { sent: 0, failed: 0, errors: [] as string[] };
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const iss = issue as any;
+  const tempLabel = iss.business_temperature
+    ? extractTemperatureLabel(iss.business_temperature as string)
+    : null;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  const dateLabel = new Date(issue.published_at).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+  });
+  const subjectLine = tempLabel
+    ? `${tempLabel} — The Nolana Report, Week of ${dateLabel}`
+    : `The Nolana Report — Week of ${dateLabel}`;
+
   // Send sequentially — Resend free tier is 5 req/sec; sequential with 250ms gap is safe
   for (const sub of pending) {
     try {
-      const html = buildBriefingEmail(
-        issue.title,
-        issue.slug,
-        stories as Story[],
-        sub.tier,
-        issue.opening ?? null,
-      );
-      const storyCount =
-        sub.tier === "free"
-          ? stories.filter((s: Story) => s.is_free).length
-          : stories.length;
+      const html = buildBriefingEmail({
+        issueTitle: issue.title,
+        issueSlug: issue.slug,
+        stories: stories as Story[],
+        tier: sub.tier,
+        opening: issue.opening ?? null,
+        businessTemperature: iss.business_temperature ?? null,
+        valleyMoneyMap: iss.valley_money_map ?? null,
+        threeMoves: iss.three_moves ?? null,
+        quietSignal: iss.quiet_signal ?? null,
+      });
 
       const { data, error } = await resend.emails.send({
         from: "The Nolana Report <briefing@mail.nationalboco.com>",
         to: sub.email,
-        subject: `${issue.title} — ${storyCount} stories scored · ~${readingTime} min read | The Nolana Report`,
+        subject: subjectLine,
         html,
       });
 

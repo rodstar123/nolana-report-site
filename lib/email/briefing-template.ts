@@ -9,6 +9,22 @@ export interface Story {
   section: string;
   is_free: boolean;
   position: number;
+  money_impact: string | null;
+  urgency: string | null;
+  local_reach: string | null;
+  risk: string | null;
+}
+
+export interface BriefingEmailOptions {
+  issueTitle: string;
+  issueSlug: string;
+  stories: Story[];
+  tier: "free" | "pro" | "intel";
+  opening?: string | null;
+  businessTemperature?: string | null;
+  valleyMoneyMap?: string | null;
+  threeMoves?: string | null;
+  quietSignal?: string | null;
 }
 
 export function estimateReadingTime(stories: Story[]): number {
@@ -19,7 +35,46 @@ export function estimateReadingTime(stories: Story[]): number {
   return Math.max(3, Math.ceil(totalWords / 250));
 }
 
-const sectionLabels: Record<string, string> = {
+export function extractTemperatureLabel(md: string): string | null {
+  const match = md.match(/^##\s*This Week's Business Temperature:\s*(.+)/m);
+  return match ? match[1].trim() : null;
+}
+
+function parseTemperatureForEmail(md: string) {
+  const cutoff = md.search(/\n---|\n###/);
+  const safe = cutoff > 0 ? md.slice(0, cutoff) : md;
+  const lines = safe.split("\n");
+  const label = (lines[0] || "")
+    .replace(/^##\s*This Week's Business Temperature:\s*/, "")
+    .trim();
+  const body = lines.slice(1).join("\n").trim();
+  const moveMatch = body.match(/\*\*The move:\*\*\s*(.+)/);
+  return {
+    label,
+    content: body.replace(/\*\*The move:\*\*.+/, "").trim(),
+    move: moveMatch ? moveMatch[1].trim() : null,
+  };
+}
+
+function parseMoneyMapForEmail(md: string) {
+  const lines = md.split("\n").filter((l) => l.trim().startsWith("|"));
+  if (lines.length < 3) return null;
+  const parseRow = (line: string) =>
+    line
+      .split("|")
+      .slice(1, -1)
+      .map((c) => c.trim());
+  return { headers: parseRow(lines[0]), rows: lines.slice(2).map(parseRow) };
+}
+
+function parseMovesForEmail(md: string) {
+  return md
+    .split("\n")
+    .filter((l) => /^\d+\./.test(l.trim()))
+    .map((l) => l.replace(/^\d+\.\s*/, "").trim());
+}
+
+const SECTION_LABELS: Record<string, string> = {
   new_business_pulse: "New Business Pulse",
   gov_economic_watch: "Opportunity Radar",
   cross_border_trade: "Cross-Border &amp; Trade",
@@ -27,120 +82,320 @@ const sectionLabels: Record<string, string> = {
   industrial_investment: "Industrial &amp; Investment Watch",
 };
 
-export function buildBriefingEmail(
-  issueTitle: string,
-  issueSlug: string,
-  stories: Story[],
-  tier: "free" | "pro" | "intel",
-  opening?: string | null,
-) {
-  const visibleStories =
-    tier === "free" ? stories.filter((s) => s.is_free) : stories;
+const TEAL = "#0d7377";
+const NAVY = "#1a2332";
+const GOLD = "#c49a30";
+const CHARCOAL = "#333333";
+const SLATE = "#64748b";
+const WARM_WHITE = "#faf8f5";
+const CREAM_BORDER = "#e5e0d8";
 
-  const grouped: Record<string, Story[]> = {};
-  for (const story of visibleStories) {
-    if (!grouped[story.section]) grouped[story.section] = [];
-    grouped[story.section].push(story);
-  }
+function nriBadgeColors(score: number): { bg: string; color: string } {
+  if (score >= 9) return { bg: "#fef2f2", color: "#dc2626" };
+  if (score >= 7) return { bg: "#f0fdfa", color: TEAL };
+  if (score >= 5) return { bg: "#fefce8", color: "#92400e" };
+  return { bg: "#f1f5f9", color: SLATE };
+}
 
-  let html = `
-    <div style="max-width:600px;margin:0 auto;font-family:Georgia,serif;color:#1a1a1a;">
-      <div style="text-align:center;padding:24px 0;border-bottom:2px solid #1a1a1a;">
-        <h1 style="margin:0;font-size:24px;">The Nolana Report</h1>
-        <p style="margin:4px 0 0;color:#666;font-size:14px;font-family:sans-serif;">
-          RGV Business Intelligence — ${issueTitle}
-        </p>
-      </div>
-  `;
+function subScoreLine(story: Story): string {
+  const parts: string[] = [];
+  if (story.money_impact) parts.push(`Money: ${story.money_impact}`);
+  if (story.urgency) parts.push(`Urgency: ${story.urgency}`);
+  if (story.local_reach) parts.push(`Reach: ${story.local_reach}`);
+  if (story.risk) parts.push(`Risk: ${story.risk}`);
+  return parts.join(" &middot; ");
+}
 
+function esc(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function buildStoryRow(story: Story): string {
+  const sectionLabel = SECTION_LABELS[story.section] ?? story.section;
+  const badge = story.nolana_score
+    ? (() => {
+        const c = nriBadgeColors(story.nolana_score);
+        return `<td width="70" align="right" valign="top" style="padding-top:2px;">
+          <span style="display:inline-block;background:${c.bg};color:${c.color};padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;font-family:'Courier New',monospace;white-space:nowrap;">NRI ${story.nolana_score}/10</span>
+        </td>`;
+      })()
+    : '<td width="70"></td>';
+
+  const scores = subScoreLine(story);
+  const scoresRow = scores
+    ? `<tr><td colspan="2" style="padding:4px 0 0;font-family:Arial,sans-serif;font-size:11px;color:${SLATE};letter-spacing:0.3px;">${scores}</td></tr>`
+    : "";
+
+  const whyItMatters = story.why_it_matters
+    ? `<tr><td colspan="2" style="padding:10px 0 0;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td width="3" style="background:${TEAL};"></td>
+          <td style="padding:10px 14px;background:#f0fdf4;font-family:Georgia,serif;font-size:14px;line-height:1.55;color:#166534;">
+            <strong style="color:${TEAL};">Why it matters:</strong> ${story.why_it_matters}
+          </td>
+        </tr></table>
+      </td></tr>`
+    : "";
+
+  const sourceHtml = story.source_name
+    ? `<tr><td colspan="2" style="padding:8px 0 0;font-family:Arial,sans-serif;font-size:12px;color:#999;">
+        Source: ${story.source_url ? `<a href="${esc(story.source_url)}" style="color:${TEAL};text-decoration:none;">${esc(story.source_name)}</a>` : esc(story.source_name)}${story.source_date ? ` &middot; ${new Date(story.source_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : ""}
+      </td></tr>`
+    : "";
+
+  return `
+    <tr><td style="padding:0 0 24px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom:1px solid #eee;padding-bottom:24px;">
+        <tr>
+          <td style="padding:0 0 6px;font-family:Arial,sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:${TEAL};">${sectionLabel}</td>
+          ${badge}
+        </tr>
+        <tr>
+          <td colspan="2" style="padding:0 0 6px;font-family:Georgia,serif;font-size:18px;line-height:1.35;color:${NAVY};font-weight:bold;">${esc(story.headline)}</td>
+        </tr>
+        ${scoresRow}
+        <tr>
+          <td colspan="2" style="padding:8px 0 0;font-family:Georgia,serif;font-size:15px;line-height:1.65;color:${CHARCOAL};">${story.summary}</td>
+        </tr>
+        ${whyItMatters}
+        ${sourceHtml}
+      </table>
+    </td></tr>`;
+}
+
+export function buildBriefingEmail(opts: BriefingEmailOptions): string {
+  const {
+    issueTitle,
+    issueSlug,
+    stories,
+    tier,
+    opening,
+    businessTemperature,
+    valleyMoneyMap,
+    threeMoves,
+    quietSignal,
+  } = opts;
+
+  const canSeePro = tier === "pro" || tier === "intel";
+  const visibleStories = canSeePro ? stories : stories.filter((s) => s.is_free);
+  const lockedStories = canSeePro ? [] : stories.filter((s) => !s.is_free);
+  const readingTime = estimateReadingTime(stories);
+
+  const issueUrl = `https://nolanareport.com/issues/${issueSlug}`;
+
+  let html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${esc(issueTitle)}</title>
+<!--[if mso]><style>table{border-collapse:collapse;}td{font-family:Arial,sans-serif;}</style><![endif]-->
+</head>
+<body style="margin:0;padding:0;background-color:#f0ede6;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0ede6;">
+<tr><td align="center" style="padding:20px 12px;">
+<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:8px;overflow:hidden;">
+
+<!-- HEADER -->
+<tr><td style="background:${NAVY};padding:28px 32px;text-align:center;">
+  <h1 style="margin:0;font-family:Georgia,serif;font-size:26px;color:#ffffff;font-weight:bold;letter-spacing:0.5px;">The Nolana Report</h1>
+  <p style="margin:6px 0 0;font-family:Arial,sans-serif;font-size:13px;color:rgba(255,255,255,0.7);">RGV Business Intelligence</p>
+</td></tr>
+
+<!-- DATE + READ TIME -->
+<tr><td style="padding:20px 32px 0;text-align:center;">
+  <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:${SLATE};text-transform:uppercase;letter-spacing:1px;">
+    ${issueTitle}
+  </p>
+  <p style="margin:8px 0 0;font-family:Arial,sans-serif;font-size:12px;color:${SLATE};">
+    ~${readingTime} min read &middot; ${stories.length} stories scored
+  </p>
+</td></tr>
+
+<!-- DIVIDER -->
+<tr><td style="padding:18px 32px 0;"><hr style="border:none;border-top:1px solid ${CREAM_BORDER};margin:0;"></td></tr>
+`;
+
+  // OPENING PARAGRAPHS
   if (opening) {
-    const paras = opening.split("\n\n").filter(Boolean);
-    const parasHtml = paras
-      .map(
-        (p, i) =>
-          `<p style="margin:0${i < paras.length - 1 ? " 0 14px" : ""};font-size:17px;line-height:1.7;color:#1a1a1a;font-family:Georgia,serif;">${p.trim()}</p>`,
-      )
-      .join("");
+    const cutoff = opening.search(/\n---|\n##/);
+    const safeOpening = cutoff > 0 ? opening.slice(0, cutoff) : opening;
+    const paras = safeOpening.trim().split("\n\n").filter(Boolean);
     html += `
-      <div style="margin:28px 0 24px;padding:0 0 24px;border-bottom:1px solid #e5e0d8;">
-        ${parasHtml}
-      </div>
-    `;
+<tr><td style="padding:20px 32px 0;">
+  ${paras.map((p) => `<p style="margin:0 0 12px;font-family:Georgia,serif;font-size:17px;line-height:1.75;color:${NAVY};">${p.trim()}</p>`).join("")}
+</td></tr>
+<tr><td style="padding:8px 32px 0;"><hr style="border:none;border-top:1px solid ${CREAM_BORDER};margin:0;"></td></tr>
+`;
   }
 
-  for (const [section, sectionStories] of Object.entries(grouped)) {
+  // BUSINESS TEMPERATURE
+  if (businessTemperature) {
+    const temp = parseTemperatureForEmail(businessTemperature);
     html += `
-      <div style="margin-top:28px;">
-        <h2 style="font-size:13px;color:#0d7377;margin:0 0 14px;text-transform:uppercase;letter-spacing:1.5px;font-family:sans-serif;font-weight:700;">
-          ${sectionLabels[section] ?? section}
-        </h2>
-    `;
-
-    for (const story of sectionStories) {
-      html += `
-        <div style="margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid #eee;">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px;">
-            <h3 style="margin:0;font-size:18px;line-height:1.3;flex:1;">${story.headline}</h3>
-            ${story.nolana_score ? `<span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:bold;font-family:monospace;white-space:nowrap;flex-shrink:0;">NRI ${story.nolana_score}/10</span>` : ""}
-          </div>
-          <p style="margin:0 0 10px;color:#333;font-size:15px;line-height:1.6;">
-            ${story.summary}
-          </p>
-          ${
-            story.why_it_matters
-              ? `<p style="margin:0 0 10px;padding:10px 14px;background:#f0fdf4;border-left:3px solid #16a34a;color:#166534;font-size:14px;line-height:1.5;">
-              <strong>Why it matters:</strong> ${story.why_it_matters}
-            </p>`
-              : ""
-          }
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:4px;">
-            ${
-              story.source_name
-                ? `<p style="margin:0;font-size:12px;color:#999;font-family:sans-serif;">
-                Source: ${story.source_url ? `<a href="${story.source_url}" style="color:#0d7377;">${story.source_name}</a>` : story.source_name}
-                ${story.source_date ? ` · ${new Date(story.source_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : ""}
-              </p>`
-                : "<span></span>"
-            }
-            ${
-              story.source_url
-                ? `<a href="${story.source_url}" style="font-size:12px;font-family:sans-serif;font-weight:bold;color:#0d7377;text-decoration:none;white-space:nowrap;">Read the full story →</a>`
-                : ""
-            }
-          </div>
-        </div>
-      `;
-    }
-
-    html += `</div>`;
+<tr><td style="padding:24px 32px 0;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,#f0fdfa,#fefce8);border:1px solid rgba(13,115,119,0.2);border-radius:8px;">
+    <tr><td style="padding:20px 24px;">
+      <p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:${TEAL};font-weight:700;">This Week's Business Temperature</p>
+      <p style="margin:0 0 12px;font-family:Georgia,serif;font-size:20px;font-weight:bold;color:${NAVY};">${esc(temp.label)}</p>
+      ${temp.content
+        .split("\n\n")
+        .filter(Boolean)
+        .map(
+          (p) =>
+            `<p style="margin:0 0 10px;font-family:Georgia,serif;font-size:15px;line-height:1.65;color:${CHARCOAL};">${p.trim()}</p>`,
+        )
+        .join("")}
+      ${temp.move ? `<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:12px 0 0;border-top:1px solid rgba(13,115,119,0.2);"><p style="margin:0;font-family:Arial,sans-serif;font-size:14px;color:${TEAL};font-weight:bold;line-height:1.5;">The move: <span style="font-weight:normal;color:${CHARCOAL};">${temp.move}</span></p></td></tr></table>` : ""}
+    </td></tr>
+  </table>
+</td></tr>
+`;
   }
 
-  if (tier === "free") {
-    const lockedCount = stories.filter((s) => !s.is_free).length;
-    html += `
-      <div style="margin:32px 0;padding:28px;background:#f0f9ff;border:2px solid #bae6fd;border-radius:10px;text-align:center;font-family:sans-serif;">
-        <h3 style="margin:0 0 8px;font-size:20px;color:#1a1a1a;">${lockedCount} more stories scored this week</h3>
-        <p style="margin:0 0 20px;color:#555;font-size:15px;">One early signal can pay for the whole year.</p>
-        <a href="https://nolanareport.com/#pricing"
-           style="display:inline-block;background:#0d7377;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;">
-          Unlock the full briefing →
-        </a>
-        <p style="margin:12px 0 0;font-size:12px;color:#999;">Founding members lock in $7/mo forever.</p>
-      </div>
-    `;
-  }
-
+  // STORY CARDS
   html += `
-    <div style="margin-top:32px;padding-top:20px;border-top:1px solid #eee;text-align:center;color:#999;font-size:12px;font-family:sans-serif;">
-      <p style="margin:0;">The Nolana Report — RGV Business Intelligence</p>
-      <p style="margin:4px 0 0;">Published by National Bookkeeping Company® · McAllen, TX</p>
-      <p style="margin:10px 0 0;">
-        <a href="https://nolanareport.com/issues/${issueSlug}" style="color:#0d7377;">View on web</a> ·
-        <a href="https://nolanareport.com/account" style="color:#0d7377;">Manage subscription</a>
+<tr><td style="padding:28px 32px 0;">
+  <h2 style="margin:0 0 18px;font-family:Georgia,serif;font-size:22px;color:${NAVY};font-weight:bold;">
+    ${canSeePro ? "This Week's Stories" : "Top Stories This Week"}
+  </h2>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    ${visibleStories.map(buildStoryRow).join("")}
+  </table>
+</td></tr>
+`;
+
+  // PRO UPGRADE CTA (free only)
+  if (!canSeePro && lockedStories.length > 0) {
+    html += `
+<tr><td style="padding:8px 32px 0;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${NAVY};border-radius:10px;">
+    <tr><td style="padding:28px 24px;text-align:center;">
+      <p style="margin:0 0 6px;font-family:Georgia,serif;font-size:20px;font-weight:bold;color:#ffffff;">The Full Briefing Is Where the Moves Are</p>
+      <p style="margin:0 0 18px;font-family:Arial,sans-serif;font-size:14px;color:rgba(255,255,255,0.75);">You're reading ${visibleStories.length} of ${stories.length} scored stories.</p>
+      <p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:12px;color:${GOLD};font-weight:bold;">Pro members also get:</p>
+      <p style="margin:0 0 20px;font-family:Arial,sans-serif;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;">
+        Valley Money Map &middot; 3 Moves This Week &middot; Sub-breakdowns on every story
       </p>
-    </div>
-  </div>
-  `;
+      <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://nolanareport.com/#pricing" style="height:48px;v-text-anchor:middle;width:220px;" arcsize="17%" strokecolor="${TEAL}" fillcolor="${TEAL}"><w:anchorlock/><center style="color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">Unlock Pro — $7/mo</center></v:roundrect><![endif]-->
+      <!--[if !mso]><!--><a href="https://nolanareport.com/#pricing" style="display:inline-block;background:${TEAL};color:#ffffff;padding:14px 32px;border-radius:8px;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold;font-size:15px;line-height:1;">Unlock Pro &mdash; $7/mo</a><!--<![endif]-->
+      <p style="margin:14px 0 0;font-family:Arial,sans-serif;font-size:11px;color:rgba(255,255,255,0.5);">Founding members lock in $7/mo forever &middot; Cancel anytime</p>
+    </td></tr>
+  </table>
+</td></tr>
+`;
+  }
+
+  // VALLEY MONEY MAP (pro/intel only)
+  if (canSeePro && valleyMoneyMap) {
+    const mapData = parseMoneyMapForEmail(valleyMoneyMap);
+    if (mapData) {
+      html += `
+<tr><td style="padding:28px 32px 0;">
+  <h2 style="margin:0 0 14px;font-family:Georgia,serif;font-size:20px;color:${NAVY};font-weight:bold;">The Valley Money Map</h2>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${CREAM_BORDER};border-radius:6px;overflow:hidden;">
+    <tr>
+      ${mapData.headers.map((h) => `<th style="padding:10px 12px;background:${WARM_WHITE};font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:${SLATE};font-weight:700;text-align:left;border-bottom:2px solid ${CREAM_BORDER};">${esc(h)}</th>`).join("")}
+    </tr>
+    ${mapData.rows
+      .map(
+        (row, i) =>
+          `<tr>${row.map((cell) => `<td style="padding:8px 12px;font-family:Georgia,serif;font-size:13px;color:${CHARCOAL};border-bottom:1px solid #f0ede6;${i % 2 === 1 ? `background:${WARM_WHITE};` : ""}">${esc(cell)}</td>`).join("")}</tr>`,
+      )
+      .join("")}
+  </table>
+</td></tr>
+`;
+    }
+  }
+
+  // 3 MOVES THIS WEEK (pro/intel only)
+  if (canSeePro && threeMoves) {
+    const moves = parseMovesForEmail(threeMoves);
+    if (moves.length > 0) {
+      html += `
+<tr><td style="padding:28px 32px 0;">
+  <h2 style="margin:0 0 14px;font-family:Georgia,serif;font-size:20px;color:${NAVY};font-weight:bold;">3 Moves This Week</h2>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-radius:6px;">
+    ${moves
+      .map((move, i) => {
+        const boldMatch = move.match(/^\*\*(.+?)\*\*\s*(.*)/);
+        const content = boldMatch
+          ? `<strong style="color:${NAVY};">${esc(boldMatch[1])}</strong> ${boldMatch[2]}`
+          : move;
+        return `<tr><td style="padding:14px 18px;${i < moves.length - 1 ? `border-bottom:1px solid ${CREAM_BORDER};` : ""}font-family:Georgia,serif;font-size:15px;line-height:1.6;color:${CHARCOAL};">
+          <span style="font-family:'Courier New',monospace;font-size:14px;font-weight:bold;color:${TEAL};margin-right:8px;">${i + 1}.</span>
+          ${content}
+        </td></tr>`;
+      })
+      .join("")}
+  </table>
+</td></tr>
+`;
+    }
+  }
+
+  // THE QUIET SIGNAL (visible to ALL)
+  if (quietSignal) {
+    const cleanSignal = quietSignal
+      .replace(/^##\s*The Quiet Signal\s*\n?/, "")
+      .trim();
+    if (cleanSignal) {
+      html += `
+<tr><td style="padding:28px 32px 0;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td width="4" style="background:${GOLD};border-radius:2px;"></td>
+    <td style="padding:18px 20px;background:#fdfcf9;border:1px solid rgba(196,154,48,0.2);border-left:none;border-radius:0 6px 6px 0;">
+      <p style="margin:0 0 10px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:${GOLD};font-weight:700;">The Quiet Signal</p>
+      ${cleanSignal
+        .split("\n\n")
+        .filter(Boolean)
+        .map(
+          (p) =>
+            `<p style="margin:0 0 10px;font-family:Georgia,serif;font-size:15px;line-height:1.7;color:${CHARCOAL};">${p.trim()}</p>`,
+        )
+        .join("")}
+    </td>
+  </tr></table>
+</td></tr>
+`;
+    }
+  }
+
+  // CLOSING + VIEW ON WEB
+  html += `
+<tr><td style="padding:28px 32px 0;text-align:center;">
+  <p style="margin:0 0 16px;font-family:Georgia,serif;font-size:15px;color:${SLATE};font-style:italic;">
+    That's this week's read. The Nolana Report publishes every Monday.
+  </p>
+  <a href="${issueUrl}" style="display:inline-block;background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};color:${TEAL};padding:10px 24px;border-radius:6px;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold;font-size:13px;">View this issue on the web &rarr;</a>
+</td></tr>
+
+<!-- FOOTER -->
+<tr><td style="padding:28px 32px;margin-top:20px;">
+  <hr style="border:none;border-top:1px solid ${CREAM_BORDER};margin:0 0 20px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td style="text-align:center;font-family:Arial,sans-serif;font-size:12px;color:#999;line-height:1.6;">
+      <p style="margin:0;">The Nolana Report is published every Monday by National Bookkeeping Company&reg;</p>
+      <p style="margin:4px 0 0;">315 W Nolana Ave Suite G, McAllen TX 78504</p>
+      <p style="margin:12px 0 0;">
+        <a href="${issueUrl}" style="color:${TEAL};text-decoration:none;">View on web</a>
+        &nbsp;&middot;&nbsp;
+        <a href="https://nolanareport.com/account" style="color:${TEAL};text-decoration:none;">Manage subscription</a>
+        &nbsp;&middot;&nbsp;
+        <a href="https://nolanareport.com/account" style="color:#999;text-decoration:none;">Unsubscribe</a>
+      </p>
+    </td>
+  </tr></table>
+</td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
 
   return html;
 }
