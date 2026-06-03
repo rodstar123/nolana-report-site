@@ -2,6 +2,34 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
+async function sendPushover(
+  email: string,
+  planName: string,
+  amount: string,
+): Promise<void> {
+  const token = process.env.PUSHOVER_API_TOKEN;
+  const user = process.env.PUSHOVER_USER_KEY;
+  if (!token || !user) return;
+  try {
+    await fetch("https://api.pushover.net/1/messages.json", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        user,
+        message: `💰 New subscriber! ${email} just subscribed to ${planName} (${amount})`,
+        title: "🔔 Nolana Report — New Sale!",
+        sound: "cashregister",
+        priority: 1,
+        url: "https://dashboard.stripe.com/payments",
+        url_title: "Open Stripe Dashboard",
+      }),
+    });
+  } catch (err) {
+    console.error("[pushover] notification failed:", err);
+  }
+}
+
 function getTierFromPriceId(priceId: string): string {
   const proIds = [
     process.env.STRIPE_PRO_PRICE_ID,
@@ -57,6 +85,13 @@ export async function POST(req: NextRequest) {
         .current_period_end;
       const periodEnd = rawEnd ? new Date(rawEnd * 1000).toISOString() : null;
 
+      const { data: existing } = await supabase
+        .from("subscribers")
+        .select("stripe_subscription_id")
+        .eq("email", email)
+        .maybeSingle();
+      const isNewSub = existing?.stripe_subscription_id !== subscriptionId;
+
       await supabase
         .from("subscribers")
         .update({
@@ -68,6 +103,16 @@ export async function POST(req: NextRequest) {
           updated_at: new Date().toISOString(),
         })
         .eq("email", email);
+
+      if (isNewSub) {
+        const price = subscription.items.data[0]?.price;
+        const amount = price?.unit_amount
+          ? `$${(price.unit_amount / 100).toFixed(2)}`
+          : "unknown";
+        const interval = price?.recurring?.interval === "year" ? "/yr" : "/mo";
+        const planLabel = `${tier.charAt(0).toUpperCase() + tier.slice(1)} ${interval}`;
+        await sendPushover(email, planLabel, `${amount}${interval}`);
+      }
 
       break;
     }
