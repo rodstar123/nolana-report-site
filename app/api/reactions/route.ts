@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 function getSupabase() {
   return createClient(
@@ -11,18 +12,48 @@ function getSupabase() {
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const storyId = searchParams.get("storyId");
+  const issueId = searchParams.get("issueId");
   const fp = searchParams.get("fp");
 
-  if (!storyId) {
-    return NextResponse.json({ error: "storyId required" }, { status: 400 });
+  if (!storyId && !issueId) {
+    return NextResponse.json(
+      { error: "storyId or issueId required" },
+      { status: 400 },
+    );
   }
 
   const supabase = getSupabase();
 
+  if (issueId) {
+    const { data: stories } = await supabase
+      .from("stories")
+      .select("id")
+      .eq("issue_id", issueId);
+    const storyIds = (stories ?? []).map((s) => s.id);
+    if (storyIds.length === 0) {
+      return NextResponse.json({});
+    }
+
+    const { data: rows } = await supabase
+      .from("story_reactions")
+      .select("story_id, reaction")
+      .in("story_id", storyIds);
+
+    const result: Record<string, Record<string, number>> = {};
+    for (const row of rows ?? []) {
+      if (!result[row.story_id]) {
+        result[row.story_id] = { useful: 0, interesting: 0, noted: 0 };
+      }
+      result[row.story_id][row.reaction] =
+        (result[row.story_id][row.reaction] ?? 0) + 1;
+    }
+    return NextResponse.json(result);
+  }
+
   const { data: rows } = await supabase
     .from("story_reactions")
     .select("reaction")
-    .eq("story_id", storyId);
+    .eq("story_id", storyId!);
 
   const counts: Record<string, number> = {};
   for (const row of rows ?? []) {
@@ -34,7 +65,7 @@ export async function GET(req: NextRequest) {
     const { data: myRows } = await supabase
       .from("story_reactions")
       .select("reaction")
-      .eq("story_id", storyId)
+      .eq("story_id", storyId!)
       .eq("session_fingerprint", fp);
     mine = (myRows ?? []).map((r) => r.reaction);
   }
@@ -73,6 +104,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: "fingerprint required" },
       { status: 400 },
+    );
+  }
+
+  const { allowed } = checkRateLimit(
+    `react:${fingerprint}`,
+    50,
+    60 * 60 * 1000,
+  );
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Try again later." },
+      { status: 429 },
     );
   }
 

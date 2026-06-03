@@ -55,6 +55,12 @@ export default function Navigation() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          <Link
+            href="/money-map"
+            className="font-body text-sm font-semibold text-slate-light hover:text-warm-white transition-colors duration-200 min-h-[44px] flex items-center"
+          >
+            Money Map
+          </Link>
           {isHomepage && (
             <>
               <Link

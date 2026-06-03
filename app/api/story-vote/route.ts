@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 function getSupabase() {
   return createClient(
@@ -80,6 +81,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: "fingerprint or subscriberId required" },
       { status: 400 },
+    );
+  }
+
+  const rateLimitKey = `vote:${fingerprint ?? subscriberId}`;
+  const { allowed } = checkRateLimit(rateLimitKey, 30, 60 * 60 * 1000);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Try again later." },
+      { status: 429 },
     );
   }
 

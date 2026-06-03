@@ -1,5 +1,6 @@
 "use client";
 import NRITooltip from "./NRITooltip";
+import QuickReactions from "./QuickReactions";
 
 const SECTION_LABELS: Record<string, string> = {
   new_business_pulse: "New Business Pulse",
@@ -185,6 +186,8 @@ export function StoryCard({ story, locked = false }: Props) {
               </a>
             )}
           </div>
+
+          <QuickReactions storyId={story.id} />
         </>
       )}
     </article>

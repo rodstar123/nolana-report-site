@@ -8,6 +8,8 @@ import { IssueFooter } from "@/components/IssueFooter";
 import NRIHeatmap from "@/components/NRIHeatmap";
 import NRITooltip from "@/components/NRITooltip";
 import { TrackBriefingView } from "@/components/TrackBriefingView";
+import ReadersPickVote from "@/components/ReadersPickVote";
+import WhoShouldRead from "@/components/WhoShouldRead";
 
 export const revalidate = 3600;
 
@@ -77,14 +79,47 @@ export async function generateMetadata({
   const supabase = getSupabase();
   const { data: issue } = await supabase
     .from("issues")
-    .select("title")
+    .select("title, published_at, opening")
     .eq("slug", params.slug)
     .single();
 
   if (!issue) return {};
+
+  const dateLabel = new Date(issue.published_at).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  const title = `Week of ${dateLabel} — The Nolana Report | RGV Business Intelligence`;
+  const description = issue.opening
+    ? issue.opening.slice(0, 155).replace(/\n/g, " ").trim() +
+      (issue.opening.length > 155 ? "..." : "")
+    : `RGV business intelligence briefing — ${issue.title}. Business openings, permits, trade signals, and investment stories scored and summarized.`;
+
   return {
-    title: `${issue.title} | The Nolana Report`,
-    description: `RGV business intelligence briefing — ${issue.title}. Business openings, permits, trade signals, and investment stories scored and summarized.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://nolanareport.com/issues/${params.slug}`,
+      siteName: "The Nolana Report",
+      type: "article",
+      publishedTime: issue.published_at,
+      images: [
+        {
+          url: "https://nolanareport.com/images/og-social-card.png",
+          width: 1200,
+          height: 630,
+          alt: `The Nolana Report — ${issue.title}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
 }
 
@@ -160,17 +195,37 @@ export default async function IssuePage({
   ].filter((s) => s.value !== null && s.value !== undefined);
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
+  const dateLabel = new Date(issue.published_at).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const articleDescription = issue.opening
+    ? issue.opening.slice(0, 155).replace(/\n/g, " ").trim()
+    : `${issue.stories_count} stories scored this week.`;
+
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: `The Nolana Report — ${issue.title}`,
+    headline: `Week of ${dateLabel} — The Nolana Report`,
     datePublished: issue.published_at,
+    author: {
+      "@type": "Organization",
+      name: "National Bookkeeping Company",
+      url: "https://nationalboco.com",
+    },
     publisher: {
       "@type": "Organization",
       name: "The Nolana Report",
       url: "https://nolanareport.com",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://nolanareport.com/images/og-social-card.png",
+      },
     },
-    description: `${issue.stories_count} stories scored this week.`,
+    description: articleDescription,
+    mainEntityOfPage: `https://nolanareport.com/issues/${issue.slug}`,
     isAccessibleForFree: false,
     hasPart: proStories.map(() => ({
       "@type": "WebPageElement",
@@ -499,6 +554,27 @@ export default async function IssuePage({
               ))}
           </div>
         )}
+
+        {/* Reader's Pick */}
+        <ReadersPickVote
+          issueSlug={issue.slug}
+          stories={allStories.map((s) => ({
+            id: s.id,
+            headline: s.headline,
+            is_free: s.is_free,
+          }))}
+          canSeePro={canSeePro}
+        />
+
+        {/* Who Should Read This */}
+        <WhoShouldRead
+          stories={allStories.map((s) => ({
+            headline: s.headline,
+            summary: s.summary,
+            section: s.section,
+            why_it_matters: s.why_it_matters,
+          }))}
+        />
 
         {/* Bottom conversion / actions footer */}
         {canSeePro ? (
