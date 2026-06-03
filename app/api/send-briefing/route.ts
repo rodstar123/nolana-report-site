@@ -58,16 +58,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ sent: 0, failed: 0, note: "No subscribers" });
   }
 
-  // Dedup: skip subscribers who already received this issue (bypass with ?force=1)
-  const forceResend = req.nextUrl.searchParams.get("force") === "1";
+  // Dedup: skip subscribers who already received this issue
   const { data: alreadySent } = await supabase
     .from("email_log")
     .select("subscriber_id")
     .eq("issue_id", issue.id)
     .eq("email_type", "briefing");
-  const alreadySentIds = forceResend
-    ? new Set<string>()
-    : new Set((alreadySent ?? []).map((r) => r.subscriber_id));
+  const alreadySentIds = new Set(
+    (alreadySent ?? []).map((r) => r.subscriber_id),
+  );
   const pending = subscribers.filter((s) => !alreadySentIds.has(s.id));
 
   if (!pending.length) {
