@@ -421,9 +421,31 @@ Format each story exactly as:
 
 ### [PUNCHY ORIGINAL HEADLINE] (NRI: X/10)
 Money: [Low/Med/High] · Urgency: [Low/Med/High] · Reach: [Low/Med/High] · Risk: [Low/Med/High]
-[2-sentence original analysis in Morning Brew voice]
-**The Bottom Line:** [1 sentence — MUST clear the Move Bar. Specific operator, specific action, this week.]
+
+SIGNAL: [2-3 sentences. What happened, stated as a business signal. Factual and neutral — no advice here.]
+
+WHO SHOULD ACT: [3-7 comma-separated specific industry/role tags. Be specific to the RGV — "Contractors, sign shops, painters, landlords" not "local businesses" or "business owners." Minimum 3, maximum 7.]
+
+WHY IT MATTERS: [2-3 sentences. The business impact — why this signal changes the math for the people listed above.]
+
+SMART MOVE: [2-3 sentences. One concrete action the reader can take THIS WEEK. Name the document to prepare, the call to make, the quote to send, the route to check. If no immediate action exists, write "Monitor for now:" and explain what trigger to watch for.]
+
+NOLANA TAKE: [1-2 sentences. Editorial voice — pattern recognition, not cheerleading. Write it like a local CEO talking to another business owner over coffee.]
+
 Source: [source name](url) · [Read the full story →](url)
+
+STORY CARD RULES:
+- "SIGNAL" is factual and neutral. No advice, no opinion.
+- "WHO SHOULD ACT" must list SPECIFIC roles/industries, never generic. Minimum 3, maximum 7 tags.
+- "WHY IT MATTERS" explains the business impact, not the news.
+- "SMART MOVE" must be a THIS-WEEK action with a specific verb. "Prepare quotes" not "consider your options." Must clear the Move Bar above.
+- "NOLANA TAKE" is the editorial signature. One sharp observation. Never rah-rah, never vague.
+- Each field answers exactly one question:
+  SIGNAL = "What happened?"
+  WHO SHOULD ACT = "Who should care?"
+  WHY IT MATTERS = "Why does this change the math?"
+  SMART MOVE = "What do I do this week?"
+  NOLANA TAKE = "What's the real pattern here?"
 
 Use the rocket emoji prefix on the headline for any story where instantAlerted=true.
 
@@ -492,6 +514,10 @@ interface ParsedStory {
   nri: number;
   summary: string;
   whyItMatters: string;
+  signal?: string;
+  whoShouldAct?: string[];
+  smartMove?: string;
+  nolanaTake?: string;
   sourceUrl: string;
   sourceName: string;
   section: string;
@@ -512,6 +538,30 @@ function extractSectionBlock(
   const boundary = rest.search(/\n## |\n---/);
   const raw = text.slice(idx, boundary >= 0 ? idx + 1 + boundary : text.length);
   return raw.replace(/\n---\s*$/, "").trim() || null;
+}
+
+const FIELD_BOUNDARY =
+  /^(?:SIGNAL|WHO SHOULD ACT|WHY IT MATTERS|SMART MOVE|NOLANA TAKE|Source):/;
+
+function extractStoryField(block: string, label: string): string | null {
+  const lines = block.split("\n");
+  let capturing = false;
+  const captured: string[] = [];
+
+  for (const line of lines) {
+    if (line.startsWith(`${label}:`)) {
+      capturing = true;
+      const rest = line.slice(label.length + 1).trim();
+      if (rest) captured.push(rest);
+      continue;
+    }
+    if (capturing) {
+      if (FIELD_BOUNDARY.test(line)) break;
+      if (line.trim()) captured.push(line.trim());
+    }
+  }
+
+  return captured.length > 0 ? captured.join(" ") : null;
 }
 
 export function parseOpusOutput(markdown: string): {
@@ -591,36 +641,65 @@ export function parseOpusOutput(markdown: string): {
     const instantAlerted =
       block.startsWith("### 🚀") || block.startsWith("### 🚨");
 
-    const bottomLineMatch = block.match(
-      /\*\*The Bottom Line:\*\*\s*(.+?)(?:\n|$)/,
-    );
-    const whyItMatters = bottomLineMatch ? bottomLineMatch[1].trim() : "";
-
     const sourceMatch = block.match(/Source:\s*\[([^\]]*)\]\(([^)]*)\)/);
     const sourceName = sourceMatch ? sourceMatch[1] : "";
     const sourceUrl = sourceMatch ? sourceMatch[2] : "";
 
-    const lines = block.split("\n");
-    const summaryLines: string[] = [];
-    let pastHeadline = false;
-    for (const line of lines) {
-      if (line.startsWith("###")) {
-        pastHeadline = true;
-        continue;
+    // Try new format (SIGNAL / WHO SHOULD ACT / etc.)
+    const signalField = extractStoryField(block, "SIGNAL");
+    let summary: string;
+    let whyItMatters: string;
+    let signal: string | undefined;
+    let whoShouldAct: string[] | undefined;
+    let smartMove: string | undefined;
+    let nolanaTake: string | undefined;
+
+    if (signalField) {
+      signal = signalField;
+      const whoRaw = extractStoryField(block, "WHO SHOULD ACT");
+      whoShouldAct = whoRaw
+        ? whoRaw
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : undefined;
+      whyItMatters = extractStoryField(block, "WHY IT MATTERS") || "";
+      smartMove = extractStoryField(block, "SMART MOVE") || undefined;
+      nolanaTake = extractStoryField(block, "NOLANA TAKE") || undefined;
+      summary = signal;
+    } else {
+      // Old format fallback
+      const bottomLineMatch = block.match(
+        /\*\*The Bottom Line:\*\*\s*(.+?)(?:\n|$)/,
+      );
+      whyItMatters = bottomLineMatch ? bottomLineMatch[1].trim() : "";
+
+      const lines = block.split("\n");
+      const summaryLines: string[] = [];
+      let pastHeadline = false;
+      for (const line of lines) {
+        if (line.startsWith("###")) {
+          pastHeadline = true;
+          continue;
+        }
+        if (!pastHeadline) continue;
+        if (line.startsWith("**The Bottom Line")) break;
+        if (line.startsWith("Source:")) break;
+        if (line.startsWith("Money:") && line.includes("Urgency:")) continue;
+        if (line.trim()) summaryLines.push(line.trim());
       }
-      if (!pastHeadline) continue;
-      if (line.startsWith("**The Bottom Line")) break;
-      if (line.startsWith("Source:")) break;
-      if (line.startsWith("Money:") && line.includes("Urgency:")) continue;
-      if (line.trim()) summaryLines.push(line.trim());
+      summary = summaryLines.join(" ");
     }
-    const summary = summaryLines.join(" ");
 
     stories.push({
       headline,
       nri,
       summary,
       whyItMatters,
+      signal,
+      whoShouldAct,
+      smartMove,
+      nolanaTake,
       sourceUrl,
       sourceName,
       section: currentSection,
@@ -771,7 +850,7 @@ export async function writeBriefing(
   const storyRows = stories.map((s, i) => ({
     issue_id: issue.id,
     headline: s.headline,
-    summary: s.summary,
+    summary: s.signal || s.summary,
     why_it_matters: s.whyItMatters || null,
     nolana_score: s.nri,
     section: s.section,
@@ -783,6 +862,10 @@ export async function writeBriefing(
     urgency: s.urgency,
     local_reach: s.localReach,
     risk: s.risk,
+    signal: s.signal || null,
+    who_should_act: s.whoShouldAct || null,
+    smart_move: s.smartMove || null,
+    nolana_take: s.nolanaTake || null,
   }));
 
   const { error: storiesErr } = await supabase

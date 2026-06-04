@@ -1,4 +1,5 @@
 "use client";
+import type { ReactNode } from "react";
 import NRITooltip from "./NRITooltip";
 import QuickReactions from "./QuickReactions";
 
@@ -45,6 +46,10 @@ export interface StoryData {
   urgency: string | null;
   local_reach: string | null;
   risk: string | null;
+  signal?: string;
+  who_should_act?: string[];
+  smart_move?: string;
+  nolana_take?: string;
 }
 
 interface Props {
@@ -52,11 +57,121 @@ interface Props {
   locked?: boolean;
 }
 
+function SignalIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M2 20h.01" />
+      <path d="M7 20v-4" />
+      <path d="M12 20v-8" />
+      <path d="M17 20V8" />
+      <path d="M22 4v16" />
+    </svg>
+  );
+}
+
+function UsersIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
+function AlertTriangleIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+      <path d="M12 9v4" />
+      <path d="M12 17h.01" />
+    </svg>
+  );
+}
+
+function TargetIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  );
+}
+
+function SectionField({
+  icon,
+  iconColor,
+  label,
+  children,
+}: {
+  icon: ReactNode;
+  iconColor: string;
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex gap-3">
+      <div className="w-5 flex-shrink-0 pt-0.5" style={{ color: iconColor }}>
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[13px] font-medium font-body uppercase tracking-[0.3px] text-slate-light dark:text-dark-dim mb-1">
+          {label}
+        </p>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export function StoryCard({ story, locked = false }: Props) {
   const tagStyle = SECTION_COLORS[story.section] ?? {
     bg: "rgba(74,85,104,0.10)",
     color: "#4a5568",
   };
+  const isNewFormat = !!story.signal;
 
   return (
     <article
@@ -130,6 +245,105 @@ export function StoryCard({ story, locked = false }: Props) {
         <p className="font-body text-slate-light dark:text-dark-dim italic text-sm">
           Upgrade to Pro to read the full story.
         </p>
+      ) : isNewFormat ? (
+        <>
+          <div className="flex flex-col gap-[14px] mt-4">
+            <SectionField
+              icon={<SignalIcon />}
+              iconColor="#534AB7"
+              label="THE SIGNAL"
+            >
+              <p className="font-body text-sm text-charcoal dark:text-dark-text leading-relaxed">
+                {story.signal}
+              </p>
+            </SectionField>
+
+            {story.who_should_act && story.who_should_act.length > 0 && (
+              <SectionField
+                icon={<UsersIcon />}
+                iconColor="#1D9E75"
+                label="WHO SHOULD ACT"
+              >
+                <div className="flex flex-wrap gap-1.5">
+                  {story.who_should_act.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center text-xs px-2.5 py-[3px] rounded-md bg-[#E1F5EE] text-[#085041] dark:bg-emerald-900/30 dark:text-emerald-300"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </SectionField>
+            )}
+
+            {story.why_it_matters && (
+              <SectionField
+                icon={<AlertTriangleIcon />}
+                iconColor="#BA7517"
+                label="WHY IT MATTERS"
+              >
+                <p className="font-body text-sm text-charcoal dark:text-dark-text leading-relaxed">
+                  {story.why_it_matters}
+                </p>
+              </SectionField>
+            )}
+
+            {story.smart_move && (
+              <SectionField
+                icon={<TargetIcon />}
+                iconColor="#185FA5"
+                label="SMART MOVE"
+              >
+                <p className="font-body text-sm text-charcoal dark:text-dark-text leading-relaxed">
+                  {story.smart_move}
+                </p>
+              </SectionField>
+            )}
+
+            {story.nolana_take && (
+              <div className="bg-cream-dark/40 dark:bg-dark-border/30 rounded-lg px-3.5 py-3">
+                <p className="text-[13px] font-medium font-body uppercase tracking-[0.3px] text-slate-light dark:text-dark-dim mb-1">
+                  NOLANA TAKE
+                </p>
+                <p className="font-editorial italic text-sm text-charcoal dark:text-dark-text leading-relaxed">
+                  {story.nolana_take}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-5 pt-4 border-t border-cream-dark/60 dark:border-dark-border/60 flex items-center justify-between gap-3 flex-wrap">
+            {story.source_name && (
+              <span className="font-body text-xs text-slate-light dark:text-dark-dim uppercase tracking-wide">
+                {story.source_url ? (
+                  <a
+                    href={story.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-teal transition-colors underline underline-offset-2"
+                  >
+                    {story.source_name}
+                  </a>
+                ) : (
+                  story.source_name
+                )}
+              </span>
+            )}
+            {story.source_url && (
+              <a
+                href={story.source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-body text-xs font-semibold text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal transition-colors whitespace-nowrap"
+              >
+                Read the full story →
+              </a>
+            )}
+          </div>
+
+          <QuickReactions storyId={story.id} />
+        </>
       ) : (
         <>
           <p className="font-editorial text-slate dark:text-dark-muted text-[17px] mb-5 leading-relaxed">
