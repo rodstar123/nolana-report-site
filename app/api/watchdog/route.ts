@@ -1,22 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendTelegram } from "@/lib/agents/alerter";
 
 export const maxDuration = 60;
-
-async function sendTelegram(text: string): Promise<void> {
-  const token = process.env.TELEGRAM_NOLANA_BOT_TOKEN;
-  const chatId = process.env.NOE_TELEGRAM_CHAT_ID;
-  if (!token || !chatId) return;
-  try {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML" }),
-    });
-  } catch {
-    console.error("[watchdog] Telegram send failed");
-  }
-}
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");

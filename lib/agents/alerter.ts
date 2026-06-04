@@ -1,6 +1,6 @@
 import type { AgentName, RawItem, ScoredItem } from "./types";
 
-async function sendTelegram(text: string): Promise<void> {
+export async function sendTelegram(text: string): Promise<void> {
   const token = process.env.TELEGRAM_NOLANA_BOT_TOKEN;
   const chatId = process.env.NOE_TELEGRAM_CHAT_ID;
   if (!token || !chatId) return;
@@ -34,14 +34,20 @@ export async function sendRunAlert(
   sourcesAttempted: number,
   itemsIngested: number,
 ): Promise<void> {
-  if (
-    sourcesFailed / Math.max(1, sourcesAttempted) > 0.5 ||
-    itemsIngested === 0
-  ) {
+  const failRatio = sourcesFailed / Math.max(1, sourcesAttempted);
+  if (failRatio > 0.5) {
     await sendTelegram(
       `⚠️ RGV Intel — ${agent} run unhealthy: ` +
         `${sourcesFailed}/${sourcesAttempted} sources failed, ` +
         `${itemsIngested} items ingested.`,
+    );
+  } else if (itemsIngested === 0 && sourcesFailed > 0) {
+    await sendTelegram(
+      `⚠️ RGV Intel — ${agent}: 0 items ingested, ${sourcesFailed} source(s) failed.`,
+    );
+  } else if (itemsIngested === 0) {
+    await sendTelegram(
+      `ℹ️ RGV Intel — ${agent}: no new content (0 sources failed).`,
     );
   }
 }
