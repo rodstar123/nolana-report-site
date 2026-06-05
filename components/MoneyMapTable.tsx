@@ -21,12 +21,12 @@ type SortDir = "asc" | "desc";
 
 const SIGNAL_COLORS: Record<string, string> = {
   strong:
-    "bg-teal/15 text-teal dark:bg-teal/25 dark:text-teal-light border-teal/30",
+    "bg-[#E6F5F5] text-[#0A5C5E] dark:bg-teal/25 dark:text-teal-light border-teal/30",
   moderate:
-    "bg-gold/15 text-gold dark:bg-gold/25 dark:text-gold border-gold/30",
+    "bg-[#FAEEDA] text-[#854F0B] dark:bg-gold/25 dark:text-gold border-gold/30",
   emerging:
     "bg-slate-light/15 text-slate dark:bg-dark-dim/25 dark:text-dark-muted border-slate-light/30",
-  weak: "bg-red-100/60 text-red-700 dark:bg-red-900/20 dark:text-red-400 border-red-300/30",
+  weak: "bg-[#FAECE7] text-[#712B13] dark:bg-red-900/20 dark:text-red-400 border-red-300/30",
 };
 
 function getSignalColor(signal: string): string {

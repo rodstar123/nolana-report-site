@@ -87,7 +87,12 @@ export default async function MoneyMapPage() {
           </Link>
         </div>
 
-        <span className="section-label mb-4 block">Intelligence</span>
+        <div className="flex items-center gap-3 mb-4">
+          <span className="section-label">Intelligence</span>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-body font-bold uppercase tracking-wide bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800/30">
+            Preview
+          </span>
+        </div>
         <h1 className="font-display font-bold text-navy dark:text-dark-text text-4xl mt-2 mb-3">
           The Valley Money Map
         </h1>
@@ -124,20 +129,38 @@ export default async function MoneyMapPage() {
             </Link>
           </div>
         ) : (
-          <MoneyMapTable
-            headers={result.mapData.headers}
-            rows={result.mapData.rows}
-            stories={result.stories}
-            issueDate={new Date(result.issue.published_at).toLocaleDateString(
-              "en-US",
-              {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              },
-            )}
-            issueSlug={result.issue.slug}
-          />
+          <>
+            <MoneyMapTable
+              headers={result.mapData.headers}
+              rows={result.mapData.rows}
+              stories={result.stories}
+              issueDate={new Date(result.issue.published_at).toLocaleDateString(
+                "en-US",
+                {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                },
+              )}
+              issueSlug={result.issue.slug}
+            />
+
+            <div className="mt-12 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl p-8 text-center">
+              <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-3">
+                See the full Valley Money Map
+              </h2>
+              <p className="font-editorial text-slate dark:text-dark-muted text-base mb-6 max-w-lg mx-auto leading-relaxed">
+                Pro members get the complete money trail — every grant,
+                contract, infrastructure signal, and who wins — updated weekly.
+              </p>
+              <Link
+                href="/login"
+                className="inline-flex items-center font-body text-sm font-bold text-warm-white bg-teal hover:bg-teal-light dark:bg-teal dark:hover:bg-teal-light px-6 py-3 rounded-lg transition-colors"
+              >
+                Unlock Pro — $7/mo founding rate
+              </Link>
+            </div>
+          </>
         )}
       </div>
     </main>

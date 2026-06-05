@@ -847,6 +847,11 @@ export async function writeBriefing(
   if (issueErr || !issue)
     throw new Error(`issues insert: ${issueErr?.message}`);
 
+  const ranked = stories
+    .map((s, i) => ({ nri: s.nri, idx: i }))
+    .sort((a, b) => b.nri - a.nri || a.idx - b.idx);
+  const freeSet = new Set(ranked.slice(0, 5).map((r) => r.idx));
+
   const storyRows = stories.map((s, i) => ({
     issue_id: issue.id,
     headline: s.headline,
@@ -857,7 +862,7 @@ export async function writeBriefing(
     source_name: s.sourceName || null,
     source_url: s.sourceUrl || null,
     position: i + 1,
-    is_free: i < 5,
+    is_free: freeSet.has(i),
     money_impact: s.moneyImpact,
     urgency: s.urgency,
     local_reach: s.localReach,

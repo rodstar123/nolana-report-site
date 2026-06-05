@@ -190,13 +190,13 @@ export function StoryCard({ story, locked = false }: Props) {
           {story.nolana_score && (
             <NRITooltip>
               <span
-                className="inline-flex items-center font-mono font-bold text-xs rounded px-2.5 py-1.5 flex-shrink-0"
-                style={{
-                  letterSpacing: "0.02em",
-                  ...getNRIStyle(story.nolana_score),
-                }}
+                className="inline-flex items-center gap-1 font-mono rounded-md px-3 py-1 flex-shrink-0"
+                style={getNRIStyle(story.nolana_score)}
               >
-                NRI {story.nolana_score}/10
+                <span className="text-[12px] font-medium opacity-70">NRI</span>
+                <span className="text-[16px] font-medium">
+                  {story.nolana_score}/10
+                </span>
               </span>
             </NRITooltip>
           )}
