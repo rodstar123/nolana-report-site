@@ -70,6 +70,20 @@ function extractOpening(text: string): string {
   return intro.trim();
 }
 
+function stripMarkdown(text: string): string {
+  return text.replace(/\*\*/g, "");
+}
+
+function renderMarkdownBold(text: string) {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+}
+
 export async function generateStaticParams() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
   const supabase = getSupabase();
@@ -101,10 +115,11 @@ export async function generateMetadata({
     year: "numeric",
   });
   const title = `Week of ${dateLabel} — The Nolana Report | RGV Business Intelligence`;
-  const description = issue.opening
-    ? issue.opening.slice(0, 155).replace(/\n/g, " ").trim() +
+  const rawDesc = issue.opening
+    ? stripMarkdown(issue.opening).slice(0, 155).replace(/\n/g, " ").trim() +
       (issue.opening.length > 155 ? "..." : "")
     : `RGV business intelligence briefing — ${issue.title}. Business openings, permits, trade signals, and investment stories scored and summarized.`;
+  const description = rawDesc;
 
   return {
     title,
@@ -212,7 +227,7 @@ export default async function IssuePage({
   });
 
   const articleDescription = issue.opening
-    ? issue.opening.slice(0, 155).replace(/\n/g, " ").trim()
+    ? stripMarkdown(issue.opening).slice(0, 155).replace(/\n/g, " ").trim()
     : `${issue.stories_count} stories scored this week.`;
 
   const articleSchema = {
@@ -328,7 +343,7 @@ export default async function IssuePage({
                   key={i}
                   className="font-editorial text-[19px] leading-[1.85] text-charcoal dark:text-dark-text prose-nolana"
                 >
-                  {para.trim()}
+                  {renderMarkdownBold(para.trim())}
                 </p>
               ))}
           </div>

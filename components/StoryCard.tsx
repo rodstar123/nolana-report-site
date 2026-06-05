@@ -212,7 +212,7 @@ export function StoryCard({ story, locked = false }: Props) {
           story.urgency ||
           story.local_reach ||
           story.risk) && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
+          <div className="flex flex-wrap gap-2 mb-3">
             {(
               [
                 { label: "Money", value: story.money_impact },
@@ -265,14 +265,17 @@ export function StoryCard({ story, locked = false }: Props) {
                 label="WHO SHOULD ACT"
               >
                 <div className="flex flex-wrap gap-1.5">
-                  {story.who_should_act.map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center text-xs px-2.5 py-[3px] rounded-md bg-[#E1F5EE] text-[#085041] dark:bg-emerald-900/30 dark:text-emerald-300"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                  {story.who_should_act.map((tag) => {
+                    const cleaned = tag.replace(/\.$/, "");
+                    return (
+                      <span
+                        key={cleaned}
+                        className="inline-flex items-center text-xs px-2.5 py-[3px] rounded-md bg-[#E1F5EE] text-[#085041] dark:bg-emerald-900/30 dark:text-emerald-300"
+                      >
+                        {cleaned}
+                      </span>
+                    );
+                  })}
                 </div>
               </SectionField>
             )}

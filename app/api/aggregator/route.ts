@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "claude-opus-4-8",
-        max_tokens: 16384,
+        max_tokens: 24576,
         thinking: { type: "adaptive" },
         output_config: { effort: "high" },
         system: [
@@ -87,7 +87,13 @@ export async function GET(req: NextRequest) {
     const opusJson = (await opusRes.json()) as {
       content?: Array<{ type?: string; text?: string }>;
       usage?: { input_tokens?: number; output_tokens?: number };
+      stop_reason?: string;
     };
+    if (opusJson.stop_reason === "max_tokens") {
+      console.warn(
+        `[aggregator] Opus response truncated (hit max_tokens). Output tokens: ${opusJson.usage?.output_tokens}`,
+      );
+    }
     const textBlock = (opusJson.content ?? []).find((b) => b.type === "text");
     const briefingMarkdown = textBlock?.text ?? "";
     const tokens =
