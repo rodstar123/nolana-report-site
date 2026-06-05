@@ -105,7 +105,14 @@ export default function MoneyMapTable({
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-cream-dark dark:border-dark-border">
-        <table className="w-full text-sm font-body">
+        <table className="w-full text-sm font-body table-fixed">
+          {headers.length === 3 && (
+            <colgroup>
+              <col className="w-1/4" />
+              <col className="w-[35%]" />
+              <col className="w-[40%]" />
+            </colgroup>
+          )}
           <thead>
             <tr className="bg-warm-white dark:bg-dark-card border-b border-cream-dark dark:border-dark-border">
               {headers.map((h, i) => (
@@ -150,7 +157,7 @@ export default function MoneyMapTable({
                     >
                       {j === 0 ? (
                         <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold border ${getSignalColor(cell)}`}
+                          className={`inline-block px-2.5 py-1 rounded-md text-xs font-bold border leading-snug ${getSignalColor(cell)}`}
                         >
                           {cell}
                         </span>

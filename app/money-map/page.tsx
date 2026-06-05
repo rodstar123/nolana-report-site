@@ -33,7 +33,17 @@ function parseMoneyMap(md: string) {
       .split("|")
       .slice(1, -1)
       .map((c) => c.trim());
-  return { headers: parseRow(lines[0]), rows: lines.slice(2).map(parseRow) };
+  const headers = parseRow(lines[0]);
+  const colCount = headers.length;
+  const rows = lines.slice(2).map((line) => {
+    const cells = parseRow(line);
+    if (cells.length <= colCount) return cells;
+    return [
+      ...cells.slice(0, colCount - 1),
+      cells.slice(colCount - 1).join(", "),
+    ];
+  });
+  return { headers, rows };
 }
 
 async function getLatestMoneyMap() {
