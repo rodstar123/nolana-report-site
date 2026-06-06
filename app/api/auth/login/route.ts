@@ -24,7 +24,6 @@ export async function POST(req: NextRequest) {
   const adminClient = getAdminClient();
   const ip = getClientIp(req);
 
-  // Rate limit: 3 login attempts per hour per IP
   const ipLimited = await checkRateLimit(
     `login:${ip}`,
     3,
@@ -56,13 +55,25 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Upsert subscriber row (don't override email_verified if already set)
-  await adminClient
+  // Only allow login for verified subscribers — unverified/unknown emails
+  // must go through the subscribe flow to avoid duplicate confirmation emails
+  const { data: subscriber } = await adminClient
     .from("subscribers")
-    .upsert(
-      { email: normalized },
-      { onConflict: "email", ignoreDuplicates: true },
+    .select("id, email_verified")
+    .eq("email", normalized)
+    .single();
+
+  if (!subscriber || !subscriber.email_verified) {
+    return NextResponse.json(
+      {
+        error: !subscriber
+          ? "No subscription found. Please subscribe first."
+          : "Please confirm your email first — check your inbox for the verification link.",
+        code: !subscriber ? "not_subscribed" : "not_verified",
+      },
+      { status: 403 },
     );
+  }
 
   const anonClient = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
