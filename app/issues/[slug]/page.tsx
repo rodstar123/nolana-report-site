@@ -14,6 +14,8 @@ import { OwnersMove } from "@/components/OwnersMove";
 import { RiskRadar } from "@/components/RiskRadar";
 import { ThinkingQuestion } from "@/components/ThinkingQuestion";
 import { BeforeYouGo } from "@/components/BeforeYouGo";
+import { ThreeMovesSection } from "@/components/ThreeMovesSection";
+import NRILegend from "@/components/NRILegend";
 
 export const revalidate = 3600;
 
@@ -427,6 +429,13 @@ export default async function IssuePage({
           </div>
         )}
 
+        {/* NRI methodology legend — collapsible */}
+        {nriScores.length > 0 && (
+          <div className="mb-10">
+            <NRILegend />
+          </div>
+        )}
+
         {/* Free stories */}
         <h2 className="font-display font-bold text-navy dark:text-dark-text text-2xl mb-6">
           Top Stories This Week
@@ -540,38 +549,9 @@ export default async function IssuePage({
           </div>
         )}
 
-        {/* 3 Moves This Week — pro only */}
-        {canSeePro && movesData && movesData.length > 0 && (
-          <div className="mb-8 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl p-7">
-            <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-5">
-              3 Moves This Week
-            </h2>
-            <ol className="space-y-4">
-              {movesData.map((move: string, i: number) => {
-                const boldMatch = move.match(/^\*\*(.+?)\*\*\s*(.*)/);
-                return (
-                  <li
-                    key={i}
-                    className="font-editorial text-[17px] text-charcoal dark:text-dark-text leading-relaxed pl-2"
-                  >
-                    <span className="font-mono text-sm text-teal dark:text-teal-light font-bold mr-2">
-                      {i + 1}.
-                    </span>
-                    {boldMatch ? (
-                      <>
-                        <strong className="font-body font-semibold text-navy dark:text-dark-text">
-                          {boldMatch[1]}
-                        </strong>{" "}
-                        {boldMatch[2]}
-                      </>
-                    ) : (
-                      move
-                    )}
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
+        {/* 3 Moves This Week — Move #1 free, #2-3 teased */}
+        {movesData && movesData.length > 0 && (
+          <ThreeMovesSection moves={movesData} canSeePro={canSeePro} />
         )}
 
         {/* The Quiet Signal — free */}

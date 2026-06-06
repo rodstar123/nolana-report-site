@@ -224,20 +224,33 @@ export function StoryCard({ story, locked = false }: Props) {
               .filter(
                 (s): s is { label: string; value: string } => s.value !== null,
               )
-              .map((s) => (
-                <span
-                  key={s.label}
-                  className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium tracking-wide ${
-                    s.value === "High"
-                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                      : s.value === "Med"
-                        ? "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                        : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500"
-                  }`}
-                >
-                  {s.label}: {s.value}
-                </span>
-              ))}
+              .map((s) => {
+                const dotColor =
+                  s.value === "High"
+                    ? "bg-emerald-500"
+                    : s.value === "Med"
+                      ? "bg-amber-500"
+                      : "bg-gray-400 dark:bg-gray-600";
+                const pillStyle =
+                  s.value === "High"
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                    : s.value === "Med"
+                      ? "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                      : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500";
+                return (
+                  <span
+                    key={s.label}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono tracking-wide ${pillStyle}`}
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColor}`}
+                      aria-hidden="true"
+                    />
+                    <span className="opacity-60 font-medium">{s.label}</span>
+                    <span className="font-bold">{s.value}</span>
+                  </span>
+                );
+              })}
           </div>
         )}
 
