@@ -318,7 +318,7 @@ export function StoryCard({ story, locked = false }: Props) {
             )}
 
             {story.nolana_take && (
-              <div className="bg-cream-dark/40 dark:bg-dark-border/30 rounded-lg px-3.5 py-3">
+              <div className="bg-cream-dark/50 dark:bg-dark-border/30 rounded-lg px-3.5 py-3">
                 <p className="text-[13px] font-medium font-body uppercase tracking-[0.3px] text-slate-light dark:text-dark-dim mb-1">
                   NOLANA TAKE
                 </p>
