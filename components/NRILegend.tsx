@@ -29,13 +29,13 @@ const TIERS = [
     range: "9–10",
     label: "Critical",
     color: "var(--nri-critical-ring)",
-    fallback: "#ef4444",
+    fallback: "#0d7377",
   },
   {
     range: "7–8",
     label: "High",
-    color: "var(--nri-solid-ring)",
-    fallback: "#0d7377",
+    color: "var(--nri-high-ring)",
+    fallback: "#D4880F",
   },
   {
     range: "5–6",

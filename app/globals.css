@@ -34,10 +34,10 @@
   --nri-critical-ring: #0d7377;
   --nri-critical-bg: rgba(13, 115, 119, 0.14);
   --nri-critical-glow: rgba(13, 115, 119, 0.25);
-  --nri-high-ring: #d4a843;
-  --nri-high-bg: rgba(212, 168, 67, 0.14);
-  --nri-moderate-ring: #b8860b;
-  --nri-moderate-bg: rgba(184, 134, 11, 0.12);
+  --nri-high-ring: #d4880f;
+  --nri-high-bg: rgba(212, 136, 15, 0.14);
+  --nri-moderate-ring: #d4a843;
+  --nri-moderate-bg: rgba(212, 168, 67, 0.12);
   --nri-watch-ring: #64748b;
   --nri-watch-bg: rgba(100, 116, 139, 0.1);
 }
@@ -47,10 +47,10 @@
   --nri-critical-ring: #10a3a8;
   --nri-critical-bg: rgba(13, 115, 119, 0.22);
   --nri-critical-glow: rgba(16, 163, 168, 0.3);
-  --nri-high-ring: #d4a843;
-  --nri-high-bg: rgba(212, 168, 67, 0.2);
+  --nri-high-ring: #d4880f;
+  --nri-high-bg: rgba(212, 136, 15, 0.2);
   --nri-moderate-ring: #d4a843;
-  --nri-moderate-bg: rgba(184, 134, 11, 0.18);
+  --nri-moderate-bg: rgba(212, 168, 67, 0.18);
   --nri-watch-ring: #94a3b8;
   --nri-watch-bg: rgba(100, 116, 139, 0.18);
 }

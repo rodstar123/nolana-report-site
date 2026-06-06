@@ -56,7 +56,7 @@ export default function NRIHeatmap({ scores, animated }: Props) {
       role="img"
       aria-label={`NRI score distribution: ${buckets.map((b) => `${b.count} ${b.label.toLowerCase()}`).join(", ")}`}
     >
-      <p className="font-body text-xs text-slate-light dark:text-dark-dim leading-relaxed mb-3">
+      <p className="font-body text-[15px] text-charcoal dark:text-dark-text leading-relaxed mb-3">
         How this week&apos;s stories scored on the Nolana Relevance Index
       </p>
 
@@ -90,7 +90,7 @@ export default function NRIHeatmap({ scores, animated }: Props) {
       {/* Hover/tap summary */}
       <div className="h-6 mt-1.5">
         {hoveredIdx !== null && buckets[hoveredIdx].count > 0 ? (
-          <p className="font-mono text-xs text-slate dark:text-dark-muted animate-in fade-in duration-150">
+          <p className="font-mono text-[14px] text-charcoal dark:text-dark-text animate-in fade-in duration-150">
             <span
               className="inline-block w-2 h-2 rounded-full mr-1.5 align-middle"
               style={{ background: buckets[hoveredIdx].color }}
@@ -100,7 +100,7 @@ export default function NRIHeatmap({ scores, animated }: Props) {
             {buckets[hoveredIdx].range} ({buckets[hoveredIdx].label})
           </p>
         ) : (
-          <p className="font-body text-[11px] text-slate-light/60 dark:text-dark-dim/60">
+          <p className="font-body text-[14px] text-slate dark:text-dark-muted">
             {summaryText}
           </p>
         )}
@@ -123,9 +123,9 @@ export default function NRIHeatmap({ scores, animated }: Props) {
                 className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                 style={{ background: bucket.color }}
               />
-              <span className="font-mono text-[11px] text-slate-light dark:text-dark-dim">
+              <span className="font-mono text-[14px] text-charcoal dark:text-dark-text">
                 {bucket.label}
-                <span className="text-[10px] ml-0.5 opacity-60">
+                <span className="text-[12px] ml-0.5 opacity-60">
                   ({bucket.range})
                 </span>
                 {bucket.count > 0 && (

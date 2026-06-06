@@ -419,10 +419,12 @@ export default async function IssuePage({
               return (
                 <span
                   key={sub.label}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-sm font-body font-semibold ${color}`}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-[14px] font-body font-semibold ${color}`}
                 >
                   {sub.label}
-                  <span className="font-mono text-xs opacity-80">{val}/10</span>
+                  <span className="font-mono text-[14px] font-bold">
+                    {val}/10
+                  </span>
                 </span>
               );
             })}
