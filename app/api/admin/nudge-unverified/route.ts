@@ -5,7 +5,10 @@ import { Resend } from "resend";
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const cronHeader = req.headers.get("x-vercel-cron");
+  const isAuthorized =
+    authHeader === `Bearer ${process.env.CRON_SECRET}` || cronHeader === "1";
+  if (!isAuthorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
