@@ -107,13 +107,26 @@ export async function GET(req: NextRequest) {
       valleyMoneyMap,
       threeMoves,
       quietSignal,
+      ownersMove,
+      riskRadar,
+      thinkingQuestion,
+      beforeYouGo,
     } = parseOpusOutput(briefingMarkdown);
     const { issueId, storiesWritten } = await writeBriefing(
       supabase,
       opening,
       stories,
       poolItems,
-      { businessTemperature, valleyMoneyMap, threeMoves, quietSignal },
+      {
+        businessTemperature,
+        valleyMoneyMap,
+        threeMoves,
+        quietSignal,
+        ownersMove,
+        riskRadar,
+        thinkingQuestion,
+        beforeYouGo,
+      },
     );
 
     await supabase.from("agent_logs").insert({

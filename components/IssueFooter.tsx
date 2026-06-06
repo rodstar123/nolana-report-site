@@ -46,10 +46,6 @@ function FreeConversion({
 
   return (
     <div className="mt-16 mb-8 rounded-2xl px-8 py-12 text-center bg-teal/[0.06] dark:bg-teal/[0.08] border border-teal/20">
-      <p className="font-editorial text-slate dark:text-dark-muted text-base mb-4">
-        That&rsquo;s this week&rsquo;s read. The Nolana Report publishes every
-        Monday.
-      </p>
       <p className="font-display font-bold text-charcoal dark:text-dark-text text-2xl mb-3">
         You&rsquo;re seeing {freeCount} of {totalCount} stories this week.
       </p>
@@ -99,10 +95,6 @@ function ProActions({
 
   return (
     <div className="mt-16 mb-8 rounded-2xl px-8 py-10 text-center bg-navy/[0.03] dark:bg-dark-card border border-cream-dark dark:border-dark-border">
-      <p className="font-editorial text-slate dark:text-dark-muted text-base mb-4">
-        That&rsquo;s this week&rsquo;s read. The Nolana Report publishes every
-        Monday.
-      </p>
       <p className="font-display font-bold text-charcoal dark:text-dark-text text-xl mb-5">
         Share The Nolana Report with a Valley operator who needs it.
       </p>

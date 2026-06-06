@@ -10,6 +10,10 @@ import NRITooltip from "@/components/NRITooltip";
 import { TrackBriefingView } from "@/components/TrackBriefingView";
 import ReadersPickVote from "@/components/ReadersPickVote";
 import WhoShouldRead from "@/components/WhoShouldRead";
+import { OwnersMove } from "@/components/OwnersMove";
+import { RiskRadar } from "@/components/RiskRadar";
+import { ThinkingQuestion } from "@/components/ThinkingQuestion";
+import { BeforeYouGo } from "@/components/BeforeYouGo";
 
 export const revalidate = 3600;
 
@@ -211,6 +215,10 @@ export default async function IssuePage({
         .replace(/^##\s*The Quiet Signal\s*\n?/, "")
         .trim() || null
     : null;
+  const ownersMoveText = iss.owners_move ?? null;
+  const riskRadarText = iss.risk_radar ?? null;
+  const thinkingQuestionText = iss.thinking_question ?? null;
+  const beforeYouGoText = iss.before_you_go ?? null;
 
   const nriSubs = [
     { label: "Growth", value: iss.nri_sub_growth as number | null },
@@ -377,6 +385,9 @@ export default async function IssuePage({
           </div>
         )}
 
+        {/* Owner's Move of the Week — free */}
+        {ownersMoveText && <OwnersMove markdown={ownersMoveText} />}
+
         {/* NRI Heatmap — score distribution */}
         {nriScores.length > 0 && (
           <div className="mb-10 p-5 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl">
@@ -484,6 +495,9 @@ export default async function IssuePage({
           </div>
         )}
 
+        {/* Risk Radar — free */}
+        {riskRadarText && <RiskRadar markdown={riskRadarText} />}
+
         {/* Valley Money Map — pro only */}
         {canSeePro && moneyMapData && (
           <div className="mt-12 mb-8 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl p-7">
@@ -580,6 +594,11 @@ export default async function IssuePage({
           </div>
         )}
 
+        {/* The Thinking Question — free */}
+        {thinkingQuestionText && (
+          <ThinkingQuestion markdown={thinkingQuestionText} />
+        )}
+
         {/* Reader's Pick */}
         <ReadersPickVote
           issueSlug={issue.slug}
@@ -600,6 +619,9 @@ export default async function IssuePage({
             why_it_matters: s.why_it_matters,
           }))}
         />
+
+        {/* Before You Go — free */}
+        {beforeYouGoText && <BeforeYouGo markdown={beforeYouGoText} />}
 
         {/* Bottom conversion / actions footer */}
         {canSeePro ? (

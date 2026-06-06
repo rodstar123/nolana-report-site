@@ -484,6 +484,85 @@ This section is shown FREE to all readers. It closes the briefing.
 
 ---
 
+### 6. OWNER'S MOVE OF THE WEEK
+
+## Owner's Move of the Week
+
+[One practical recommendation pulled from this week's strongest stories. A specific action, for a specific type of operator, with a specific deadline or trigger. 3-4 sentences. This is the single most valuable paragraph in the briefing.
+
+Rules:
+- Must name a SPECIFIC type of operator (not "business owners" — say "commercial painters," "sign vendors," "freight brokers")
+- Must name a SPECIFIC action with a verb ("prepare," "call," "file," "pull," "draft")
+- Must reference a specific story or signal from this week's briefing
+- Must include a deadline, trigger, or "this week" urgency
+- Voice: direct, practical, like a mentor giving one sharp piece of advice over coffee
+
+Example: "If you serve commercial clients in Brownsville, prepare a one-page grant-ready improvement package this week — signage, paint, façade repair, lighting, and before/after mockups. The BCIC Big Lift and McAllen REFRESH programs both reward vendors who make the process easy for owners. Get your package in front of property managers before the July application window opens."
+
+This section is shown FREE to all readers. It appears immediately after Business Temperature.]
+
+---
+
+### 7. RISK RADAR
+
+## Risk Radar
+
+[3-5 bullet-style risks facing RGV businesses this week. Each risk is one line in this exact format:
+
+RISK: [one-sentence description of the threat] — [who it affects]
+
+Rules:
+- Pull ONLY from this week's scored stories — no generic warnings
+- Each risk must name a specific threat, not a vague concern
+- Each risk must name WHO it affects (specific operator types)
+- No "stay informed" or "monitor the situation" — if the risk is real, name the exposure
+- Order by severity (most urgent first)
+
+Example:
+RISK: Pharr bridge lane closures starting June 9 could add 45+ minutes to southbound commercial crossings — freight brokers, produce haulers, maquiladora supply runners
+RISK: McAllen zoning variance hearing Thursday may restrict new signage on 10th Street corridor — sign shops, retail landlords, franchise operators
+RISK: Federal grant application window for rural broadband closes June 20 with no extension — ISPs, co-working spaces, telehealth clinics in Starr and Willacy counties
+
+This section is shown FREE to all readers. It appears after the story sections.]
+
+---
+
+### 8. THE THINKING QUESTION
+
+## The Thinking Question
+
+[One reflective question for business owners. No answer — just the question. Connects to this week's dominant theme. 1-2 sentences max.
+
+Rules:
+- Must connect to a real theme from this week's stories
+- Must be genuinely thought-provoking, not rhetorical filler
+- No answer, no follow-up — let the question sit
+- Voice: the question a smart peer would ask you that makes you pause
+
+Example: "If a grant, contract, or buyer opportunity opened tomorrow, would your business look ready on paper?"
+
+This section is shown FREE to all readers. It appears after The Quiet Signal.]
+
+---
+
+### 9. BEFORE YOU GO
+
+## Before You Go
+
+[2-3 sentence editorial closer. Summarize the week's message in one sharp insight, then nudge toward Pro. This is the last thing the reader sees — make it land.
+
+Rules:
+- First sentence: one sharp editorial observation that ties the week together
+- Second/third sentence: a natural nudge toward Pro without being salesy — reference what Pro readers got this week (Money Map rows, specific moves) as a concrete value hook
+- Voice: warm, direct, like signing off a letter to a colleague
+- Never generic "thanks for reading" — always specific to this week's content
+
+Example: "This week's thread is clear: outside capital is arriving faster than local operators can position for it. Pro readers already have the Money Map showing exactly where those dollars are landing and three moves to get ahead of them — if you're making decisions without that context, you're guessing."
+
+This section is shown FREE to all readers. It replaces the old "That's this week's read" footer text.]
+
+---
+
 ## Final Checklist (verify before outputting)
 
 1. Move Bar: Every "The Bottom Line" names a specific operator and a specific this-week action — or honestly states what to watch and what trigger to wait for. Zero banned phrases anywhere in the briefing.
@@ -491,7 +570,7 @@ This section is shown FREE to all readers. It closes the briefing.
 3. Sub-score variance: The four sub-scores vary meaningfully across stories. If they all read the same pattern, rescore.
 4. Dedup: No two stories describe the same event.
 5. Content originality: No 3+ consecutive words copied from any source headline or snippet.
-6. Section order: Opening → Business Temperature → 5 Story Sections → Valley Money Map (PRO) → 3 Moves (PRO) → The Quiet Signal.`;
+6. Section order: Opening → Business Temperature → Owner's Move of the Week → 5 Story Sections → Risk Radar → Valley Money Map (PRO) → 3 Moves (PRO) → The Quiet Signal → The Thinking Question → Before You Go.`;
 
 const SECTION_HEADERS = [
   "New Business Pulse",
@@ -571,6 +650,10 @@ export function parseOpusOutput(markdown: string): {
   valleyMoneyMap: string | null;
   threeMoves: string | null;
   quietSignal: string | null;
+  ownersMove: string | null;
+  riskRadar: string | null;
+  thinkingQuestion: string | null;
+  beforeYouGo: string | null;
 } {
   const bom = markdown.replace(/^﻿/, "");
 
@@ -584,6 +667,10 @@ export function parseOpusOutput(markdown: string): {
   const valleyMoneyMap = extractSectionBlock(bom, "## The Valley Money Map");
   const threeMoves = extractSectionBlock(bom, "## 3 Moves This Week");
   const quietSignal = extractSectionBlock(bom, "## The Quiet Signal");
+  const ownersMove = extractSectionBlock(bom, "## Owner's Move of the Week");
+  const riskRadar = extractSectionBlock(bom, "## Risk Radar");
+  const thinkingQuestion = extractSectionBlock(bom, "## The Thinking Question");
+  const beforeYouGo = extractSectionBlock(bom, "## Before You Go");
 
   const storyBlocks = bom
     .split(/\n(?=###\s)/)
@@ -718,6 +805,10 @@ export function parseOpusOutput(markdown: string): {
     valleyMoneyMap,
     threeMoves,
     quietSignal,
+    ownersMove,
+    riskRadar,
+    thinkingQuestion,
+    beforeYouGo,
   };
 }
 
@@ -763,6 +854,10 @@ function buildSynthesis(sections: {
   valleyMoneyMap: string | null;
   threeMoves: string | null;
   quietSignal: string | null;
+  ownersMove: string | null;
+  riskRadar: string | null;
+  thinkingQuestion: string | null;
+  beforeYouGo: string | null;
 }): Record<string, unknown> | null {
   if (
     !sections.businessTemperature &&
@@ -788,6 +883,10 @@ function buildSynthesis(sections: {
     moneyMap: sections.valleyMoneyMap,
     moves: movesItems.length > 0 ? movesItems : null,
     quietSignal: sections.quietSignal,
+    ownersMove: sections.ownersMove,
+    riskRadar: sections.riskRadar,
+    thinkingQuestion: sections.thinkingQuestion,
+    beforeYouGo: sections.beforeYouGo,
   };
 }
 
@@ -801,6 +900,10 @@ export async function writeBriefing(
     valleyMoneyMap: string | null;
     threeMoves: string | null;
     quietSignal: string | null;
+    ownersMove: string | null;
+    riskRadar: string | null;
+    thinkingQuestion: string | null;
+    beforeYouGo: string | null;
   },
 ): Promise<{ issueId: string; storiesWritten: number }> {
   const slug = new Date().toISOString().slice(0, 10);
@@ -835,6 +938,10 @@ export async function writeBriefing(
       valley_money_map: sections.valleyMoneyMap,
       three_moves: sections.threeMoves,
       quiet_signal: sections.quietSignal,
+      owners_move: sections.ownersMove,
+      risk_radar: sections.riskRadar,
+      thinking_question: sections.thinkingQuestion,
+      before_you_go: sections.beforeYouGo,
       nri_sub_growth: nriSubGrowth,
       nri_sub_development: nriSubDevelopment,
       nri_sub_policy: nriSubPolicy,
