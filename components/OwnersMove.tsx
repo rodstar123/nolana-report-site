@@ -15,7 +15,7 @@ export function OwnersMove({ markdown }: { markdown: string }) {
         .map((p: string, i: number) => (
           <p
             key={i}
-            className="font-editorial text-[15px] leading-[1.7] text-charcoal dark:text-dark-text mb-3 last:mb-0"
+            className="font-editorial text-[16px] leading-[1.75] text-charcoal dark:text-dark-text mb-3 last:mb-0"
           >
             {p.trim()}
           </p>

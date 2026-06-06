@@ -266,7 +266,7 @@ export function StoryCard({ story, locked = false }: Props) {
               iconColor="#534AB7"
               label="THE SIGNAL"
             >
-              <p className="font-body text-sm text-charcoal dark:text-dark-text leading-relaxed">
+              <p className="font-body text-[16px] text-charcoal dark:text-dark-text leading-[1.75]">
                 {story.signal}
               </p>
             </SectionField>
@@ -299,7 +299,7 @@ export function StoryCard({ story, locked = false }: Props) {
                 iconColor="#BA7517"
                 label="WHY IT MATTERS"
               >
-                <p className="font-body text-sm text-charcoal dark:text-dark-text leading-relaxed">
+                <p className="font-body text-[16px] text-charcoal dark:text-dark-text leading-[1.75]">
                   {story.why_it_matters}
                 </p>
               </SectionField>
@@ -311,7 +311,7 @@ export function StoryCard({ story, locked = false }: Props) {
                 iconColor="#185FA5"
                 label="SMART MOVE"
               >
-                <p className="font-body text-sm text-charcoal dark:text-dark-text leading-relaxed">
+                <p className="font-body text-[16px] text-charcoal dark:text-dark-text leading-[1.75]">
                   {story.smart_move}
                 </p>
               </SectionField>
@@ -322,7 +322,7 @@ export function StoryCard({ story, locked = false }: Props) {
                 <p className="text-[13px] font-medium font-body uppercase tracking-[0.3px] text-slate-light dark:text-dark-dim mb-1">
                   NOLANA TAKE
                 </p>
-                <p className="font-editorial italic text-sm text-charcoal dark:text-dark-text leading-relaxed">
+                <p className="font-editorial italic text-[16px] text-charcoal dark:text-dark-text leading-[1.75]">
                   {story.nolana_take}
                 </p>
               </div>
@@ -368,7 +368,7 @@ export function StoryCard({ story, locked = false }: Props) {
 
           {story.why_it_matters && (
             <div className="mt-4 mb-5 pl-4 border-l-[3px] border-teal bg-teal/5 dark:bg-teal/10 rounded-r-md py-3">
-              <p className="font-body text-[15px] text-slate dark:text-dark-muted leading-relaxed">
+              <p className="font-body text-[16px] text-slate dark:text-dark-muted leading-[1.75]">
                 <span className="font-semibold text-teal dark:text-teal-light">
                   Why it matters:
                 </span>{" "}

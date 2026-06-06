@@ -39,7 +39,7 @@ export function RiskRadar({ markdown }: { markdown: string }) {
               aria-hidden="true"
             />
             <div className="min-w-0">
-              <p className="font-body text-sm text-charcoal dark:text-dark-text leading-relaxed">
+              <p className="font-body text-[15px] text-charcoal dark:text-dark-text leading-[1.7]">
                 {risk.text}
               </p>
               {risk.who && (

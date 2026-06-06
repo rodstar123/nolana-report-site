@@ -351,7 +351,7 @@ export default async function IssuePage({
               .map((para: string, i: number) => (
                 <p
                   key={i}
-                  className="font-editorial text-[19px] leading-[1.85] text-charcoal dark:text-dark-text prose-nolana"
+                  className="font-editorial text-[17px] leading-[1.8] text-charcoal dark:text-dark-text prose-nolana"
                 >
                   {renderMarkdownBold(para.trim())}
                 </p>
@@ -374,7 +374,7 @@ export default async function IssuePage({
               .map((p: string, i: number) => (
                 <p
                   key={i}
-                  className="font-editorial text-[17px] text-slate dark:text-dark-muted leading-relaxed mb-3"
+                  className="font-editorial text-[16px] text-slate dark:text-dark-muted leading-[1.75] mb-3"
                 >
                   {p.trim()}
                 </p>
@@ -566,7 +566,7 @@ export default async function IssuePage({
               .map((p: string, i: number) => (
                 <p
                   key={i}
-                  className="font-editorial text-[17px] text-slate dark:text-dark-muted leading-relaxed mb-3 last:mb-0"
+                  className="font-editorial text-[16px] text-slate dark:text-dark-muted leading-[1.75] mb-3 last:mb-0"
                 >
                   {p.trim()}
                 </p>

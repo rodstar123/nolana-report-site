@@ -13,7 +13,7 @@ export function BeforeYouGo({ markdown }: { markdown: string }) {
         .map((p: string, i: number) => (
           <p
             key={i}
-            className="font-editorial text-[17px] leading-[1.75] text-slate dark:text-dark-muted italic mb-3 last:mb-0"
+            className="font-editorial text-[16px] leading-[1.75] text-slate dark:text-dark-muted italic mb-3 last:mb-0"
           >
             {p.trim()}
           </p>
