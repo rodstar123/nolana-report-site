@@ -8,31 +8,27 @@ export async function sendVerificationEmail(email: string, token: string) {
   await resend.emails.send({
     from: "The Nolana Report <briefing@mail.nationalboco.com>",
     to: email,
-    subject: "Confirm your Nolana Report subscription",
+    subject: "Your Monday RGV briefing is one click away",
     html: `
-      <div style="max-width:600px;margin:0 auto;font-family:Georgia,serif;color:#1a1a1a;">
-        <div style="text-align:center;padding:24px 0;border-bottom:2px solid #1a1a1a;">
-          <h1 style="margin:0;font-size:24px;">The Nolana Report</h1>
-          <p style="margin:4px 0 0;color:#666;font-size:14px;">RGV Business Intelligence</p>
-        </div>
-        <div style="padding:32px 0;">
-          <h2 style="margin:0 0 16px;font-size:22px;">One last step.</h2>
-          <p style="font-size:16px;line-height:1.6;margin:0 0 24px;">
-            Click the button below to confirm your email and start receiving
-            the Valley's most actionable business briefing every Monday before 7 AM.
-          </p>
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px 20px; color: #1a1a1a;">
+        <h1 style="font-size: 22px; font-weight: 700; margin: 0 0 16px 0; color: #1a1a1a;">
+          Welcome to The Nolana Report
+        </h1>
+        <p style="font-size: 16px; line-height: 1.6; margin: 0 0 12px 0; color: #333;">
+          Every Monday morning, you'll get the only RGV business briefing that scores, ranks, and explains the stories that actually matter to the Valley.
+        </p>
+        <p style="font-size: 16px; line-height: 1.6; margin: 0 0 24px 0; color: #333;">
+          One click to lock in your spot:
+        </p>
+        <div style="text-align: center; margin: 0 0 24px 0;">
           <a href="${link}"
-             style="display:inline-block;background:#0d7377;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-family:sans-serif;font-weight:bold;font-size:15px;">
-            Confirm My Subscription
+             style="display: inline-block; background-color: #16a34a; color: #ffffff; font-size: 16px; font-weight: 600; padding: 14px 32px; border-radius: 8px; text-decoration: none;">
+            Confirm my subscription
           </a>
-          <p style="font-size:13px;line-height:1.6;margin:24px 0 0;color:#888;">
-            If you didn't subscribe, you can safely ignore this email.
-          </p>
         </div>
-        <div style="padding-top:24px;border-top:1px solid #eee;color:#999;font-size:12px;font-family:sans-serif;">
-          <p style="margin:0;">The Nolana Report &mdash; RGV Business Intelligence</p>
-          <p style="margin:4px 0 0;">Published by National Bookkeeping Company&reg; &middot; McAllen, TX</p>
-        </div>
+        <p style="font-size: 13px; line-height: 1.5; color: #888; margin: 0;">
+          You're receiving this because you signed up at nolanareport.com. If this wasn't you, just ignore this email.
+        </p>
       </div>
     `,
   });
