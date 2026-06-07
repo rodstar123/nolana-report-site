@@ -54,7 +54,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Image
-                src="/images/nolana-logo-clean.png"
+                src="/images/nr-logo-white.png"
                 alt="The Nolana Report"
                 width={28}
                 height={28}
