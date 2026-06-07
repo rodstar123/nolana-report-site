@@ -57,9 +57,9 @@ export default function Footer() {
                 <div
                   className="absolute rounded-full z-0"
                   style={{
-                    inset: "-6px",
+                    inset: "-10px",
                     background:
-                      "radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%)",
+                      "radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 70%)",
                   }}
                 />
                 <Image
