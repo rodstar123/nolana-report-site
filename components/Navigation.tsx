@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
   const isHomepage = pathname === "/";
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
@@ -32,10 +34,34 @@ export default function Navigation() {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleOutside(e: MouseEvent | TouchEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
+  }, [menuOpen]);
+
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <nav
+      ref={menuRef}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-navy/95 backdrop-blur-md shadow-lg" : "bg-transparent"
+        scrolled || menuOpen
+          ? "bg-navy/95 backdrop-blur-md shadow-lg"
+          : "bg-transparent"
       }`}
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -43,9 +69,10 @@ export default function Navigation() {
           href="/"
           className="flex items-center gap-2 group"
           aria-label="The Nolana Report — home"
+          onClick={closeMenu}
         >
           <div className="relative flex items-center justify-center">
-            {scrolled && (
+            {(scrolled || menuOpen) && (
               <div
                 className="absolute rounded-full z-0 transition-opacity duration-300"
                 style={{
@@ -68,7 +95,8 @@ export default function Navigation() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-2">
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-2">
           <ThemeToggle />
           <Link
             href="/money-map"
@@ -108,6 +136,63 @@ export default function Navigation() {
                 Login
               </Link>
             ))}
+        </div>
+
+        {/* Mobile: theme toggle + hamburger */}
+        <div className="flex md:hidden items-center gap-1">
+          <ThemeToggle />
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            className="relative w-11 h-11 flex items-center justify-center"
+          >
+            <span className="sr-only">{menuOpen ? "Close" : "Menu"}</span>
+            <div className="w-5 h-4 flex flex-col justify-between">
+              <span
+                className={`block h-0.5 w-5 bg-warm-white rounded transition-all duration-300 origin-center ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`}
+              />
+              <span
+                className={`block h-0.5 w-5 bg-warm-white rounded transition-all duration-300 ${menuOpen ? "opacity-0 scale-x-0" : ""}`}
+              />
+              <span
+                className={`block h-0.5 w-5 bg-warm-white rounded transition-all duration-300 origin-center ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`}
+              />
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile slide-down panel */}
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          menuOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="px-6 pb-6 pt-2 flex flex-col gap-1 border-t border-white/5">
+          <Link
+            href="/money-map"
+            onClick={closeMenu}
+            className="font-body text-base font-semibold text-slate-light hover:text-warm-white transition-colors py-3 min-h-[48px] flex items-center"
+          >
+            Money Map
+          </Link>
+          <Link
+            href={isLoggedIn ? "/account" : "/login"}
+            onClick={closeMenu}
+            className="font-body text-base font-semibold text-slate-light hover:text-warm-white transition-colors py-3 min-h-[48px] flex items-center"
+          >
+            {isLoggedIn ? "My Account" : "Login"}
+          </Link>
+          {isHomepage && (
+            <a
+              href="#pricing"
+              onClick={closeMenu}
+              className="font-body text-base font-bold text-warm-white bg-teal hover:bg-teal-light px-5 py-3 rounded-lg transition-colors mt-2 min-h-[48px] flex items-center justify-center w-full"
+            >
+              Subscribe
+            </a>
+          )}
         </div>
       </div>
     </nav>
