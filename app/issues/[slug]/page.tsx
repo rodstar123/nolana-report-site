@@ -16,6 +16,7 @@ import { ThinkingQuestion } from "@/components/ThinkingQuestion";
 import { BeforeYouGo } from "@/components/BeforeYouGo";
 import { ThreeMovesSection } from "@/components/ThreeMovesSection";
 import NRILegend from "@/components/NRILegend";
+import BreatherBlock, { type BreatherData } from "@/components/BreatherBlock";
 
 export const revalidate = 3600;
 
@@ -221,6 +222,123 @@ export default async function IssuePage({
   const riskRadarText = iss.risk_radar ?? null;
   const thinkingQuestionText = iss.thinking_question ?? null;
   const beforeYouGoText = iss.before_you_go ?? null;
+
+  const rawBreathers: BreatherData[] = Array.isArray(iss.breathers)
+    ? (iss.breathers as BreatherData[]).filter((b) => b && b.type && b.text)
+    : [];
+
+  const nudgeTemplates = [
+    `Seeing something that affects your business? Pro members get the full ${allStories.length}-story breakdown → Unlock Pro`,
+    "The stories behind the paywall scored higher. Just saying. → Unlock Pro",
+    "Which story mattered most? Vote in Reader's Pick below ↓",
+  ];
+
+  function buildBreatherQueue(
+    storyList: StoryData[],
+    isFree: boolean,
+  ): Map<number, BreatherData> {
+    const queue = new Map<number, BreatherData>();
+    const used = new Set<string>();
+    const positions = isFree ? [2, 4] : [];
+    if (!isFree) {
+      for (let i = 3; i < storyList.length; i += 3) positions.push(i);
+    }
+
+    const aggByType = new Map<string, BreatherData>();
+    for (const b of rawBreathers) aggByType.set(b.type, b);
+
+    const prefOrder: string[][] = isFree
+      ? [
+          ["stat_callout", "pull_quote", "valley_vs_national"],
+          ["quick_math", "progress_bar", "this_time_last_year"],
+        ]
+      : [
+          ["stat_callout"],
+          ["pull_quote"],
+          ["quick_math"],
+          ["this_time_last_year"],
+          ["valley_vs_national"],
+          ["forward_this"],
+          ["nudge"],
+          ["progress_bar"],
+        ];
+
+    for (let pi = 0; pi < positions.length; pi++) {
+      const pos = positions[pi];
+      const prefs = prefOrder[pi % prefOrder.length];
+      let chosen: BreatherData | null = null;
+
+      for (const pref of prefs) {
+        if (used.has(pref)) continue;
+        if (pref === "pull_quote") {
+          const nearby = storyList
+            .slice(Math.max(0, pos - 2), pos + 1)
+            .filter((s) => s.nolana_take)
+            .sort((a, b) => (b.nolana_score ?? 0) - (a.nolana_score ?? 0));
+          if (nearby.length > 0) {
+            chosen = { type: "pull_quote", text: nearby[0].nolana_take! };
+            break;
+          }
+        } else if (pref === "nudge") {
+          chosen = {
+            type: "nudge",
+            text: nudgeTemplates[pi % nudgeTemplates.length],
+          };
+          break;
+        } else if (pref === "progress_bar") {
+          chosen = {
+            type: "progress_bar",
+            text: "",
+            readCount: pos,
+            freeCount: isFree ? storyList.length : storyList.length,
+            totalCount: allStories.length,
+          };
+          break;
+        } else {
+          const agg = aggByType.get(pref);
+          if (agg) {
+            chosen = agg;
+            break;
+          }
+        }
+      }
+
+      if (!chosen) {
+        const fallbacks = ["nudge", "progress_bar"];
+        for (const fb of fallbacks) {
+          if (used.has(fb)) continue;
+          if (fb === "nudge") {
+            chosen = {
+              type: "nudge",
+              text: nudgeTemplates[pi % nudgeTemplates.length],
+            };
+            break;
+          }
+          if (fb === "progress_bar") {
+            chosen = {
+              type: "progress_bar",
+              text: "",
+              readCount: pos,
+              freeCount: storyList.length,
+              totalCount: allStories.length,
+            };
+            break;
+          }
+        }
+      }
+
+      if (chosen) {
+        queue.set(pos, chosen);
+        used.add(chosen.type);
+      }
+    }
+    return queue;
+  }
+
+  const freeBreathers = buildBreatherQueue(freeStories, true);
+  const proBreathers = canSeePro
+    ? buildBreatherQueue(proStories, false)
+    : new Map<number, BreatherData>();
 
   const nriSubs = [
     { label: "Growth", value: iss.nri_sub_growth as number | null },
@@ -438,13 +556,20 @@ export default async function IssuePage({
           </div>
         )}
 
-        {/* Free stories */}
+        {/* Free stories with breathers */}
         <h2 className="font-display font-bold text-navy dark:text-dark-text text-2xl mb-6">
           Top Stories This Week
         </h2>
         <div className="space-y-4 mb-8">
-          {freeStories.map((story) => (
-            <StoryCard key={story.id} story={story} />
+          {freeStories.map((story, idx) => (
+            <div key={story.id}>
+              <StoryCard story={story} />
+              {freeBreathers.has(idx + 1) && (
+                <div className="my-4">
+                  <BreatherBlock data={freeBreathers.get(idx + 1)!} />
+                </div>
+              )}
+            </div>
           ))}
         </div>
 
@@ -464,9 +589,14 @@ export default async function IssuePage({
               Full Briefing
             </h2>
             <div className="space-y-4">
-              {proStories.map((story) => (
+              {proStories.map((story, idx) => (
                 <div key={story.id} className="pro-story">
                   <StoryCard story={story} />
+                  {proBreathers.has(idx + 1) && (
+                    <div className="my-4">
+                      <BreatherBlock data={proBreathers.get(idx + 1)!} />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

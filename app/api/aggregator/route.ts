@@ -111,6 +111,7 @@ export async function GET(req: NextRequest) {
       riskRadar,
       thinkingQuestion,
       beforeYouGo,
+      breathers,
     } = parseOpusOutput(briefingMarkdown);
     const { issueId, storiesWritten } = await writeBriefing(
       supabase,
@@ -126,6 +127,7 @@ export async function GET(req: NextRequest) {
         riskRadar,
         thinkingQuestion,
         beforeYouGo,
+        breathers,
       },
     );
 

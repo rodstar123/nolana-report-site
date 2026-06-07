@@ -563,6 +563,38 @@ This section is shown FREE to all readers. It replaces the old "That's this week
 
 ---
 
+### 10. BREATHERS
+
+## BREATHERS
+
+Generate a JSON array of exactly 5 breather objects to insert between story cards. Each must be a different type. Output valid JSON inside a fenced code block:
+
+\`\`\`json
+[
+  {"type": "stat_callout", "number": "$3.2B", "text": "One sentence explaining the number"},
+  {"type": "quick_math", "text": "Take a number, do simple math, deliver the punchline"},
+  {"type": "this_time_last_year", "text": "This time last year: [then]. This week: [now]."},
+  {"type": "valley_vs_national", "text": "[National stat]. [Local stat]. [What it means]."},
+  {"type": "forward_this", "text": "Know a [role] in [city]? Forward the [story name] — [reason]."}
+]
+\`\`\`
+
+Type definitions:
+1. **stat_callout** — One dramatic number from this week's stories. Fields: "number" (short, max 15 chars, e.g. "$3.2B", "10,000 jobs", "60 min"), "text" (one sentence explaining it).
+2. **quick_math** — Take a number from a story and do a simple calculation that makes it tangible. 1-3 sentences. Show the math, then the punchline.
+3. **this_time_last_year** — What was the Valley business story roughly 12 months ago related to one of this week's themes? One sentence. If you don't know the exact story, make a plausible comparison based on the trend trajectory.
+4. **valley_vs_national** — Compare one local data point to a national benchmark. One sentence. Format: "[National stat]. [Local stat]. [What it means for the reader]."
+5. **forward_this** — Pick the most share-worthy story and write a one-sentence sharing nudge. Format: "Know a [role] in [city]? Forward the [story name] — [reason]."
+
+Rules:
+- Each breather must be 1-3 sentences max
+- Pull all data from THIS WEEK's scored stories
+- Be specific — real numbers, real cities, real industries
+- stat_callout "number" field must be SHORT (max 15 chars) — it renders big
+- Output VALID JSON only — no trailing commas, no comments
+
+---
+
 ## Final Checklist (verify before outputting)
 
 1. Move Bar: Every "The Bottom Line" names a specific operator and a specific this-week action — or honestly states what to watch and what trigger to wait for. Zero banned phrases anywhere in the briefing.
@@ -570,7 +602,8 @@ This section is shown FREE to all readers. It replaces the old "That's this week
 3. Sub-score variance: The four sub-scores vary meaningfully across stories. If they all read the same pattern, rescore.
 4. Dedup: No two stories describe the same event.
 5. Content originality: No 3+ consecutive words copied from any source headline or snippet.
-6. Section order: Opening → Business Temperature → Owner's Move of the Week → 5 Story Sections → Risk Radar → Valley Money Map (PRO) → 3 Moves (PRO) → The Quiet Signal → The Thinking Question → Before You Go.`;
+6. Section order: Opening → Business Temperature → Owner's Move of the Week → 5 Story Sections → Risk Radar → Valley Money Map (PRO) → 3 Moves (PRO) → The Quiet Signal → The Thinking Question → Before You Go → Breathers.
+7. Breathers: Exactly 5 items, each a different type, valid JSON array.`;
 
 const SECTION_HEADERS = [
   "New Business Pulse",
@@ -643,6 +676,30 @@ function extractStoryField(block: string, label: string): string | null {
   return captured.length > 0 ? captured.join(" ") : null;
 }
 
+export interface BreatherItem {
+  type: string;
+  number?: string;
+  text: string;
+}
+
+function extractBreathers(markdown: string): BreatherItem[] | null {
+  const sectionIdx = markdown.indexOf("## BREATHERS");
+  if (sectionIdx < 0) return null;
+  const rest = markdown.slice(sectionIdx);
+  const jsonMatch = rest.match(/```json\s*([\s\S]*?)```/);
+  if (!jsonMatch) return null;
+  try {
+    const parsed = JSON.parse(jsonMatch[1].trim());
+    if (!Array.isArray(parsed)) return null;
+    return parsed.filter(
+      (b: Record<string, unknown>) =>
+        typeof b.type === "string" && typeof b.text === "string",
+    ) as BreatherItem[];
+  } catch {
+    return null;
+  }
+}
+
 export function parseOpusOutput(markdown: string): {
   opening: string;
   stories: ParsedStory[];
@@ -654,6 +711,7 @@ export function parseOpusOutput(markdown: string): {
   riskRadar: string | null;
   thinkingQuestion: string | null;
   beforeYouGo: string | null;
+  breathers: BreatherItem[] | null;
 } {
   const bom = markdown.replace(/^﻿/, "");
 
@@ -671,6 +729,7 @@ export function parseOpusOutput(markdown: string): {
   const riskRadar = extractSectionBlock(bom, "## Risk Radar");
   const thinkingQuestion = extractSectionBlock(bom, "## The Thinking Question");
   const beforeYouGo = extractSectionBlock(bom, "## Before You Go");
+  const breathers = extractBreathers(bom);
 
   const storyBlocks = bom
     .split(/\n(?=###\s)/)
@@ -809,6 +868,7 @@ export function parseOpusOutput(markdown: string): {
     riskRadar,
     thinkingQuestion,
     beforeYouGo,
+    breathers,
   };
 }
 
@@ -858,6 +918,7 @@ function buildSynthesis(sections: {
   riskRadar: string | null;
   thinkingQuestion: string | null;
   beforeYouGo: string | null;
+  breathers: BreatherItem[] | null;
 }): Record<string, unknown> | null {
   if (
     !sections.businessTemperature &&
@@ -887,6 +948,7 @@ function buildSynthesis(sections: {
     riskRadar: sections.riskRadar,
     thinkingQuestion: sections.thinkingQuestion,
     beforeYouGo: sections.beforeYouGo,
+    breathers: sections.breathers,
   };
 }
 
@@ -904,6 +966,7 @@ export async function writeBriefing(
     riskRadar: string | null;
     thinkingQuestion: string | null;
     beforeYouGo: string | null;
+    breathers: BreatherItem[] | null;
   },
 ): Promise<{ issueId: string; storiesWritten: number }> {
   const slug = new Date().toISOString().slice(0, 10);
@@ -942,6 +1005,7 @@ export async function writeBriefing(
       risk_radar: sections.riskRadar,
       thinking_question: sections.thinkingQuestion,
       before_you_go: sections.beforeYouGo,
+      breathers: sections.breathers,
       nri_sub_growth: nriSubGrowth,
       nri_sub_development: nriSubDevelopment,
       nri_sub_policy: nriSubPolicy,
