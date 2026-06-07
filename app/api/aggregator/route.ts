@@ -131,6 +131,70 @@ export async function GET(req: NextRequest) {
       },
     );
 
+    if (storiesWritten > 0 && !breathers) {
+      const storySummaries = stories
+        .slice(0, 15)
+        .map(
+          (s, i) =>
+            `${i + 1}. "${s.headline}" (NRI ${s.nri}/10) — ${s.summary?.slice(0, 120) ?? ""}`,
+        )
+        .join("\n");
+      try {
+        const breatherRes = await fetch(
+          "https://api.anthropic.com/v1/messages",
+          {
+            method: "POST",
+            headers: {
+              "x-api-key": process.env.ANTHROPIC_API_KEY!,
+              "anthropic-version": "2023-06-01",
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "claude-haiku-4-5-20251001",
+              max_tokens: 1024,
+              messages: [
+                {
+                  role: "user",
+                  content: `Generate exactly 5 breather items for an RGV business briefing. Each is a different type. Output ONLY a JSON array — no other text.
+
+Stories this week:
+${storySummaries}
+
+Types:
+1. stat_callout: {"type":"stat_callout","number":"$3.2B","text":"one sentence"}. Number max 15 chars.
+2. quick_math: {"type":"quick_math","text":"napkin math from a story, 1-3 sentences"}
+3. this_time_last_year: {"type":"this_time_last_year","text":"This time last year: [then]. This week: [now]."}
+4. valley_vs_national: {"type":"valley_vs_national","text":"[National stat]. [Local stat]. [What it means]."}
+5. forward_this: {"type":"forward_this","text":"Know a [role] in [city]? Forward the [story] — [reason]."}
+
+Rules: Be specific (real numbers, cities, industries from the stories above). 1-3 sentences each. Valid JSON only.`,
+                },
+              ],
+            }),
+          },
+        );
+        if (breatherRes.ok) {
+          const breatherJson = (await breatherRes.json()) as {
+            content?: Array<{ type?: string; text?: string }>;
+          };
+          const breatherText =
+            breatherJson.content?.find((b) => b.type === "text")?.text ?? "";
+          const jsonMatch = breatherText.match(/\[[\s\S]*\]/);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              await supabase
+                .from("issues")
+                .update({ breathers: parsed })
+                .eq("id", issueId);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("[aggregator] breathers generation failed:", e);
+      }
+    }
+
     await supabase.from("agent_logs").insert({
       agent: "aggregator",
       run_started_at: new Date().toISOString(),
