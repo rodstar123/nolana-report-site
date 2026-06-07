@@ -36,14 +36,7 @@ export default function Hero() {
             {/* LEFT — Copy + Signup */}
             <div className="flex-1 max-w-xl lg:max-w-lg xl:max-w-xl">
               {/* Brand lockup */}
-              <div className="hero-brand opacity-0 flex items-center gap-2.5 mb-5 lg:mb-8">
-                <Image
-                  src="/images/nolana-logo-clean.png"
-                  alt="The Nolana Report"
-                  width={22}
-                  height={22}
-                  className="h-[22px] w-[22px]"
-                />
+              <div className="hero-brand opacity-0 mb-5 lg:mb-8">
                 <span className="font-body font-bold text-teal text-xs tracking-[0.22em] uppercase">
                   The Nolana Report
                 </span>
