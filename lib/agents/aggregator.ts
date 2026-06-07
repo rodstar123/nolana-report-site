@@ -413,7 +413,39 @@ This section is shown FREE to all readers.
 
 ---
 
-### 3. STORY SECTIONS
+### 3. BREATHERS
+
+## BREATHERS
+
+Generate a JSON array of exactly 5 breather objects to insert between story cards. Each must be a different type. Output valid JSON inside a fenced code block:
+
+\`\`\`json
+[
+  {"type": "stat_callout", "number": "$3.2B", "text": "One sentence explaining the number"},
+  {"type": "quick_math", "text": "Take a number, do simple math, deliver the punchline"},
+  {"type": "this_time_last_year", "text": "This time last year: [then]. This week: [now]."},
+  {"type": "valley_vs_national", "text": "[National stat]. [Local stat]. [What it means]."},
+  {"type": "forward_this", "text": "Know a [role] in [city]? Forward the [story name] — [reason]."}
+]
+\`\`\`
+
+Type definitions:
+1. **stat_callout** — One dramatic number from this week's stories. Fields: "number" (short, max 15 chars, e.g. "$3.2B", "10,000 jobs", "60 min"), "text" (one sentence explaining it).
+2. **quick_math** — Take a number from a story and do a simple calculation that makes it tangible. 1-3 sentences. Show the math, then the punchline.
+3. **this_time_last_year** — What was the Valley business story roughly 12 months ago related to one of this week's themes? One sentence. If you don't know the exact story, make a plausible comparison based on the trend trajectory.
+4. **valley_vs_national** — Compare one local data point to a national benchmark. One sentence. Format: "[National stat]. [Local stat]. [What it means for the reader]."
+5. **forward_this** — Pick the most share-worthy story and write a one-sentence sharing nudge. Format: "Know a [role] in [city]? Forward the [story name] — [reason]."
+
+Rules:
+- Each breather must be 1-3 sentences max
+- Pull all data from THIS WEEK's scored stories
+- Be specific — real numbers, real cities, real industries
+- stat_callout "number" field must be SHORT (max 15 chars) — it renders big
+- Output VALID JSON only — no trailing commas, no comments
+
+---
+
+### 4. STORY SECTIONS
 
 Write the 5 section bodies with exactly these section headers. Open each section with one italicized editorial sentence. If a section has no qualifying stories, write "No items this week."
 
@@ -451,7 +483,7 @@ Use the rocket emoji prefix on the headline for any story where instantAlerted=t
 
 ---
 
-### 4. PRO-ONLY SECTIONS
+### 5. PRO-ONLY SECTIONS
 
 After all 5 story sections, write two Pro-gated sections:
 
@@ -474,7 +506,7 @@ These two sections are marked PRO-ONLY in the output. The frontend will gate the
 
 ---
 
-### 5. THE QUIET SIGNAL (closer)
+### 6. THE QUIET SIGNAL (closer)
 
 ## The Quiet Signal
 
@@ -484,7 +516,7 @@ This section is shown FREE to all readers. It closes the briefing.
 
 ---
 
-### 6. OWNER'S MOVE OF THE WEEK
+### 7. OWNER'S MOVE OF THE WEEK
 
 ## Owner's Move of the Week
 
@@ -503,7 +535,7 @@ This section is shown FREE to all readers. It appears immediately after Business
 
 ---
 
-### 7. RISK RADAR
+### 8. RISK RADAR
 
 ## Risk Radar
 
@@ -527,7 +559,7 @@ This section is shown FREE to all readers. It appears after the story sections.]
 
 ---
 
-### 8. THE THINKING QUESTION
+### 9. THE THINKING QUESTION
 
 ## The Thinking Question
 
@@ -545,7 +577,7 @@ This section is shown FREE to all readers. It appears after The Quiet Signal.]
 
 ---
 
-### 9. BEFORE YOU GO
+### 10. BEFORE YOU GO
 
 ## Before You Go
 
@@ -563,38 +595,6 @@ This section is shown FREE to all readers. It replaces the old "That's this week
 
 ---
 
-### 10. BREATHERS
-
-## BREATHERS
-
-Generate a JSON array of exactly 5 breather objects to insert between story cards. Each must be a different type. Output valid JSON inside a fenced code block:
-
-\`\`\`json
-[
-  {"type": "stat_callout", "number": "$3.2B", "text": "One sentence explaining the number"},
-  {"type": "quick_math", "text": "Take a number, do simple math, deliver the punchline"},
-  {"type": "this_time_last_year", "text": "This time last year: [then]. This week: [now]."},
-  {"type": "valley_vs_national", "text": "[National stat]. [Local stat]. [What it means]."},
-  {"type": "forward_this", "text": "Know a [role] in [city]? Forward the [story name] — [reason]."}
-]
-\`\`\`
-
-Type definitions:
-1. **stat_callout** — One dramatic number from this week's stories. Fields: "number" (short, max 15 chars, e.g. "$3.2B", "10,000 jobs", "60 min"), "text" (one sentence explaining it).
-2. **quick_math** — Take a number from a story and do a simple calculation that makes it tangible. 1-3 sentences. Show the math, then the punchline.
-3. **this_time_last_year** — What was the Valley business story roughly 12 months ago related to one of this week's themes? One sentence. If you don't know the exact story, make a plausible comparison based on the trend trajectory.
-4. **valley_vs_national** — Compare one local data point to a national benchmark. One sentence. Format: "[National stat]. [Local stat]. [What it means for the reader]."
-5. **forward_this** — Pick the most share-worthy story and write a one-sentence sharing nudge. Format: "Know a [role] in [city]? Forward the [story name] — [reason]."
-
-Rules:
-- Each breather must be 1-3 sentences max
-- Pull all data from THIS WEEK's scored stories
-- Be specific — real numbers, real cities, real industries
-- stat_callout "number" field must be SHORT (max 15 chars) — it renders big
-- Output VALID JSON only — no trailing commas, no comments
-
----
-
 ## Final Checklist (verify before outputting)
 
 1. Move Bar: Every "The Bottom Line" names a specific operator and a specific this-week action — or honestly states what to watch and what trigger to wait for. Zero banned phrases anywhere in the briefing.
@@ -602,8 +602,8 @@ Rules:
 3. Sub-score variance: The four sub-scores vary meaningfully across stories. If they all read the same pattern, rescore.
 4. Dedup: No two stories describe the same event.
 5. Content originality: No 3+ consecutive words copied from any source headline or snippet.
-6. Section order: Opening → Business Temperature → Owner's Move of the Week → 5 Story Sections → Risk Radar → Valley Money Map (PRO) → 3 Moves (PRO) → The Quiet Signal → The Thinking Question → Before You Go → Breathers.
-7. Breathers: Exactly 5 items, each a different type, valid JSON array.`;
+6. Section order: Opening → Business Temperature → Breathers → 5 Story Sections → Owner's Move of the Week → Risk Radar → Valley Money Map (PRO) → 3 Moves (PRO) → The Quiet Signal → The Thinking Question → Before You Go.
+7. Breathers: Exactly 5 items, each a different type, valid JSON array. Output early — before stories.`;
 
 const SECTION_HEADERS = [
   "New Business Pulse",

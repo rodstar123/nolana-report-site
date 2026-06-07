@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "claude-opus-4-8",
-        max_tokens: 24576,
+        max_tokens: 40000,
         thinking: { type: "adaptive" },
         output_config: { effort: "high" },
         system: [
