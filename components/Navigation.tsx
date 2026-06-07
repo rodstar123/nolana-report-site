@@ -45,11 +45,7 @@ export default function Navigation() {
           aria-label="The Nolana Report — home"
         >
           <Image
-            src={
-              scrolled
-                ? "/images/nr-logo-white.png"
-                : "/images/nolana-logo-clean.png"
-            }
+            src="/images/nolana-logo-clean.png"
             alt="The Nolana Report"
             width={32}
             height={32}
