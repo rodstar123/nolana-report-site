@@ -49,7 +49,7 @@ export default function Navigation() {
             alt="The Nolana Report"
             width={32}
             height={32}
-            className={`h-8 w-8 flex-shrink-0 transition-all duration-200 group-hover:opacity-80 ${scrolled ? "brightness-[1.8]" : ""}`}
+            className="h-8 w-8 flex-shrink-0 transition-opacity duration-200 group-hover:opacity-80"
           />
           <span className="font-display font-bold text-gold text-sm sm:text-base tracking-wide sm:tracking-widest uppercase transition-opacity duration-200 group-hover:opacity-80">
             The Nolana<span className="hidden sm:inline"> Report</span>

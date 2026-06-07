@@ -58,7 +58,7 @@ export default function Footer() {
                 alt="The Nolana Report"
                 width={28}
                 height={28}
-                className="h-7 w-7 flex-shrink-0 brightness-[1.8]"
+                className="h-7 w-7 flex-shrink-0"
               />
               <h3 className="font-display font-bold text-gold text-xl tracking-widest uppercase">
                 The Nolana Report
