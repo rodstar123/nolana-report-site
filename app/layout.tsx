@@ -43,6 +43,10 @@ export const metadata: Metadata = {
       "Weekly briefing covering new businesses, government moves, cross-border trade across McAllen, Edinburg, and the Rio Grande Valley.",
     images: ["/images/og-social-card.png"],
   },
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
   robots: {
     index: true,
     follow: true,
@@ -65,9 +69,9 @@ const organizationSchema = {
   url: "https://nolanareport.com",
   logo: {
     "@type": "ImageObject",
-    url: "https://nolanareport.com/images/og-social-card.png",
-    width: 1344,
-    height: 752,
+    url: "https://nolanareport.com/icon.png",
+    width: 192,
+    height: 192,
   },
   description:
     "Get the weekly Rio Grande Valley business intelligence briefing covering new businesses, permits, trade, bridge waits, government moves, and industrial investment across McAllen and the RGV.",

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { BrandMark } from "./BrandMark";
 import { ThemeToggle } from "./ThemeToggle";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -41,12 +41,15 @@ export default function Navigation() {
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link
           href="/"
-          className="flex items-center gap-2.5 group"
+          className="flex items-center gap-2 group"
           aria-label="The Nolana Report — home"
         >
-          <BrandMark
-            size={18}
-            className="text-gold flex-shrink-0 transition-opacity duration-200 group-hover:opacity-80"
+          <Image
+            src="/images/NR Logo Remove.png"
+            alt="The Nolana Report"
+            width={32}
+            height={32}
+            className="h-8 w-8 flex-shrink-0 transition-opacity duration-200 group-hover:opacity-80"
           />
           <span className="font-display font-bold text-gold text-sm sm:text-base tracking-wide sm:tracking-widest uppercase transition-opacity duration-200 group-hover:opacity-80">
             The Nolana<span className="hidden sm:inline"> Report</span>

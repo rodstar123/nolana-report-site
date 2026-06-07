@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { PUBLISHER, PUBLISHER_URL } from "@/lib/constants";
 import SignupForm from "./SignupForm";
 
@@ -51,9 +52,18 @@ export default function Footer() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <div>
-            <h3 className="font-display font-bold text-gold text-xl tracking-widest uppercase mb-3">
-              The Nolana Report
-            </h3>
+            <div className="flex items-center gap-2 mb-3">
+              <Image
+                src="/images/NR Logo Remove.png"
+                alt="The Nolana Report"
+                width={28}
+                height={28}
+                className="h-7 w-7 flex-shrink-0"
+              />
+              <h3 className="font-display font-bold text-gold text-xl tracking-widest uppercase">
+                The Nolana Report
+              </h3>
+            </div>
             <p className="font-body text-slate-light text-sm leading-relaxed">
               Business intelligence for the Rio Grande Valley. Every Monday.
             </p>
