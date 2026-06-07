@@ -154,7 +154,7 @@ export default function StickyMobileCTA() {
               placeholder="your@email.com"
               required
               aria-label="Email for free brief"
-              className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-[#1a2a3d] border border-[#2a3a4d] text-warm-white placeholder-[#6b7a8d] font-body text-sm focus:outline-none focus:border-teal min-h-[44px]"
+              className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-[#1a2a3d] border border-[#2a3a4d] text-warm-white placeholder-[#6b7a8d] font-body text-base focus:outline-none focus:border-teal min-h-[44px]"
             />
             <button
               type="submit"

@@ -63,7 +63,7 @@ export default function Footer() {
                   }}
                 />
                 <Image
-                  src="/images/nolana-logo-clean.png"
+                  src="/images/nolana-logo-64.webp"
                   alt="The Nolana Report"
                   width={28}
                   height={28}
