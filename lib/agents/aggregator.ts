@@ -683,11 +683,40 @@ export interface BreatherItem {
 }
 
 function extractBreathers(markdown: string): BreatherItem[] | null {
-  const sectionIdx = markdown.indexOf("## BREATHERS");
-  if (sectionIdx < 0) return null;
-  const rest = markdown.slice(sectionIdx);
+  const headerPattern = /##\s*breathers/i;
+  const match = markdown.match(headerPattern);
+  if (!match || match.index === undefined) {
+    const jsonOnly = markdown.match(
+      /```json\s*(\[[\s\S]*?"type"\s*:\s*"(?:stat_callout|quick_math|this_time_last_year|valley_vs_national|forward_this)"[\s\S]*?\])[\s\S]*?```/,
+    );
+    if (!jsonOnly) return null;
+    try {
+      const parsed = JSON.parse(jsonOnly[1].trim());
+      if (!Array.isArray(parsed)) return null;
+      return parsed.filter(
+        (b: Record<string, unknown>) =>
+          typeof b.type === "string" && typeof b.text === "string",
+      ) as BreatherItem[];
+    } catch {
+      return null;
+    }
+  }
+  const rest = markdown.slice(match.index);
   const jsonMatch = rest.match(/```json\s*([\s\S]*?)```/);
-  if (!jsonMatch) return null;
+  if (!jsonMatch) {
+    const bracketMatch = rest.match(/(\[[\s\S]*?\])\s*(?:\n##|\n---|\Z)/);
+    if (!bracketMatch) return null;
+    try {
+      const parsed = JSON.parse(bracketMatch[1].trim());
+      if (!Array.isArray(parsed)) return null;
+      return parsed.filter(
+        (b: Record<string, unknown>) =>
+          typeof b.type === "string" && typeof b.text === "string",
+      ) as BreatherItem[];
+    } catch {
+      return null;
+    }
+  }
   try {
     const parsed = JSON.parse(jsonMatch[1].trim());
     if (!Array.isArray(parsed)) return null;
