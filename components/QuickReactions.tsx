@@ -95,7 +95,7 @@ export default function QuickReactions({ storyId }: Props) {
           {REACTIONS.map((r) => (
             <span
               key={r.key}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-cream-dark/40 dark:bg-dark-border/40 border border-transparent animate-pulse min-h-[32px] w-20"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-cream-dark/40 dark:bg-dark-border/40 border border-transparent animate-pulse min-h-[44px] w-20"
             />
           ))}
         </div>
@@ -105,7 +105,7 @@ export default function QuickReactions({ storyId }: Props) {
 
   return (
     <div className="mt-4 mb-3">
-      <p className="font-body text-[11px] text-slate-light dark:text-dark-dim uppercase tracking-wide font-semibold mb-2">
+      <p className="font-body text-xs text-slate-light dark:text-dark-dim uppercase tracking-wide font-semibold mb-2">
         How valuable was this story?
       </p>
       <div
@@ -125,7 +125,7 @@ export default function QuickReactions({ storyId }: Props) {
               onClick={() => toggle(r.key)}
               aria-label={`React with ${r.label}`}
               aria-pressed={active}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-body transition-all duration-200 min-h-[32px] ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-body transition-all duration-200 min-h-[44px] ${
                 active
                   ? "bg-teal/15 border border-teal/30 text-teal dark:text-teal-light font-semibold"
                   : "bg-cream-dark/60 dark:bg-dark-border/60 border border-transparent text-slate-light dark:text-dark-dim hover:bg-cream-dark dark:hover:bg-dark-border hover:border-cream-dark dark:hover:border-dark-border"
@@ -134,9 +134,9 @@ export default function QuickReactions({ storyId }: Props) {
               <span className="text-sm" aria-hidden="true">
                 {r.emoji}
               </span>
-              <span className="text-[11px]">{r.label}</span>
+              <span className="text-xs">{r.label}</span>
               {count > 0 && (
-                <span className="font-mono text-[10px] tabular-nums opacity-70">
+                <span className="font-mono text-xs tabular-nums opacity-70">
                   {count}
                 </span>
               )}
@@ -146,7 +146,7 @@ export default function QuickReactions({ storyId }: Props) {
 
         {showTooltip && (
           <div className="absolute left-0 -bottom-8 z-30 bg-navy-deep dark:bg-dark-card border border-white/10 dark:border-dark-border rounded-lg px-3 py-1.5 shadow-lg pointer-events-none">
-            <p className="font-body text-[10px] text-slate-light dark:text-dark-dim whitespace-nowrap">
+            <p className="font-body text-xs text-slate-light dark:text-dark-dim whitespace-nowrap">
               Your reaction helps us improve future briefings
             </p>
           </div>

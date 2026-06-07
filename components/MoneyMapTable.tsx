@@ -180,7 +180,7 @@ export default function MoneyMapTable({
                                   <span className="w-1.5 h-1.5 rounded-full bg-teal/50 flex-shrink-0" />
                                   {s.headline}
                                   {s.nolana_score && (
-                                    <span className="font-mono text-[10px] text-slate-light dark:text-dark-dim">
+                                    <span className="font-mono text-xs text-slate-light dark:text-dark-dim">
                                       NRI {s.nolana_score}
                                     </span>
                                   )}

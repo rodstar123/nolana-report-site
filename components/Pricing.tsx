@@ -150,7 +150,7 @@ export default function Pricing() {
           </div>
         </SectionReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-12 mt-6 md:mt-0">
           {TIERS.map((tier) => {
             const isYearly = billing === "yearly";
             const yearly = YEARLY[tier.id];
