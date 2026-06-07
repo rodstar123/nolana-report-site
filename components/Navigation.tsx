@@ -45,7 +45,7 @@ export default function Navigation() {
           aria-label="The Nolana Report — home"
         >
           <Image
-            src="/images/NR Logo Remove.png"
+            src="/images/nr-logo-transparent.png"
             alt="The Nolana Report"
             width={32}
             height={32}
