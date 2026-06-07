@@ -53,13 +53,23 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Image
-                src="/images/nolana-logo-clean.png"
-                alt="The Nolana Report"
-                width={28}
-                height={28}
-                className="h-7 w-7 flex-shrink-0"
-              />
+              <div className="relative inline-flex items-center justify-center">
+                <div
+                  className="absolute rounded-full z-0"
+                  style={{
+                    inset: "-6px",
+                    background:
+                      "radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%)",
+                  }}
+                />
+                <Image
+                  src="/images/nolana-logo-clean.png"
+                  alt="The Nolana Report"
+                  width={28}
+                  height={28}
+                  className="relative z-10 h-7 w-7 flex-shrink-0"
+                />
+              </div>
               <h3 className="font-display font-bold text-gold text-xl tracking-widest uppercase">
                 The Nolana Report
               </h3>

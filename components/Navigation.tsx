@@ -44,13 +44,25 @@ export default function Navigation() {
           className="flex items-center gap-2 group"
           aria-label="The Nolana Report — home"
         >
-          <Image
-            src="/images/nolana-logo-clean.png"
-            alt="The Nolana Report"
-            width={32}
-            height={32}
-            className="h-8 w-8 flex-shrink-0 transition-opacity duration-200 group-hover:opacity-80"
-          />
+          <div className="relative flex items-center justify-center">
+            {scrolled && (
+              <div
+                className="absolute rounded-full z-0 transition-opacity duration-300"
+                style={{
+                  inset: "-6px",
+                  background:
+                    "radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%)",
+                }}
+              />
+            )}
+            <Image
+              src="/images/nolana-logo-clean.png"
+              alt="The Nolana Report"
+              width={32}
+              height={32}
+              className="relative z-10 h-8 w-8 flex-shrink-0 transition-opacity duration-200 group-hover:opacity-80"
+            />
+          </div>
           <span className="font-display font-bold text-gold text-sm sm:text-base tracking-wide sm:tracking-widest uppercase transition-opacity duration-200 group-hover:opacity-80">
             The Nolana<span className="hidden sm:inline"> Report</span>
           </span>
