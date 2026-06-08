@@ -13,6 +13,10 @@ export interface Story {
   urgency: string | null;
   local_reach: string | null;
   risk: string | null;
+  signal?: string | null;
+  who_should_act?: string[] | null;
+  smart_move?: string | null;
+  nolana_take?: string | null;
 }
 
 export interface BriefingEmailOptions {
@@ -25,6 +29,10 @@ export interface BriefingEmailOptions {
   valleyMoneyMap?: string | null;
   threeMoves?: string | null;
   quietSignal?: string | null;
+  ownersMove?: string | null;
+  riskRadar?: string | null;
+  thinkingQuestion?: string | null;
+  beforeYouGo?: string | null;
 }
 
 export function estimateReadingTime(stories: Story[]): number {
@@ -74,6 +82,23 @@ function parseMovesForEmail(md: string) {
     .map((l) => l.replace(/^\d+\.\s*/, "").trim());
 }
 
+function parseRisksForEmail(md: string): { text: string; who: string }[] {
+  return md
+    .split("\n")
+    .filter((l) => l.trim().startsWith("RISK:"))
+    .map((l) => {
+      const content = l.replace(/^RISK:\s*/, "").trim();
+      const dashIdx = content.lastIndexOf(" — ");
+      if (dashIdx > 0) {
+        return {
+          text: content.slice(0, dashIdx).trim(),
+          who: content.slice(dashIdx + 3).trim(),
+        };
+      }
+      return { text: content, who: "" };
+    });
+}
+
 const SECTION_LABELS: Record<string, string> = {
   new_business_pulse: "New Business Pulse",
   gov_economic_watch: "Opportunity Radar",
@@ -114,6 +139,10 @@ function esc(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+function mdBold(text: string): string {
+  return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+}
+
 function buildStoryRow(story: Story): string {
   const sectionLabel = SECTION_LABELS[story.section] ?? story.section;
   const badge = story.nolana_score
@@ -130,20 +159,92 @@ function buildStoryRow(story: Story): string {
     ? `<tr><td colspan="2" style="padding:4px 0 0;font-family:Arial,sans-serif;font-size:11px;color:${SLATE};letter-spacing:0.3px;">${scores}</td></tr>`
     : "";
 
+  const sourceHtml = story.source_name
+    ? `<tr><td colspan="2" style="padding:8px 0 0;font-family:Arial,sans-serif;font-size:12px;color:#999;">
+        Source: ${story.source_url ? `<a href="${esc(story.source_url)}" style="color:${TEAL};text-decoration:none;">${esc(story.source_name)}</a>` : esc(story.source_name)}${story.source_date ? ` &middot; ${new Date(story.source_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : ""}
+      </td></tr>`
+    : "";
+
+  const isNewFormat = !!story.signal;
+
+  if (isNewFormat) {
+    let sections = "";
+
+    if (story.signal) {
+      sections += `
+        <tr><td colspan="2" style="padding:14px 0 0;">
+          <p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#534AB7;font-weight:700;">\u{1F4E1} The Signal</p>
+          <p style="margin:0;font-family:Georgia,serif;font-size:15px;line-height:1.65;color:${CHARCOAL};">${mdBold(story.signal)}</p>
+        </td></tr>`;
+    }
+
+    if (story.who_should_act && story.who_should_act.length > 0) {
+      const tags = story.who_should_act
+        .map(
+          (t) =>
+            `<span style="display:inline-block;background:#e1f5ee;color:#085041;padding:2px 8px;border-radius:4px;font-family:Arial,sans-serif;font-size:12px;margin:0 4px 4px 0;">${esc(t.replace(/\.$/, ""))}</span>`,
+        )
+        .join("");
+      sections += `
+        <tr><td colspan="2" style="padding:10px 0 0;">
+          <p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#1D9E75;font-weight:700;">\u{1F465} Who Should Act</p>
+          <p style="margin:0;line-height:1.8;">${tags}</p>
+        </td></tr>`;
+    }
+
+    if (story.why_it_matters) {
+      sections += `
+        <tr><td colspan="2" style="padding:10px 0 0;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+            <td width="3" style="background:${TEAL};"></td>
+            <td style="padding:10px 14px;background:#f0fdf4;font-family:Georgia,serif;font-size:14px;line-height:1.55;color:#166534;">
+              <strong style="color:${TEAL};">⚡ Why it matters:</strong> ${mdBold(story.why_it_matters)}
+            </td>
+          </tr></table>
+        </td></tr>`;
+    }
+
+    if (story.smart_move) {
+      sections += `
+        <tr><td colspan="2" style="padding:10px 0 0;">
+          <p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#185FA5;font-weight:700;">\u{1F3AF} Smart Move</p>
+          <p style="margin:0;font-family:Georgia,serif;font-size:15px;line-height:1.65;color:${CHARCOAL};">${mdBold(story.smart_move)}</p>
+        </td></tr>`;
+    }
+
+    if (story.nolana_take) {
+      sections += `
+        <tr><td colspan="2" style="padding:10px 0 0;">
+          <p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:${SLATE};font-weight:700;">\u{1F50D} Nolana Take</p>
+          <p style="margin:0;font-family:Georgia,serif;font-size:15px;line-height:1.65;color:${CHARCOAL};font-style:italic;">${mdBold(story.nolana_take)}</p>
+        </td></tr>`;
+    }
+
+    return `
+    <tr><td style="padding:0 0 24px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom:1px solid #eee;padding-bottom:24px;">
+        <tr>
+          <td style="padding:0 0 6px;font-family:Arial,sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:${TEAL};">${sectionLabel}</td>
+          ${badge}
+        </tr>
+        <tr>
+          <td colspan="2" style="padding:0 0 6px;font-family:Georgia,serif;font-size:18px;line-height:1.35;color:${NAVY};font-weight:bold;">${esc(story.headline)}</td>
+        </tr>
+        ${scoresRow}
+        ${sections}
+        ${sourceHtml}
+      </table>
+    </td></tr>`;
+  }
+
   const whyItMatters = story.why_it_matters
     ? `<tr><td colspan="2" style="padding:10px 0 0;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
           <td width="3" style="background:${TEAL};"></td>
           <td style="padding:10px 14px;background:#f0fdf4;font-family:Georgia,serif;font-size:14px;line-height:1.55;color:#166534;">
-            <strong style="color:${TEAL};">Why it matters:</strong> ${story.why_it_matters}
+            <strong style="color:${TEAL};">Why it matters:</strong> ${mdBold(story.why_it_matters)}
           </td>
         </tr></table>
-      </td></tr>`
-    : "";
-
-  const sourceHtml = story.source_name
-    ? `<tr><td colspan="2" style="padding:8px 0 0;font-family:Arial,sans-serif;font-size:12px;color:#999;">
-        Source: ${story.source_url ? `<a href="${esc(story.source_url)}" style="color:${TEAL};text-decoration:none;">${esc(story.source_name)}</a>` : esc(story.source_name)}${story.source_date ? ` &middot; ${new Date(story.source_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : ""}
       </td></tr>`
     : "";
 
@@ -159,7 +260,7 @@ function buildStoryRow(story: Story): string {
         </tr>
         ${scoresRow}
         <tr>
-          <td colspan="2" style="padding:8px 0 0;font-family:Georgia,serif;font-size:15px;line-height:1.65;color:${CHARCOAL};">${story.summary}</td>
+          <td colspan="2" style="padding:8px 0 0;font-family:Georgia,serif;font-size:15px;line-height:1.65;color:${CHARCOAL};">${mdBold(story.summary)}</td>
         </tr>
         ${whyItMatters}
         ${sourceHtml}
@@ -178,6 +279,10 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
     valleyMoneyMap,
     threeMoves,
     quietSignal,
+    ownersMove,
+    riskRadar,
+    thinkingQuestion,
+    beforeYouGo,
   } = opts;
 
   const canSeePro = tier === "pro" || tier === "intel";
@@ -225,7 +330,7 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
     const paras = safeOpening.trim().split("\n\n").filter(Boolean);
     html += `
 <tr><td style="padding:20px 32px 0;">
-  ${paras.map((p) => `<p style="margin:0 0 12px;font-family:Georgia,serif;font-size:17px;line-height:1.75;color:${NAVY};">${p.trim()}</p>`).join("")}
+  ${paras.map((p) => `<p style="margin:0 0 12px;font-family:Georgia,serif;font-size:17px;line-height:1.75;color:${NAVY};">${mdBold(p.trim())}</p>`).join("")}
 </td></tr>
 <tr><td style="padding:8px 32px 0;"><hr style="border:none;border-top:1px solid ${CREAM_BORDER};margin:0;"></td></tr>
 `;
@@ -245,14 +350,41 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
         .filter(Boolean)
         .map(
           (p) =>
-            `<p style="margin:0 0 10px;font-family:Georgia,serif;font-size:15px;line-height:1.65;color:${CHARCOAL};">${p.trim()}</p>`,
+            `<p style="margin:0 0 10px;font-family:Georgia,serif;font-size:15px;line-height:1.65;color:${CHARCOAL};">${mdBold(p.trim())}</p>`,
         )
         .join("")}
-      ${temp.move ? `<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:12px 0 0;border-top:1px solid rgba(13,115,119,0.2);"><p style="margin:0;font-family:Arial,sans-serif;font-size:14px;color:${TEAL};font-weight:bold;line-height:1.5;">The move: <span style="font-weight:normal;color:${CHARCOAL};">${temp.move}</span></p></td></tr></table>` : ""}
+      ${temp.move ? `<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:12px 0 0;border-top:1px solid rgba(13,115,119,0.2);"><p style="margin:0;font-family:Arial,sans-serif;font-size:14px;color:${TEAL};font-weight:bold;line-height:1.5;">The move: <span style="font-weight:normal;color:${CHARCOAL};">${mdBold(temp.move)}</span></p></td></tr></table>` : ""}
     </td></tr>
   </table>
 </td></tr>
 `;
+  }
+
+  // OWNER'S MOVE OF THE WEEK
+  if (ownersMove) {
+    const body = ownersMove
+      .replace(/^##\s*Owner's Move of the Week\s*\n?/, "")
+      .trim();
+    if (body) {
+      html += `
+<tr><td style="padding:24px 32px 0;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td width="4" style="background:${TEAL};border-radius:2px;"></td>
+    <td style="padding:18px 20px;background:#fdf8f0;border:1px solid rgba(13,115,119,0.15);border-left:none;border-radius:0 6px 6px 0;">
+      <p style="margin:0 0 10px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:${TEAL};font-weight:700;">Owner's Move of the Week</p>
+      ${body
+        .split("\n\n")
+        .filter(Boolean)
+        .map(
+          (p) =>
+            `<p style="margin:0 0 10px;font-family:Georgia,serif;font-size:15px;line-height:1.7;color:${CHARCOAL};">${mdBold(p.trim())}</p>`,
+        )
+        .join("")}
+    </td>
+  </tr></table>
+</td></tr>
+`;
+    }
   }
 
   // STORY CARDS
@@ -286,6 +418,38 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
   </table>
 </td></tr>
 `;
+  }
+
+  // RISK RADAR
+  if (riskRadar) {
+    const riskBody = riskRadar.replace(/^##\s*Risk Radar\s*\n?/, "").trim();
+    const risks = parseRisksForEmail(riskBody);
+    if (risks.length > 0) {
+      html += `
+<tr><td style="padding:28px 32px 0;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-radius:8px;">
+    <tr><td style="padding:20px 24px;">
+      <p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:${NAVY};font-weight:700;">Risk Radar</p>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        ${risks
+          .map(
+            (risk, i) => `
+          <tr>
+            <td width="20" valign="top" style="padding:6px 0;">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${i === 0 ? "#ef4444" : "#f59e0b"};margin-top:4px;"></span>
+            </td>
+            <td style="padding:6px 0;font-family:Georgia,serif;font-size:14px;line-height:1.6;color:${CHARCOAL};">
+              ${mdBold(risk.text)}${risk.who ? ` <span style="font-family:Arial,sans-serif;font-size:12px;color:${SLATE};"> &mdash; ${esc(risk.who)}</span>` : ""}
+            </td>
+          </tr>`,
+          )
+          .join("")}
+      </table>
+    </td></tr>
+  </table>
+</td></tr>
+`;
+    }
   }
 
   // VALLEY MONEY MAP (pro/intel only)
@@ -354,11 +518,46 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
         .filter(Boolean)
         .map(
           (p) =>
-            `<p style="margin:0 0 10px;font-family:Georgia,serif;font-size:15px;line-height:1.7;color:${CHARCOAL};">${p.trim()}</p>`,
+            `<p style="margin:0 0 10px;font-family:Georgia,serif;font-size:15px;line-height:1.7;color:${CHARCOAL};">${mdBold(p.trim())}</p>`,
         )
         .join("")}
     </td>
   </tr></table>
+</td></tr>
+`;
+    }
+  }
+
+  // THE THINKING QUESTION
+  if (thinkingQuestion) {
+    const tqBody = thinkingQuestion
+      .replace(/^##\s*The Thinking Question\s*\n?/, "")
+      .trim();
+    if (tqBody) {
+      html += `
+<tr><td style="padding:28px 32px 0;text-align:center;">
+  <p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:${SLATE};font-weight:700;">The Thinking Question</p>
+  <p style="margin:0;font-family:Georgia,serif;font-size:18px;line-height:1.6;color:${NAVY};font-style:italic;">${mdBold(tqBody)}</p>
+</td></tr>
+`;
+    }
+  }
+
+  // BEFORE YOU GO
+  if (beforeYouGo) {
+    const bygBody = beforeYouGo.replace(/^##\s*Before You Go\s*\n?/, "").trim();
+    if (bygBody) {
+      html += `
+<tr><td style="padding:28px 32px 0;text-align:center;">
+  <p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:${SLATE};font-weight:700;">Before You Go</p>
+  ${bygBody
+    .split("\n\n")
+    .filter(Boolean)
+    .map(
+      (p) =>
+        `<p style="margin:0 0 10px;font-family:Georgia,serif;font-size:15px;line-height:1.7;color:${CHARCOAL};font-style:italic;">${mdBold(p.trim())}</p>`,
+    )
+    .join("")}
 </td></tr>
 `;
     }

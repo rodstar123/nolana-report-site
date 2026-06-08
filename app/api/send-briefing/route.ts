@@ -94,6 +94,42 @@ export async function GET(req: NextRequest) {
     ? `${tempLabel} — The Nolana Report, Week of ${dateLabel}`
     : `The Nolana Report — Week of ${dateLabel}`;
 
+  // TEST MODE: ?test_email=someone@example.com sends one pro-tier email, no logging
+  const testEmail = req.nextUrl.searchParams.get("test_email");
+  if (testEmail) {
+    const testHtml = buildBriefingEmail({
+      issueTitle: issue.title,
+      issueSlug: issue.slug,
+      stories: stories as Story[],
+      tier: "pro",
+      opening: issue.opening ?? null,
+      businessTemperature: iss.business_temperature ?? null,
+      valleyMoneyMap: iss.valley_money_map ?? null,
+      threeMoves: iss.three_moves ?? null,
+      quietSignal: iss.quiet_signal ?? null,
+      ownersMove: iss.owners_move ?? null,
+      riskRadar: iss.risk_radar ?? null,
+      thinkingQuestion: iss.thinking_question ?? null,
+      beforeYouGo: iss.before_you_go ?? null,
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: "The Nolana Report <briefing@mail.nationalboco.com>",
+      to: testEmail,
+      subject: `[TEST] ${subjectLine}`,
+      html: testHtml,
+    });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({
+      test: true,
+      sent_to: testEmail,
+      resend_id: data?.id,
+    });
+  }
+
   // Send sequentially — Resend free tier is 5 req/sec; sequential with 250ms gap is safe
   for (const sub of pending) {
     try {
@@ -107,6 +143,10 @@ export async function GET(req: NextRequest) {
         valleyMoneyMap: iss.valley_money_map ?? null,
         threeMoves: iss.three_moves ?? null,
         quietSignal: iss.quiet_signal ?? null,
+        ownersMove: iss.owners_move ?? null,
+        riskRadar: iss.risk_radar ?? null,
+        thinkingQuestion: iss.thinking_question ?? null,
+        beforeYouGo: iss.before_you_go ?? null,
       });
 
       const { data, error } = await resend.emails.send({
