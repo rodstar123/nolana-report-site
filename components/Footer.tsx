@@ -134,12 +134,26 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/5 py-8 pb-24 lg:pb-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <div className="border-t border-white/5 py-8 flex flex-col sm:flex-row justify-between items-center gap-3">
           <p className="font-body text-slate-light text-xs">
             &copy; {year} {PUBLISHER}. All rights reserved.
           </p>
           <p className="font-body text-slate-light text-xs italic">
             Lo que se mueve en el Valle
+          </p>
+        </div>
+
+        <div className="pb-24 lg:pb-8 pt-2 text-center">
+          <p className="font-body text-xs text-slate-light/60">
+            Created by{" "}
+            <a
+              href="https://thunderloud.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-teal-light hover:underline underline-offset-2 transition-colors"
+            >
+              ThunderLoud
+            </a>
           </p>
         </div>
       </div>
