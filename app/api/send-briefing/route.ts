@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await resend.emails.send({
       from: "The Nolana Report <briefing@mail.nationalboco.com>",
       to: testEmail,
-      subject: `[TEST] ${subjectTest}`,
+      subject: `[TEST v2] ${subjectTest}`,
       html: testHtml,
     });
 

@@ -14,7 +14,7 @@ export interface Story {
   local_reach: string | null;
   risk: string | null;
   signal?: string | null;
-  who_should_act?: string[] | null;
+  who_should_act?: string[] | string | null;
   smart_move?: string | null;
   nolana_take?: string | null;
 }
@@ -178,11 +178,20 @@ function buildStoryRow(story: Story): string {
         </td></tr>`;
     }
 
-    if (story.who_should_act && story.who_should_act.length > 0) {
-      const tags = story.who_should_act
+    const actorsRaw = story.who_should_act;
+    const actors: string[] = Array.isArray(actorsRaw)
+      ? actorsRaw
+      : typeof actorsRaw === "string"
+        ? actorsRaw
+            .split(/[,\n]/)
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
+    if (actors.length > 0) {
+      const tags = actors
         .map(
           (t) =>
-            `<span style="display:inline-block;background:#e1f5ee;color:#085041;padding:2px 8px;border-radius:4px;font-family:Arial,sans-serif;font-size:12px;margin:0 4px 4px 0;">${esc(t.replace(/\.$/, ""))}</span>`,
+            `<span style="display:inline-block;background:#E8E4DC;border-radius:12px;padding:2px 10px;margin:2px 3px;font-family:Arial,sans-serif;font-size:13px;color:#2D2D2D;">${esc(t.replace(/\.$/, ""))}</span>`,
         )
         .join("");
       sections += `
@@ -296,6 +305,7 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>${esc(issueTitle)}</title>
+<!-- nolana-email-v2 -->
 <!--[if mso]><style>table{border-collapse:collapse;}td{font-family:Arial,sans-serif;}</style><![endif]-->
 </head>
 <body style="margin:0;padding:0;background-color:#f0ede6;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
@@ -369,9 +379,9 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
       html += `
 <tr><td style="padding:24px 32px 0;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-    <td width="4" style="background:${TEAL};border-radius:2px;"></td>
-    <td style="padding:18px 20px;background:#fdf8f0;border:1px solid rgba(13,115,119,0.15);border-left:none;border-radius:0 6px 6px 0;">
-      <p style="margin:0 0 10px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:${TEAL};font-weight:700;">Owner's Move of the Week</p>
+    <td width="4" style="background:#1a6b5a;border-radius:2px;"></td>
+    <td style="padding:18px 20px;background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-left:none;border-radius:0 6px 6px 0;">
+      <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:18px;font-weight:bold;color:#1a6b5a;">Owner&rsquo;s Move of the Week</p>
       ${body
         .split("\n\n")
         .filter(Boolean)
@@ -427,9 +437,10 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
     if (risks.length > 0) {
       html += `
 <tr><td style="padding:28px 32px 0;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-radius:8px;">
-    <tr><td style="padding:20px 24px;">
-      <p style="margin:0 0 14px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:${NAVY};font-weight:700;">Risk Radar</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+    <td width="4" style="background:#1a6b5a;border-radius:2px;"></td>
+    <td style="padding:18px 20px;background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-left:none;border-radius:0 6px 6px 0;">
+      <p style="margin:0 0 14px;font-family:Georgia,serif;font-size:18px;font-weight:bold;color:#1a6b5a;">Risk Radar</p>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         ${risks
           .map(
@@ -445,8 +456,8 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
           )
           .join("")}
       </table>
-    </td></tr>
-  </table>
+    </td>
+  </tr></table>
 </td></tr>
 `;
     }
@@ -535,9 +546,13 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
       .trim();
     if (tqBody) {
       html += `
-<tr><td style="padding:28px 32px 0;text-align:center;">
-  <p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:${SLATE};font-weight:700;">The Thinking Question</p>
-  <p style="margin:0;font-family:Georgia,serif;font-size:18px;line-height:1.6;color:${NAVY};font-style:italic;">${mdBold(tqBody)}</p>
+<tr><td style="padding:28px 32px 0;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-radius:8px;">
+    <tr><td style="padding:24px;text-align:center;">
+  <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:18px;font-weight:bold;color:#1a6b5a;">The Thinking Question</p>
+  <p style="margin:0;font-family:Georgia,serif;font-size:17px;line-height:1.65;color:${NAVY};font-style:italic;">${mdBold(tqBody)}</p>
+    </td></tr>
+  </table>
 </td></tr>
 `;
     }
@@ -548,8 +563,10 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
     const bygBody = beforeYouGo.replace(/^##\s*Before You Go\s*\n?/, "").trim();
     if (bygBody) {
       html += `
-<tr><td style="padding:28px 32px 0;text-align:center;">
-  <p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:${SLATE};font-weight:700;">Before You Go</p>
+<tr><td style="padding:28px 32px 0;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-radius:8px;">
+    <tr><td style="padding:24px;text-align:center;">
+  <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:18px;font-weight:bold;color:#1a6b5a;">Before You Go</p>
   ${bygBody
     .split("\n\n")
     .filter(Boolean)
@@ -558,6 +575,8 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
         `<p style="margin:0 0 10px;font-family:Georgia,serif;font-size:15px;line-height:1.7;color:${CHARCOAL};font-style:italic;">${mdBold(p.trim())}</p>`,
     )
     .join("")}
+    </td></tr>
+  </table>
 </td></tr>
 `;
     }
