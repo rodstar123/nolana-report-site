@@ -1,6 +1,7 @@
 import { getSubscriber } from "@/lib/get-subscriber";
 import { redirect } from "next/navigation";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { AccountUpgradeSection } from "@/components/AccountUpgradeSection";
 import { UpgradeButton } from "@/components/UpgradeButton";
@@ -10,29 +11,11 @@ import { LogOutButton } from "@/components/LogOutButton";
 import { PreferencesCard } from "@/components/PreferencesCard";
 import { TrackEmailVerified } from "@/components/TrackEmailVerified";
 
-const TIER_CONFIG = {
-  free: {
-    label: "Free",
-    badge: "bg-white/8 text-slate-light border border-white/12",
-    tagline: "You're getting 5 stories every Monday.",
-  },
-  pro: {
-    label: "Pro",
-    badge: "bg-teal/10 text-teal-light border border-teal/25",
-    tagline: "You're getting the full 30-story briefing every Monday.",
-  },
-  intel: {
-    label: "Intel",
-    badge: "bg-gold/10 text-gold border border-gold/25",
-    tagline: "You're getting the full briefing plus monthly deep dives.",
-  },
+const BADGE_STYLES = {
+  free: "bg-white/8 text-slate-light border border-white/12",
+  pro: "bg-teal/10 text-teal-light border border-teal/25",
+  intel: "bg-gold/10 text-gold border border-gold/25",
 } as const;
-
-const PLAN_PRICE: Record<string, string> = {
-  free: "Free",
-  pro: "$9/mo",
-  intel: "$19/mo",
-};
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -71,11 +54,15 @@ export default async function AccountPage({
   if (!subscriber) redirect("/login");
 
   const tier = subscriber.tier as "free" | "pro" | "intel";
-  const config = TIER_CONFIG[tier];
   const justUpgraded = searchParams.upgraded === "true";
-
-  // Show full email — prefix truncation ("noe3r") is confusing
   const displayName = subscriber.name ?? subscriber.email;
+
+  const t = await getTranslations("account");
+  const tierT = t.raw(`tiers.${tier}`) as {
+    label: string;
+    tagline: string;
+    price: string;
+  };
 
   return (
     <main
@@ -86,9 +73,8 @@ export default async function AccountPage({
       }}
     >
       <TrackEmailVerified />
-      {/* pt-20 clears the fixed global Navigation (h-16 = 64px) */}
       <div className="max-w-3xl mx-auto px-4 pt-20 space-y-5">
-        {/* ── Section 1: Welcome header ── */}
+        {/* Welcome header */}
         <div
           className="rounded-2xl p-8 border border-white/8"
           style={{ background: "rgba(15,23,34,0.8)" }}
@@ -96,7 +82,7 @@ export default async function AccountPage({
           {justUpgraded && (
             <div className="mb-6 px-4 py-3 rounded-lg bg-teal/10 border border-teal/25">
               <p className="font-body text-sm font-semibold text-teal-light">
-                Welcome to Pro — full briefings start this Monday.
+                {t("welcomePro")}
               </p>
             </div>
           )}
@@ -104,24 +90,23 @@ export default async function AccountPage({
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <p className="font-body text-slate-light text-sm mb-1">
-                Welcome back
+                {t("welcomeBack")}
               </p>
               <h1 className="font-display font-bold text-warm-white text-3xl md:text-4xl leading-tight">
                 {displayName}
               </h1>
             </div>
             <span
-              className={`font-body font-bold text-sm px-4 py-1.5 rounded-full tracking-wider uppercase ${config.badge}`}
+              className={`font-body font-bold text-sm px-4 py-1.5 rounded-full tracking-wider uppercase ${BADGE_STYLES[tier]}`}
             >
-              {config.label}
+              {tierT.label}
             </span>
           </div>
 
           <p className="font-editorial text-slate-light text-base mt-4 leading-relaxed">
-            {config.tagline}
+            {tierT.tagline}
           </p>
 
-          {/* Upgrade CTA — Free only */}
           {tier === "free" && (
             <div
               className="mt-6 rounded-xl p-px"
@@ -133,14 +118,14 @@ export default async function AccountPage({
               <div className="rounded-xl bg-navy-deep px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <p className="font-body font-bold text-warm-white text-base">
-                    Unlock the full 30-story briefing
+                    {t("unlockFull")}
                   </p>
                   <p className="font-body text-slate-light text-sm mt-0.5">
-                    Founding rate: $7/mo — locked forever for early members.
+                    {t("foundingRate")}
                   </p>
                 </div>
                 <UpgradeButton
-                  label="Upgrade to Pro →"
+                  label={t("upgradePro")}
                   plan="pro"
                   email={subscriber.email}
                 />
@@ -149,30 +134,30 @@ export default async function AccountPage({
           )}
         </div>
 
-        {/* ── Section 2: Subscription card ── */}
+        {/* Subscription card */}
         <div
           className="rounded-2xl p-8 border border-white/8"
           style={{ background: "rgba(15,23,34,0.8)" }}
         >
           <p className="font-body text-xs text-slate-light uppercase tracking-widest mb-6">
-            Your Subscription
+            {t("subscription")}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
             <div>
               <p className="font-body text-xs text-slate-light uppercase tracking-widest mb-1.5">
-                Plan
+                {t("plan")}
               </p>
               <p className="font-body font-bold text-warm-white text-lg">
-                {config.label}
+                {tierT.label}
               </p>
               <p className="font-body text-slate-light text-sm">
-                {PLAN_PRICE[tier]}
+                {tierT.price}
               </p>
             </div>
             <div>
               <p className="font-body text-xs text-slate-light uppercase tracking-widest mb-1.5">
-                Member Since
+                {t("memberSince")}
               </p>
               <p className="font-body text-warm-white">
                 {formatDate(subscriber.created_at)}
@@ -180,7 +165,7 @@ export default async function AccountPage({
             </div>
             <div>
               <p className="font-body text-xs text-slate-light uppercase tracking-widest mb-1.5">
-                Email
+                {t("email")}
               </p>
               <p className="font-body text-warm-white text-sm break-all">
                 {subscriber.email}
@@ -191,7 +176,7 @@ export default async function AccountPage({
           {tier !== "free" && subscriber.current_period_end && (
             <div className="mb-6">
               <p className="font-body text-xs text-slate-light uppercase tracking-widest mb-1.5">
-                Renews
+                {t("renews")}
               </p>
               <p className="font-body text-warm-white">
                 {formatDate(subscriber.current_period_end)}
@@ -208,14 +193,14 @@ export default async function AccountPage({
           )}
         </div>
 
-        {/* ── Section 3: Email Preferences ── */}
+        {/* Email Preferences */}
         <PreferencesCard
           initialUnsubscribed={subscriber.unsubscribed}
           initialAlertEmail={subscriber.alert_preferences?.email ?? true}
           tier={tier}
         />
 
-        {/* ── Section 4: Telegram Channel ── */}
+        {/* Telegram */}
         <div
           className="rounded-2xl border border-white/8 overflow-hidden"
           style={{ background: "rgba(15,23,34,0.8)" }}
@@ -233,10 +218,10 @@ export default async function AccountPage({
               </div>
               <div>
                 <p className="font-body font-semibold text-warm-white text-sm">
-                  Get Instant RGV Alerts
+                  {t("telegram.heading")}
                 </p>
                 <p className="font-body text-slate-light text-xs mt-0.5">
-                  Join our free Telegram channel for breaking business news
+                  {t("telegram.body")}
                 </p>
               </div>
             </div>
@@ -246,37 +231,37 @@ export default async function AccountPage({
               rel="noopener noreferrer"
               className="shrink-0 font-body text-sm font-semibold text-[#229ED9] hover:text-[#1a8bc2] transition-colors"
             >
-              Join →
+              {t("telegram.join")}
             </a>
           </div>
         </div>
 
-        {/* ── Section 5: Past Issues ── */}
+        {/* Past Issues */}
         <div
           className="rounded-2xl border border-white/8 overflow-hidden"
           style={{ background: "rgba(15,23,34,0.8)" }}
         >
           <div className="px-8 py-5 border-b border-white/6 flex items-center justify-between">
             <p className="font-body text-xs text-slate-light uppercase tracking-widest">
-              Past Issues
+              {t("pastIssues")}
             </p>
             <Link
               href="/issues"
               className="font-body text-xs text-teal-light hover:text-teal transition-colors"
             >
-              View all →
+              {t("viewAll")}
             </Link>
           </div>
 
           {latestIssue ? (
             <Link
-              href={`/issues/${latestIssue.slug}`}
+              href={`/issues/${latestIssue.slug}` as "/issues"}
               className="block px-8 py-5 hover:bg-white/3 transition-colors group"
             >
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="font-body text-xs text-slate-light uppercase tracking-widest mb-1">
-                    Latest Briefing
+                    {t("latestBriefing")}
                   </p>
                   <p className="font-editorial font-semibold text-warm-white text-base group-hover:text-teal-light transition-colors">
                     {latestIssue.title}
@@ -286,47 +271,45 @@ export default async function AccountPage({
                   </p>
                 </div>
                 <span className="font-body text-teal-light text-sm shrink-0 group-hover:translate-x-0.5 transition-transform">
-                  Read →
+                  {t("read")}
                 </span>
               </div>
             </Link>
           ) : (
             <div className="px-8 py-5">
               <p className="font-body text-slate-light text-sm">
-                First issue drops Monday.
+                {t("firstIssue")}
               </p>
             </div>
           )}
         </div>
 
-        {/* ── Section 4: Quick actions ── */}
+        {/* Quick actions */}
         <div
           className="rounded-2xl border border-white/8 divide-y divide-white/6"
           style={{ background: "rgba(15,23,34,0.8)" }}
         >
-          {/* Business tip */}
           <div className="px-6 py-4 flex items-center justify-between">
             <div>
               <p className="font-body font-semibold text-warm-white text-sm">
-                Send Us a Business Tip
+                {t("sendTip")}
               </p>
               <p className="font-body text-slate-light text-xs mt-0.5">
-                Know something we should cover?
+                {t("tipBody")}
               </p>
             </div>
             <Link
               href="/signals"
               className="font-body text-sm text-teal-light hover:text-teal transition-colors font-semibold"
             >
-              Send →
+              {t("send")}
             </Link>
           </div>
 
-          {/* Referral code */}
           <div className="px-6 py-4">
             <div className="flex items-center justify-between mb-2">
               <p className="font-body font-semibold text-warm-white text-sm">
-                Your Referral Code
+                {t("referral")}
               </p>
               <div className="flex items-center gap-3">
                 <span className="font-mono text-gold text-sm tracking-wider">
@@ -336,15 +319,13 @@ export default async function AccountPage({
               </div>
             </div>
             <p className="font-body text-slate-light text-xs leading-relaxed">
-              Share this with a fellow business owner. When they upgrade, you
-              get a free month.
+              {t("referralBody")}
             </p>
           </div>
 
-          {/* Log out */}
           <div className="px-6 py-4 flex items-center justify-between">
             <p className="font-body text-slate-light text-sm">
-              Signed in as{" "}
+              {t("signedInAs")}{" "}
               <span className="text-warm-white">{subscriber.email}</span>
             </p>
             <LogOutButton />

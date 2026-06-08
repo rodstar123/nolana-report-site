@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import AdvertiseForm from "@/components/AdvertiseForm";
 
 export const metadata: Metadata = {
@@ -10,7 +11,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function AdvertisePage() {
+export default async function AdvertisePage() {
+  const t = await getTranslations("advertise");
+  const audienceItems = t.raw("audienceItems") as string[];
+  const formatItems = t.raw("formatItems") as string[];
+
   return (
     <main className="bg-cream min-h-screen pt-28 pb-24">
       <div className="max-w-2xl mx-auto px-6">
@@ -19,7 +24,7 @@ export default function AdvertisePage() {
             href="/"
             className="font-body text-sm text-teal hover:text-teal-light transition-colors"
           >
-            ← Back to The Nolana Report
+            {t("back")}
           </Link>
         </div>
 
@@ -27,44 +32,32 @@ export default function AdvertisePage() {
           className="font-display font-bold text-charcoal mb-3"
           style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)" }}
         >
-          Advertise with The Nolana Report
+          {t("title")}
         </h1>
         <p className="font-body text-slate text-base leading-relaxed mb-12">
-          Reach Rio Grande Valley business owners, operators, and
-          decision-makers every Monday morning.
+          {t("subtitle")}
         </p>
 
         <div className="prose-nolana font-body text-slate space-y-10 leading-relaxed">
           <section>
             <h2 className="font-display font-bold text-charcoal text-xl mb-4">
-              The Audience
+              {t("audienceHeading")}
             </h2>
             <ul className="list-disc pl-5 space-y-2 text-slate">
-              <li>RGV entrepreneurs, small business owners, and executives</li>
-              <li>Delivered every Monday via email + web</li>
-              <li>Bilingual readership (English &amp; Spanish)</li>
-              <li>
-                Readers who make purchasing decisions for their businesses
-              </li>
+              {audienceItems.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
             </ul>
           </section>
 
           <section>
             <h2 className="font-display font-bold text-charcoal text-xl mb-4">
-              The Format
+              {t("formatHeading")}
             </h2>
             <ul className="list-disc pl-5 space-y-2 text-slate">
-              <li>
-                Sponsored banner displayed on every page of the site — above the
-                footer, in a premium placement
-              </li>
-              <li>
-                Inclusion in the weekly email briefing sent to all subscribers
-              </li>
-              <li>
-                Your brand alongside curated RGV business intelligence — not
-                buried in a feed
-              </li>
+              {formatItems.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
             </ul>
             <div
               className="mt-6 rounded-xl p-5"
@@ -74,26 +67,21 @@ export default function AdvertisePage() {
               }}
             >
               <p className="font-body text-sm text-slate leading-relaxed">
-                Sponsors receive a custom-designed banner card that matches our
-                editorial aesthetic — dark theme, gold accents, and your brand
-                imagery. We design it for you.
+                {t("formatCallout")}
               </p>
             </div>
           </section>
 
           <section>
             <h2 className="font-display font-bold text-charcoal text-xl mb-4">
-              Interested?
+              {t("interestedHeading")}
             </h2>
-            <p className="mb-6">
-              We&apos;re selective about sponsors — we only work with businesses
-              that serve our readers. If that&apos;s you, let&apos;s talk.
-            </p>
+            <p className="mb-6">{t("interestedBody")}</p>
 
             <AdvertiseForm />
 
             <p className="font-body text-slate-light text-xs mt-6">
-              Or email directly:{" "}
+              {t("emailDirect")}{" "}
               <a
                 href="mailto:info@nationalboco.com"
                 className="text-teal hover:text-teal-light underline transition-colors"

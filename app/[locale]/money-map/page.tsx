@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import type { Metadata } from "next";
 import MoneyMapTable from "@/components/MoneyMapTable";
 
@@ -84,6 +85,7 @@ async function getLatestMoneyMap() {
 
 export default async function MoneyMapPage() {
   const result = await getLatestMoneyMap();
+  const t = await getTranslations("moneyMap");
 
   return (
     <main className="min-h-screen py-24 px-4 bg-cream dark:bg-dark-bg transition-colors duration-300">
@@ -93,22 +95,21 @@ export default async function MoneyMapPage() {
             href="/"
             className="font-body text-sm text-teal hover:text-teal-light dark:text-teal-light dark:hover:text-teal transition-colors"
           >
-            &larr; The Nolana Report
+            {t("back")}
           </Link>
         </div>
 
         <div className="flex items-center gap-3 mb-4">
-          <span className="section-label">Intelligence</span>
+          <span className="section-label">{t("label")}</span>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-body font-bold uppercase tracking-wide bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800/30">
-            Preview
+            {t("preview")}
           </span>
         </div>
         <h1 className="font-display font-bold text-navy dark:text-dark-text text-4xl mt-2 mb-3">
-          The Valley Money Map
+          {t("title")}
         </h1>
         <p className="font-editorial text-slate dark:text-dark-muted text-lg mb-10 max-w-2xl">
-          Where money is moving in the Rio Grande Valley — signals, sectors, and
-          who wins. Updated every Monday with the latest briefing.
+          {t("subtitle")}
         </p>
 
         {!result || !result.mapData ? (
@@ -128,14 +129,13 @@ export default async function MoneyMapPage() {
               />
             </svg>
             <p className="font-body text-slate-light dark:text-dark-dim text-base">
-              The Valley Money Map updates every Monday with the latest
-              briefing.
+              {t("emptyState")}
             </p>
             <Link
               href="/"
               className="inline-block mt-6 font-body text-sm font-semibold text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal border border-teal/20 dark:border-teal/30 px-5 py-2.5 rounded-lg transition-colors"
             >
-              Subscribe for Monday updates
+              {t("subscribeCTA")}
             </Link>
           </div>
         ) : (
@@ -157,17 +157,16 @@ export default async function MoneyMapPage() {
 
             <div className="mt-12 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl p-8 text-center">
               <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-3">
-                See the full Valley Money Map
+                {t("fullMapHeading")}
               </h2>
               <p className="font-editorial text-slate dark:text-dark-muted text-base mb-6 max-w-lg mx-auto leading-relaxed">
-                Pro members get the complete money trail — every grant,
-                contract, infrastructure signal, and who wins — updated weekly.
+                {t("fullMapBody")}
               </p>
               <Link
                 href="/login"
                 className="inline-flex items-center font-body text-sm font-bold text-warm-white bg-teal hover:bg-teal-light dark:bg-teal dark:hover:bg-teal-light px-6 py-3 rounded-lg transition-colors"
               >
-                Unlock Pro — $7/mo founding rate
+                {t("unlockPro")}
               </Link>
             </div>
           </>

@@ -224,5 +224,208 @@
     "submit": "Subscribe Free",
     "confirmHeading": "Almost there! Confirm your email.",
     "confirmBody": "Check your inbox and spam folder."
+  },
+  "advertise": {
+    "back": "← Back to The Nolana Report",
+    "title": "Advertise with The Nolana Report",
+    "subtitle": "Reach Rio Grande Valley business owners, operators, and decision-makers every Monday morning.",
+    "audienceHeading": "The Audience",
+    "audienceItems": [
+      "RGV entrepreneurs, small business owners, and executives",
+      "Delivered every Monday via email + web",
+      "Bilingual readership (English & Spanish)",
+      "Readers who make purchasing decisions for their businesses"
+    ],
+    "formatHeading": "The Format",
+    "formatItems": [
+      "Sponsored banner displayed on every page of the site — above the footer, in a premium placement",
+      "Inclusion in the weekly email briefing sent to all subscribers",
+      "Your brand alongside curated RGV business intelligence — not buried in a feed"
+    ],
+    "formatCallout": "Sponsors receive a custom-designed banner card that matches our editorial aesthetic — dark theme, gold accents, and your brand imagery. We design it for you.",
+    "interestedHeading": "Interested?",
+    "interestedBody": "We're selective about sponsors — we only work with businesses that serve our readers. If that's you, let's talk.",
+    "emailDirect": "Or email directly:",
+    "form": {
+      "name": "Name",
+      "business": "Business Name",
+      "email": "Email",
+      "message": "Message",
+      "messageOptional": "optional",
+      "messagePlaceholder": "Tell us about your business and advertising goals",
+      "submit": "Submit Inquiry →",
+      "sending": "Sending...",
+      "successHeading": "Thanks for your interest!",
+      "successBody": "We'll be in touch within 1 business day.",
+      "errorFallback": "Something went wrong. Please try again.",
+      "errorConn": "Connection error. Please try again or email us directly."
+    }
+  },
+  "privacy": {
+    "back": "← Back to The Nolana Report",
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: May 2026",
+    "collectHeading": "What We Collect",
+    "collectBody": "When you subscribe to The Nolana Report, we collect your email address and the date of your subscription. We do not collect payment information directly — billing is handled by Stripe.",
+    "useHeading": "How We Use It",
+    "useBody": "Your email is used solely to deliver The Nolana Report newsletter and transactional emails related to your subscription (receipts, plan changes). We do not sell or share your email with third parties for marketing purposes.",
+    "thirdPartyHeading": "Third-Party Services",
+    "thirdPartyIntro": "We use the following services to operate the newsletter:",
+    "thirdPartyItems": [
+      "Resend — email delivery",
+      "Stripe — subscription billing",
+      "Vercel — website hosting",
+      "Google Analytics — aggregate site analytics (anonymized)"
+    ],
+    "thirdPartyNote": "Each service operates under its own privacy policy.",
+    "rightsHeading": "Your Rights",
+    "rightsBody": "You may unsubscribe at any time by clicking the unsubscribe link in any newsletter email. To request deletion of your data, email us at",
+    "publisherHeading": "Publisher",
+    "publisherBody": "The Nolana Report is published by National Bookkeeping Company®, 315 W Nolana Ave, McAllen, TX 78504.",
+    "updatesHeading": "Updates",
+    "updatesBody": "We may update this policy as the service evolves. Material changes will be communicated via newsletter."
+  },
+  "terms": {
+    "back": "← Back to The Nolana Report",
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: May 2026",
+    "serviceHeading": "The Service",
+    "serviceBody": "The Nolana Report is a weekly business intelligence newsletter covering the Rio Grande Valley. It is published by National Bookkeeping Company® and delivered to subscribers each Monday.",
+    "tiersHeading": "Subscription Tiers",
+    "tiersIntro": "The newsletter is available on three tiers:",
+    "tiersItems": [
+      "<strong>Free</strong> — weekly summary, limited story access",
+      "<strong>Pro ($9/mo)</strong> — full story access, scored briefings",
+      "<strong>Intel ($19/mo)</strong> — Pro plus exclusive industrial and cross-border data"
+    ],
+    "tiersNote": "Paid subscriptions are billed monthly through Stripe. You may cancel at any time; access continues through the end of the billing period.",
+    "contentHeading": "Content",
+    "contentBody": "Content in The Nolana Report is editorial in nature and provided for informational purposes only. It does not constitute legal, financial, or investment advice. Stories are sourced from public records, government filings, and local reporting; accuracy is not guaranteed and the publisher bears no liability for actions taken based on newsletter content.",
+    "useHeading": "Acceptable Use",
+    "useBody": "Subscribers may not redistribute, republish, or resell newsletter content without written permission. Sharing individual stories for personal, non-commercial purposes is permitted with attribution.",
+    "cancelHeading": "Cancellation & Refunds",
+    "cancelBody": "You may cancel your paid subscription at any time. We do not offer prorated refunds for partial billing periods. To request a refund in exceptional circumstances, contact us at",
+    "publisherHeading": "Publisher",
+    "changesHeading": "Changes",
+    "changesBody": "We may update these terms as the service evolves. Continued subscription after notice of changes constitutes acceptance."
+  },
+  "login": {
+    "signIn": "Sign in",
+    "subtitle": "Enter your email and we'll send a login link. No password needed.",
+    "placeholder": "you@business.com",
+    "submit": "Send Login Link",
+    "sending": "Sending…",
+    "signingIn": "Signing you in…",
+    "checkInbox": "Check your inbox",
+    "sentLink": "We sent a login link to",
+    "clickToAccess": "Click the link to access your account.",
+    "didntGet": "Didn't get it? Check spam, or",
+    "tryAgain": "try again",
+    "notSubscriber": "Not a subscriber yet?",
+    "signUpFree": "Sign up free",
+    "errorExpired": "Login link expired. Please try again.",
+    "errorInvalid": "Invalid login link. Please request a new one.",
+    "errorFallback": "Something went wrong. Try again."
+  },
+  "account": {
+    "welcomeBack": "Welcome back",
+    "welcomePro": "Welcome to Pro — full briefings start this Monday.",
+    "unlockFull": "Unlock the full 30-story briefing",
+    "foundingRate": "Founding rate: $7/mo — locked forever for early members.",
+    "upgradePro": "Upgrade to Pro →",
+    "subscription": "Your Subscription",
+    "plan": "Plan",
+    "memberSince": "Member Since",
+    "email": "Email",
+    "renews": "Renews",
+    "manageBilling": "Manage Billing →",
+    "tiers": {
+      "free": {
+        "label": "Free",
+        "tagline": "You're getting 5 stories every Monday.",
+        "price": "Free"
+      },
+      "pro": {
+        "label": "Pro",
+        "tagline": "You're getting the full 30-story briefing every Monday.",
+        "price": "$9/mo"
+      },
+      "intel": {
+        "label": "Intel",
+        "tagline": "You're getting the full briefing plus monthly deep dives.",
+        "price": "$19/mo"
+      }
+    },
+    "preferences": {
+      "heading": "Email Preferences",
+      "saved": "Saved",
+      "briefing": "Weekly Briefing Emails",
+      "briefingDesc": "Monday morning summary delivered to your inbox",
+      "alerts": "Breaking News Email Alerts",
+      "alertsActive": "Real-time alerts when high-scoring stories break",
+      "alertsLocked": "Available on Pro and Intel plans"
+    },
+    "telegram": {
+      "heading": "Get Instant RGV Alerts",
+      "body": "Join our free Telegram channel for breaking business news",
+      "join": "Join →"
+    },
+    "pastIssues": "Past Issues",
+    "viewAll": "View all →",
+    "latestBriefing": "Latest Briefing",
+    "read": "Read →",
+    "firstIssue": "First issue drops Monday.",
+    "sendTip": "Send Us a Business Tip",
+    "tipBody": "Know something we should cover?",
+    "send": "Send →",
+    "referral": "Your Referral Code",
+    "referralBody": "Share this with a fellow business owner. When they upgrade, you get a free month.",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "signedInAs": "Signed in as",
+    "logOut": "Log out",
+    "upgrade": {
+      "proDesc": "Full 30-story briefing scored by business relevance. Full archive access.",
+      "intelDesc": "Pro plus monthly deep dives on trade, industrial activity, and investment.",
+      "joinPro": "Join Pro",
+      "joinIntel": "Join Intel",
+      "loading": "Loading…"
+    }
+  },
+  "signals": {
+    "back": "← My Account",
+    "label": "Business Tip",
+    "headline": "Know something we should cover?",
+    "subtitle": "Saw a new store opening? Heard about a company moving in? Noticed construction on a new project? Tell us and we'll look into it for next Monday's briefing.",
+    "whatLabel": "What's happening?",
+    "required": "required",
+    "whatPlaceholder": "Construction crews showed up at the old Sears building on 10th. Looks like they're gutting the interior.",
+    "whereLabel": "Where?",
+    "whereHint": "city, intersection, or address — optional",
+    "wherePlaceholder": "McAllen 10th & Nolana",
+    "whenLabel": "When did you notice this?",
+    "optional": "optional",
+    "nameLabel": "Your name",
+    "namePlaceholder": "First name is fine",
+    "namePrivacy": "We never share who sent a tip.",
+    "submit": "Send Tip",
+    "sending": "Sending…",
+    "errorFallback": "Something went wrong. Try again.",
+    "successHeading": "Got it.",
+    "successBody": "We'll look into this. If it checks out, you'll see it in a future Monday briefing.",
+    "successContact": "We have your contact on file if we need to follow up.",
+    "disclaimer": "Tips are reviewed before publication. Sending a tip does not guarantee it appears in the briefing."
+  },
+  "moneyMap": {
+    "back": "← The Nolana Report",
+    "label": "Intelligence",
+    "preview": "Preview",
+    "title": "The Valley Money Map",
+    "subtitle": "Where money is moving in the Rio Grande Valley — signals, sectors, and who wins. Updated every Monday with the latest briefing.",
+    "emptyState": "The Valley Money Map updates every Monday with the latest briefing.",
+    "subscribeCTA": "Subscribe for Monday updates",
+    "fullMapHeading": "See the full Valley Money Map",
+    "fullMapBody": "Pro members get the complete money trail — every grant, contract, infrastructure signal, and who wins — updated weekly.",
+    "unlockPro": "Unlock Pro — $7/mo founding rate"
   }
 }

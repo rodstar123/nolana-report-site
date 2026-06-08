@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { BillingToggle } from "./BillingToggle";
 import { trackEvent } from "@/lib/analytics";
 
@@ -22,6 +23,7 @@ const PLANS = {
 export function AccountUpgradeSection({ email }: Props) {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const t = useTranslations("account.upgrade");
 
   const handleUpgrade = async (plan: string) => {
     setLoadingPlan(plan);
@@ -48,7 +50,6 @@ export function AccountUpgradeSection({ email }: Props) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Pro card */}
         <div className="rounded-xl border border-teal/30 bg-teal/5 p-5">
           <div className="flex items-center justify-between mb-3">
             <p className="font-body font-bold text-teal-light text-sm uppercase tracking-wide">
@@ -66,19 +67,17 @@ export function AccountUpgradeSection({ email }: Props) {
             </div>
           </div>
           <p className="font-body text-slate-light text-sm leading-relaxed mb-4">
-            Full 30-story briefing scored by business relevance. Full archive
-            access.
+            {t("proDesc")}
           </p>
           <button
             onClick={() => handleUpgrade(p.pro.plan)}
             disabled={loadingPlan === p.pro.plan}
             className="inline-flex items-center bg-teal hover:bg-teal-light text-white font-body font-bold text-sm px-5 py-3 rounded-lg transition-colors duration-200 min-h-[44px] disabled:opacity-60 disabled:cursor-wait"
           >
-            {loadingPlan === p.pro.plan ? "Loading…" : "Join Pro"}
+            {loadingPlan === p.pro.plan ? t("loading") : t("joinPro")}
           </button>
         </div>
 
-        {/* Intel card */}
         <div className="rounded-xl border border-gold/20 bg-gold/5 p-5">
           <div className="flex items-center justify-between mb-3">
             <p className="font-body font-bold text-gold text-sm uppercase tracking-wide">
@@ -96,15 +95,14 @@ export function AccountUpgradeSection({ email }: Props) {
             </div>
           </div>
           <p className="font-body text-slate-light text-sm leading-relaxed mb-4">
-            Pro plus monthly deep dives on trade, industrial activity, and
-            investment.
+            {t("intelDesc")}
           </p>
           <button
             onClick={() => handleUpgrade(p.intel.plan)}
             disabled={loadingPlan === p.intel.plan}
             className="inline-flex items-center bg-teal hover:bg-teal-light text-white font-body font-bold text-sm px-5 py-3 rounded-lg transition-colors duration-200 min-h-[44px] disabled:opacity-60 disabled:cursor-wait"
           >
-            {loadingPlan === p.intel.plan ? "Loading…" : "Join Intel"}
+            {loadingPlan === p.intel.plan ? t("loading") : t("joinIntel")}
           </button>
         </div>
       </div>

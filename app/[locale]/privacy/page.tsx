@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — The Nolana Report",
@@ -8,7 +9,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const t = await getTranslations("privacy");
+  const thirdPartyItems = t.raw("thirdPartyItems") as string[];
+
   return (
     <main className="bg-cream min-h-screen pt-28 pb-24">
       <div className="max-w-2xl mx-auto px-6">
@@ -17,7 +21,7 @@ export default function PrivacyPage() {
             href="/"
             className="font-body text-sm text-teal hover:text-teal-light transition-colors"
           >
-            ← Back to The Nolana Report
+            {t("back")}
           </Link>
         </div>
 
@@ -25,60 +29,46 @@ export default function PrivacyPage() {
           className="font-display font-bold text-charcoal mb-2"
           style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)" }}
         >
-          Privacy Policy
+          {t("title")}
         </h1>
         <p className="font-body text-slate-light text-sm mb-10">
-          Last updated: May 2026
+          {t("lastUpdated")}
         </p>
 
         <div className="prose-nolana font-body text-slate space-y-8 leading-relaxed">
           <section>
             <h2 className="font-display font-bold text-charcoal text-xl mb-3">
-              What We Collect
+              {t("collectHeading")}
             </h2>
-            <p>
-              When you subscribe to The Nolana Report, we collect your email
-              address and the date of your subscription. We do not collect
-              payment information directly — billing is handled by Stripe.
-            </p>
+            <p>{t("collectBody")}</p>
           </section>
 
           <section>
             <h2 className="font-display font-bold text-charcoal text-xl mb-3">
-              How We Use It
+              {t("useHeading")}
             </h2>
-            <p>
-              Your email is used solely to deliver The Nolana Report newsletter
-              and transactional emails related to your subscription (receipts,
-              plan changes). We do not sell or share your email with third
-              parties for marketing purposes.
-            </p>
+            <p>{t("useBody")}</p>
           </section>
 
           <section>
             <h2 className="font-display font-bold text-charcoal text-xl mb-3">
-              Third-Party Services
+              {t("thirdPartyHeading")}
             </h2>
-            <p>We use the following services to operate the newsletter:</p>
+            <p>{t("thirdPartyIntro")}</p>
             <ul className="list-disc pl-5 space-y-1 mt-2 text-slate">
-              <li>Resend — email delivery</li>
-              <li>Stripe — subscription billing</li>
-              <li>Vercel — website hosting</li>
-              <li>Google Analytics — aggregate site analytics (anonymized)</li>
+              {thirdPartyItems.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
             </ul>
-            <p className="mt-3">
-              Each service operates under its own privacy policy.
-            </p>
+            <p className="mt-3">{t("thirdPartyNote")}</p>
           </section>
 
           <section>
             <h2 className="font-display font-bold text-charcoal text-xl mb-3">
-              Your Rights
+              {t("rightsHeading")}
             </h2>
             <p>
-              You may unsubscribe at any time by clicking the unsubscribe link
-              in any newsletter email. To request deletion of your data, email
-              us at{" "}
+              {t("rightsBody")}{" "}
               <a
                 href="mailto:info@nationalboco.com"
                 className="text-teal hover:text-teal-light underline transition-colors"
@@ -91,22 +81,16 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="font-display font-bold text-charcoal text-xl mb-3">
-              Publisher
+              {t("publisherHeading")}
             </h2>
-            <p>
-              The Nolana Report is published by National Bookkeeping Company®,
-              315 W Nolana Ave, McAllen, TX 78504.
-            </p>
+            <p>{t("publisherBody")}</p>
           </section>
 
           <section>
             <h2 className="font-display font-bold text-charcoal text-xl mb-3">
-              Updates
+              {t("updatesHeading")}
             </h2>
-            <p>
-              We may update this policy as the service evolves. Material changes
-              will be communicated via newsletter.
-            </p>
+            <p>{t("updatesBody")}</p>
           </section>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { getSubscriber } from "@/lib/get-subscriber";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { SignalForm } from "@/components/SignalForm";
 
 export const metadata = {
@@ -10,6 +11,7 @@ export const metadata = {
 
 export default async function SignalsPage() {
   const subscriber = await getSubscriber();
+  const t = await getTranslations("signals");
 
   return (
     <main
@@ -19,33 +21,28 @@ export default async function SignalsPage() {
           "linear-gradient(160deg, #0b1320 0%, #0f1722 40%, #111d2e 100%)",
       }}
     >
-      {/* pt-24 clears fixed global nav (h-16) + back-link row */}
       <div className="max-w-xl mx-auto pt-24 pb-6">
         <Link
           href="/account"
           className="font-body text-xs text-slate-light hover:text-teal-light transition-colors tracking-widest uppercase"
         >
-          ← My Account
+          {t("back")}
         </Link>
       </div>
 
       <div className="max-w-xl mx-auto">
-        {/* Header */}
         <div className="mb-10">
           <p className="font-body text-xs text-teal-light uppercase tracking-widest mb-3">
-            Business Tip
+            {t("label")}
           </p>
           <h1 className="font-display font-bold text-warm-white text-3xl md:text-4xl leading-tight mb-4">
-            Know something we should cover?
+            {t("headline")}
           </h1>
           <p className="font-editorial text-slate-light text-base leading-relaxed">
-            Saw a new store opening? Heard about a company moving in? Noticed
-            construction on a new project? Tell us and we&apos;ll look into it
-            for next Monday&apos;s briefing.
+            {t("subtitle")}
           </p>
         </div>
 
-        {/* Form card */}
         <div
           className="rounded-2xl p-8 border border-white/8"
           style={{ background: "rgba(15,23,34,0.85)" }}
@@ -57,8 +54,7 @@ export default async function SignalsPage() {
         </div>
 
         <p className="font-body text-slate-light/50 text-xs text-center mt-6 leading-relaxed">
-          Tips are reviewed before publication. Sending a tip does not guarantee
-          it appears in the briefing.
+          {t("disclaimer")}
         </p>
       </div>
     </main>

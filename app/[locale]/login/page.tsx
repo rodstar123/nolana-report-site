@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { BrandMark } from "@/components/BrandMark";
 
@@ -29,14 +30,14 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [exchanging, setExchanging] = useState(false);
   const router = useRouter();
+  const t = useTranslations("login");
 
   useEffect(() => {
-    // Show auth_failed error from callback redirect
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("error") === "auth_failed") {
-      setError("Login link expired. Please try again.");
+      setError(t("errorExpired"));
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -49,7 +50,7 @@ export default function LoginPage() {
     const refresh_token = params.get("refresh_token") ?? "";
 
     if (!access_token) {
-      setError("Invalid login link. Please request a new one.");
+      setError(t("errorInvalid"));
       setExchanging(false);
       return;
     }
@@ -66,7 +67,6 @@ export default function LoginPage() {
         }
         if (!data.session) return;
 
-        // Check if user came from a pricing CTA — auto-trigger checkout
         const pendingPlan = localStorage.getItem(PLAN_KEY);
         if (pendingPlan && data.session.user.email) {
           localStorage.removeItem(PLAN_KEY);
@@ -74,21 +74,20 @@ export default function LoginPage() {
             pendingPlan,
             data.session.user.email,
           );
-          if (sent) return; // window.location.href already set
+          if (sent) return;
         }
 
-        // Redirect to original destination or /account
         const searchParams = new URLSearchParams(window.location.search);
         const redirectTo = searchParams.get("redirectTo") ?? "/account";
         router.push(redirectTo);
       });
-  }, [router]);
+  }, [router, t]);
 
   if (exchanging) {
     return (
       <main className="min-h-screen bg-navy flex items-center justify-center px-4">
         <div className="text-center">
-          <p className="font-body text-slate-light text-lg">Signing you in…</p>
+          <p className="font-body text-slate-light text-lg">{t("signingIn")}</p>
         </div>
       </main>
     );
@@ -99,20 +98,20 @@ export default function LoginPage() {
       <main className="min-h-screen bg-navy flex items-center justify-center px-4">
         <div className="max-w-md w-full text-center">
           <h1 className="font-display font-bold text-warm-white text-3xl mb-4">
-            Check your inbox
+            {t("checkInbox")}
           </h1>
           <p className="font-body text-slate-light text-lg leading-relaxed mb-6">
-            We sent a login link to{" "}
-            <span className="text-gold font-semibold">{email}</span>. Click the
-            link to access your account.
+            {t("sentLink")}{" "}
+            <span className="text-gold font-semibold">{email}</span>.{" "}
+            {t("clickToAccess")}
           </p>
           <p className="font-body text-slate-light text-sm">
-            Didn&apos;t get it? Check spam, or{" "}
+            {t("didntGet")}{" "}
             <button
               onClick={() => setSent(false)}
               className="text-teal-light underline underline-offset-2 hover:text-teal transition-colors"
             >
-              try again
+              {t("tryAgain")}
             </button>
             .
           </p>
@@ -140,18 +139,16 @@ export default function LoginPage() {
           </Link>
         </div>
         <h1 className="font-display font-bold text-warm-white text-3xl mb-2">
-          Sign in
+          {t("signIn")}
         </h1>
-        <p className="font-body text-slate-light mb-8">
-          Enter your email and we&apos;ll send a login link. No password needed.
-        </p>
+        <p className="font-body text-slate-light mb-8">{t("subtitle")}</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@business.com"
+            placeholder={t("placeholder")}
             required
             aria-label="Email address"
             className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-warm-white placeholder-slate-light font-body text-base focus:outline-none focus:border-teal focus:ring-1 focus:ring-teal min-h-[44px]"
@@ -166,17 +163,17 @@ export default function LoginPage() {
             disabled={loading || !email}
             className="w-full bg-teal hover:bg-teal-light text-white font-body font-bold text-base py-3 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
           >
-            {loading ? "Sending…" : "Send Login Link"}
+            {loading ? t("sending") : t("submit")}
           </button>
         </form>
 
         <p className="font-body text-slate-light text-sm text-center mt-6">
-          Not a subscriber yet?{" "}
+          {t("notSubscriber")}{" "}
           <Link
             href="/"
             className="text-teal-light underline underline-offset-2 hover:text-teal transition-colors"
           >
-            Sign up free
+            {t("signUpFree")}
           </Link>
         </p>
       </div>
@@ -188,7 +185,6 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    // Persist plan intent before magic link is sent
     const plan = new URLSearchParams(window.location.search).get("plan");
     if (plan) localStorage.setItem(PLAN_KEY, plan);
 
@@ -200,8 +196,8 @@ export default function LoginPage() {
     const data = (await res.json()) as { success?: boolean; error?: string };
 
     if (!res.ok || !data.success) {
-      setError(data.error ?? "Something went wrong. Try again.");
-      localStorage.removeItem(PLAN_KEY); // clean up on failure
+      setError(data.error ?? t("errorFallback"));
+      localStorage.removeItem(PLAN_KEY);
       setLoading(false);
       return;
     }

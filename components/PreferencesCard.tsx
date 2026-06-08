@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { trackEvent } from "@/lib/analytics";
 
 interface Props {
@@ -50,6 +51,7 @@ export function PreferencesCard({
   const [briefingOn, setBriefingOn] = useState(!initialUnsubscribed);
   const [alertOn, setAlertOn] = useState(initialAlertEmail);
   const [saved, setSaved] = useState(false);
+  const t = useTranslations("account.preferences");
 
   const showSaved = useCallback(() => {
     setSaved(true);
@@ -88,11 +90,11 @@ export function PreferencesCard({
     >
       <div className="px-8 py-5 flex items-center justify-between">
         <p className="font-body text-xs text-slate-light uppercase tracking-widest">
-          Email Preferences
+          {t("heading")}
         </p>
         {saved && (
           <span className="font-body text-xs text-teal-light animate-pulse">
-            Saved
+            {t("saved")}
           </span>
         )}
       </div>
@@ -100,10 +102,10 @@ export function PreferencesCard({
       <div className="px-6 py-4 flex items-center justify-between gap-4">
         <div>
           <p className="font-body font-semibold text-warm-white text-sm">
-            Weekly Briefing Emails
+            {t("briefing")}
           </p>
           <p className="font-body text-slate-light text-xs mt-0.5">
-            Monday morning summary delivered to your inbox
+            {t("briefingDesc")}
           </p>
         </div>
         <Toggle checked={briefingOn} onChange={toggleBriefing} />
@@ -112,12 +114,10 @@ export function PreferencesCard({
       <div className="px-6 py-4 flex items-center justify-between gap-4">
         <div>
           <p className="font-body font-semibold text-warm-white text-sm">
-            Breaking News Email Alerts
+            {t("alerts")}
           </p>
           <p className="font-body text-slate-light text-xs mt-0.5">
-            {isPaid
-              ? "Real-time alerts when high-scoring stories break"
-              : "Available on Pro and Intel plans"}
+            {isPaid ? t("alertsActive") : t("alertsLocked")}
           </p>
         </div>
         <Toggle

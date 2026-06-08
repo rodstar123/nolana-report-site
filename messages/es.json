@@ -224,5 +224,208 @@
     "submit": "Suscríbete Gratis",
     "confirmHeading": "¡Casi listo! Confirma tu correo.",
     "confirmBody": "Checa tu bandeja de entrada y la carpeta de spam."
+  },
+  "advertise": {
+    "back": "← Regresar a The Nolana Report",
+    "title": "Anuncia en The Nolana Report",
+    "subtitle": "Llega a dueños de negocios, operadores y líderes del Valle cada lunes por la mañana.",
+    "audienceHeading": "La Audiencia",
+    "audienceItems": [
+      "Emprendedores, dueños de negocios y ejecutivos del RGV",
+      "Se entrega cada lunes por correo y en la web",
+      "Lectores bilingües (inglés y español)",
+      "Lectores que toman decisiones de compra para sus negocios"
+    ],
+    "formatHeading": "El Formato",
+    "formatItems": [
+      "Banner de patrocinador en cada página del sitio — arriba del footer, en posición premium",
+      "Inclusión en el reporte semanal que se envía a todos los suscriptores",
+      "Tu marca junto a inteligencia de negocios del Valle — no enterrada en un feed"
+    ],
+    "formatCallout": "Los patrocinadores reciben un banner diseñado a la medida con nuestra estética editorial — tema oscuro, acentos dorados y la imagen de tu marca. Nosotros lo diseñamos por ti.",
+    "interestedHeading": "¿Te interesa?",
+    "interestedBody": "Somos selectivos con nuestros patrocinadores — solo trabajamos con negocios que le sirven a nuestra audiencia. Si eres tú, platiquemos.",
+    "emailDirect": "O escríbenos directo:",
+    "form": {
+      "name": "Nombre",
+      "business": "Nombre del Negocio",
+      "email": "Correo",
+      "message": "Mensaje",
+      "messageOptional": "opcional",
+      "messagePlaceholder": "Cuéntanos sobre tu negocio y tus metas de publicidad",
+      "submit": "Enviar Consulta →",
+      "sending": "Enviando...",
+      "successHeading": "¡Gracias por tu interés!",
+      "successBody": "Te contactamos dentro de 1 día hábil.",
+      "errorFallback": "Algo salió mal. Intenta de nuevo.",
+      "errorConn": "Error de conexión. Intenta de nuevo o escríbenos directo."
+    }
+  },
+  "privacy": {
+    "back": "← Regresar a The Nolana Report",
+    "title": "Política de Privacidad",
+    "lastUpdated": "Última actualización: mayo 2026",
+    "collectHeading": "Qué Recopilamos",
+    "collectBody": "Cuando te suscribes a The Nolana Report, recopilamos tu correo electrónico y la fecha de tu suscripción. No recopilamos información de pago directamente — la facturación se maneja a través de Stripe.",
+    "useHeading": "Cómo Lo Usamos",
+    "useBody": "Tu correo se usa únicamente para entregar el newsletter de The Nolana Report y correos transaccionales relacionados con tu suscripción (recibos, cambios de plan). No vendemos ni compartimos tu correo con terceros para fines de marketing.",
+    "thirdPartyHeading": "Servicios de Terceros",
+    "thirdPartyIntro": "Usamos los siguientes servicios para operar el newsletter:",
+    "thirdPartyItems": [
+      "Resend — entrega de correos",
+      "Stripe — facturación de suscripciones",
+      "Vercel — hospedaje del sitio web",
+      "Google Analytics — analíticas agregadas del sitio (anonimizadas)"
+    ],
+    "thirdPartyNote": "Cada servicio opera bajo su propia política de privacidad.",
+    "rightsHeading": "Tus Derechos",
+    "rightsBody": "Puedes cancelar tu suscripción en cualquier momento haciendo clic en el enlace de cancelación en cualquier correo del newsletter. Para solicitar la eliminación de tus datos, escríbenos a",
+    "publisherHeading": "Editor",
+    "publisherBody": "The Nolana Report es publicado por National Bookkeeping Company®, 315 W Nolana Ave, McAllen, TX 78504.",
+    "updatesHeading": "Actualizaciones",
+    "updatesBody": "Podemos actualizar esta política conforme el servicio evolucione. Los cambios importantes se comunicarán a través del newsletter."
+  },
+  "terms": {
+    "back": "← Regresar a The Nolana Report",
+    "title": "Términos de Servicio",
+    "lastUpdated": "Última actualización: mayo 2026",
+    "serviceHeading": "El Servicio",
+    "serviceBody": "The Nolana Report es un newsletter semanal de inteligencia de negocios que cubre el Valle del Río Grande. Es publicado por National Bookkeeping Company® y se entrega a los suscriptores cada lunes.",
+    "tiersHeading": "Niveles de Suscripción",
+    "tiersIntro": "El newsletter está disponible en tres niveles:",
+    "tiersItems": [
+      "<strong>Free</strong> — resumen semanal, acceso limitado a historias",
+      "<strong>Pro ($9/mes)</strong> — acceso completo, reportes con puntaje",
+      "<strong>Intel ($19/mes)</strong> — Pro más datos exclusivos industriales y transfronterizos"
+    ],
+    "tiersNote": "Las suscripciones de pago se cobran mensualmente a través de Stripe. Puedes cancelar en cualquier momento; el acceso continúa hasta el final del período de facturación.",
+    "contentHeading": "Contenido",
+    "contentBody": "El contenido de The Nolana Report es de naturaleza editorial y se proporciona solo con fines informativos. No constituye asesoría legal, financiera ni de inversión. Las historias provienen de registros públicos, documentos gubernamentales y reportes locales; no se garantiza la exactitud y el editor no asume responsabilidad por acciones tomadas con base en el contenido del newsletter.",
+    "useHeading": "Uso Aceptable",
+    "useBody": "Los suscriptores no pueden redistribuir, republicar ni revender el contenido del newsletter sin permiso por escrito. Se permite compartir historias individuales para fines personales y no comerciales con atribución.",
+    "cancelHeading": "Cancelación y Reembolsos",
+    "cancelBody": "Puedes cancelar tu suscripción de pago en cualquier momento. No ofrecemos reembolsos prorrateados por períodos parciales de facturación. Para solicitar un reembolso en circunstancias excepcionales, contáctanos en",
+    "publisherHeading": "Editor",
+    "changesHeading": "Cambios",
+    "changesBody": "Podemos actualizar estos términos conforme el servicio evolucione. La continuación de la suscripción después de la notificación de cambios constituye aceptación."
+  },
+  "login": {
+    "signIn": "Inicia Sesión",
+    "subtitle": "Ingresa tu correo y te enviamos un enlace para entrar. Sin contraseña.",
+    "placeholder": "tu@negocio.com",
+    "submit": "Enviar Enlace de Acceso",
+    "sending": "Enviando…",
+    "signingIn": "Iniciando sesión…",
+    "checkInbox": "Revisa tu bandeja",
+    "sentLink": "Te enviamos un enlace de acceso a",
+    "clickToAccess": "Haz clic en el enlace para acceder a tu cuenta.",
+    "didntGet": "¿No lo recibiste? Checa spam, o",
+    "tryAgain": "intenta de nuevo",
+    "notSubscriber": "¿Todavía no estás suscrito?",
+    "signUpFree": "Suscríbete gratis",
+    "errorExpired": "El enlace de acceso expiró. Intenta de nuevo.",
+    "errorInvalid": "Enlace de acceso inválido. Solicita uno nuevo.",
+    "errorFallback": "Algo salió mal. Intenta de nuevo."
+  },
+  "account": {
+    "welcomeBack": "Bienvenido de vuelta",
+    "welcomePro": "Bienvenido a Pro — los reportes completos empiezan este lunes.",
+    "unlockFull": "Desbloquea el reporte completo de 30 historias",
+    "foundingRate": "Tarifa de fundador: $7/mes — fija para siempre para los primeros miembros.",
+    "upgradePro": "Sube a Pro →",
+    "subscription": "Tu Suscripción",
+    "plan": "Plan",
+    "memberSince": "Miembro Desde",
+    "email": "Correo",
+    "renews": "Se Renueva",
+    "manageBilling": "Administrar Facturación →",
+    "tiers": {
+      "free": {
+        "label": "Free",
+        "tagline": "Estás recibiendo 5 historias cada lunes.",
+        "price": "Gratis"
+      },
+      "pro": {
+        "label": "Pro",
+        "tagline": "Estás recibiendo el reporte completo de 30 historias cada lunes.",
+        "price": "$9/mes"
+      },
+      "intel": {
+        "label": "Intel",
+        "tagline": "Estás recibiendo el reporte completo más los análisis mensuales.",
+        "price": "$19/mes"
+      }
+    },
+    "preferences": {
+      "heading": "Preferencias de Correo",
+      "saved": "Guardado",
+      "briefing": "Correos del Reporte Semanal",
+      "briefingDesc": "Resumen del lunes entregado a tu bandeja",
+      "alerts": "Alertas de Noticias de Última Hora",
+      "alertsActive": "Alertas en tiempo real cuando salen historias de alto puntaje",
+      "alertsLocked": "Disponible en planes Pro e Intel"
+    },
+    "telegram": {
+      "heading": "Recibe Alertas Instantáneas del RGV",
+      "body": "Únete a nuestro canal gratuito de Telegram para noticias de negocios de última hora",
+      "join": "Unirme →"
+    },
+    "pastIssues": "Ediciones Pasadas",
+    "viewAll": "Ver todas →",
+    "latestBriefing": "Último Reporte",
+    "read": "Leer →",
+    "firstIssue": "La primera edición sale el lunes.",
+    "sendTip": "Envíanos un Tip de Negocio",
+    "tipBody": "¿Sabes algo que deberíamos cubrir?",
+    "send": "Enviar →",
+    "referral": "Tu Código de Referido",
+    "referralBody": "Comparte esto con otro dueño de negocio. Cuando suban de plan, tú recibes un mes gratis.",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "signedInAs": "Sesión iniciada como",
+    "logOut": "Cerrar Sesión",
+    "upgrade": {
+      "proDesc": "Reporte completo de 30 historias con puntaje de relevancia de negocio. Acceso completo al archivo.",
+      "intelDesc": "Pro más análisis mensuales profundos sobre comercio, actividad industrial e inversión.",
+      "joinPro": "Únete a Pro",
+      "joinIntel": "Únete a Intel",
+      "loading": "Cargando…"
+    }
+  },
+  "signals": {
+    "back": "← Mi Cuenta",
+    "label": "Tip de Negocio",
+    "headline": "¿Sabes algo que deberíamos cubrir?",
+    "subtitle": "¿Viste una tienda nueva abriendo? ¿Escuchaste de una empresa llegando? ¿Notaste construcción en un proyecto nuevo? Cuéntanos y lo investigamos para el reporte del lunes.",
+    "whatLabel": "¿Qué está pasando?",
+    "required": "requerido",
+    "whatPlaceholder": "Llegaron cuadrillas de construcción al viejo edificio de Sears en la 10th. Parece que están remodelando por dentro.",
+    "whereLabel": "¿Dónde?",
+    "whereHint": "ciudad, cruce o dirección — opcional",
+    "wherePlaceholder": "McAllen 10th & Nolana",
+    "whenLabel": "¿Cuándo lo notaste?",
+    "optional": "opcional",
+    "nameLabel": "Tu nombre",
+    "namePlaceholder": "Con el nombre está bien",
+    "namePrivacy": "Nunca compartimos quién envió un tip.",
+    "submit": "Enviar Tip",
+    "sending": "Enviando…",
+    "errorFallback": "Algo salió mal. Intenta de nuevo.",
+    "successHeading": "Recibido.",
+    "successBody": "Lo vamos a investigar. Si se confirma, lo verás en un reporte del lunes.",
+    "successContact": "Tenemos tu contacto por si necesitamos dar seguimiento.",
+    "disclaimer": "Los tips se revisan antes de publicarse. Enviar un tip no garantiza que aparezca en el reporte."
+  },
+  "moneyMap": {
+    "back": "← The Nolana Report",
+    "label": "Inteligencia",
+    "preview": "Vista Previa",
+    "title": "El Mapa de Dinero del Valle",
+    "subtitle": "Dónde se mueve el dinero en el Valle del Río Grande — señales, sectores y quién gana. Se actualiza cada lunes con el último reporte.",
+    "emptyState": "El Mapa de Dinero del Valle se actualiza cada lunes con el último reporte.",
+    "subscribeCTA": "Suscríbete para las actualizaciones del lunes",
+    "fullMapHeading": "Ve el Mapa de Dinero del Valle completo",
+    "fullMapBody": "Los miembros Pro obtienen el rastro completo del dinero — cada grant, contrato, señal de infraestructura y quién gana — actualizado cada semana.",
+    "unlockPro": "Desbloquea Pro — $7/mes tarifa de fundador"
   }
 }

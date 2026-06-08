@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
@@ -18,6 +19,7 @@ export default function AdvertiseForm() {
   const [honeypot, setHoneypot] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const t = useTranslations("advertise.form");
 
   const turnstileToken = useRef("");
   const widgetContainerRef = useRef<HTMLDivElement>(null);
@@ -83,15 +85,15 @@ export default function AdvertiseForm() {
         if (res.ok && data.ok) {
           setStatus("success");
         } else {
-          setErrorMsg(data.error ?? "Something went wrong. Please try again.");
+          setErrorMsg(data.error ?? t("errorFallback"));
           setStatus("error");
         }
       } catch {
-        setErrorMsg("Connection error. Please try again or email us directly.");
+        setErrorMsg(t("errorConn"));
         setStatus("error");
       }
     },
-    [name, business, email, message, honeypot],
+    [name, business, email, message, honeypot, t],
   );
 
   if (status === "success") {
@@ -104,18 +106,15 @@ export default function AdvertiseForm() {
         }}
       >
         <p className="font-display font-bold text-charcoal text-lg mb-1">
-          Thanks for your interest!
+          {t("successHeading")}
         </p>
-        <p className="font-body text-slate text-sm">
-          We&apos;ll be in touch within 1 business day.
-        </p>
+        <p className="font-body text-slate text-sm">{t("successBody")}</p>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Honeypot */}
       <div className="absolute -left-[9999px]" aria-hidden="true">
         <input
           type="text"
@@ -132,7 +131,7 @@ export default function AdvertiseForm() {
           htmlFor="adv-name"
           className="block font-body text-sm font-medium text-charcoal mb-1"
         >
-          Name <span className="text-red-500">*</span>
+          {t("name")} <span className="text-red-500">*</span>
         </label>
         <input
           id="adv-name"
@@ -149,7 +148,7 @@ export default function AdvertiseForm() {
           htmlFor="adv-business"
           className="block font-body text-sm font-medium text-charcoal mb-1"
         >
-          Business Name <span className="text-red-500">*</span>
+          {t("business")} <span className="text-red-500">*</span>
         </label>
         <input
           id="adv-business"
@@ -166,7 +165,7 @@ export default function AdvertiseForm() {
           htmlFor="adv-email"
           className="block font-body text-sm font-medium text-charcoal mb-1"
         >
-          Email <span className="text-red-500">*</span>
+          {t("email")} <span className="text-red-500">*</span>
         </label>
         <input
           id="adv-email"
@@ -183,15 +182,17 @@ export default function AdvertiseForm() {
           htmlFor="adv-message"
           className="block font-body text-sm font-medium text-charcoal mb-1"
         >
-          Message{" "}
-          <span className="font-normal text-slate-light">(optional)</span>
+          {t("message")}{" "}
+          <span className="font-normal text-slate-light">
+            ({t("messageOptional")})
+          </span>
         </label>
         <textarea
           id="adv-message"
           rows={4}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Tell us about your business and advertising goals"
+          placeholder={t("messagePlaceholder")}
           className={`${inputClass} ${borderDefault} resize-y`}
         />
       </div>
@@ -210,7 +211,7 @@ export default function AdvertiseForm() {
         className="inline-flex items-center gap-2 font-body font-semibold text-sm text-white px-6 py-3 rounded-lg transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
         style={{ background: "var(--teal)" }}
       >
-        {status === "loading" ? "Sending..." : "Submit Inquiry →"}
+        {status === "loading" ? t("sending") : t("submit")}
       </button>
     </form>
   );

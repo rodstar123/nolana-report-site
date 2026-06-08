@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface Props {
   subscriberName?: string | null;
@@ -9,6 +10,7 @@ interface Props {
 
 export function SignalForm({ subscriberName, subscriberEmail }: Props) {
   const today = new Date().toISOString().split("T")[0];
+  const t = useTranslations("signals");
 
   const [what, setWhat] = useState("");
   const [where, setWhere] = useState("");
@@ -38,7 +40,7 @@ export function SignalForm({ subscriberName, subscriberEmail }: Props) {
     setLoading(false);
 
     if (!res.ok) {
-      setError("Something went wrong. Try again.");
+      setError(t("errorFallback"));
       return;
     }
 
@@ -64,15 +66,14 @@ export function SignalForm({ subscriberName, subscriberEmail }: Props) {
           </svg>
         </div>
         <h2 className="font-display font-bold text-warm-white text-2xl mb-3">
-          Got it.
+          {t("successHeading")}
         </h2>
         <p className="font-editorial text-slate-light text-base leading-relaxed max-w-sm mx-auto">
-          We&apos;ll look into this. If it checks out, you&apos;ll see it in a
-          future Monday briefing.
+          {t("successBody")}
         </p>
         {subscriberEmail && (
           <p className="font-body text-slate-light text-xs mt-4">
-            We have your contact on file if we need to follow up.
+            {t("successContact")}
           </p>
         )}
       </div>
@@ -81,12 +82,11 @@ export function SignalForm({ subscriberName, subscriberEmail }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* What */}
       <div>
         <label className="block font-body text-xs text-slate-light uppercase tracking-widest mb-2">
-          What&apos;s happening?{" "}
+          {t("whatLabel")}{" "}
           <span className="text-teal-light normal-case tracking-normal">
-            required
+            {t("required")}
           </span>
         </label>
         <textarea
@@ -94,33 +94,32 @@ export function SignalForm({ subscriberName, subscriberEmail }: Props) {
           onChange={(e) => setWhat(e.target.value)}
           required
           rows={4}
-          placeholder="Construction crews showed up at the old Sears building on 10th. Looks like they're gutting the interior."
+          placeholder={t("whatPlaceholder")}
           className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/12 text-warm-white placeholder-slate-light/50 font-body text-sm leading-relaxed focus:outline-none focus:border-teal/50 focus:ring-1 focus:ring-teal/30 resize-none transition-colors"
         />
       </div>
 
-      {/* Where + When — side by side on desktop */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block font-body text-xs text-slate-light uppercase tracking-widest mb-2">
-            Where?{" "}
+            {t("whereLabel")}{" "}
             <span className="normal-case tracking-normal text-slate-light/60">
-              city, intersection, or address — optional
+              {t("whereHint")}
             </span>
           </label>
           <input
             type="text"
             value={where}
             onChange={(e) => setWhere(e.target.value)}
-            placeholder="McAllen 10th & Nolana"
+            placeholder={t("wherePlaceholder")}
             className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/12 text-warm-white placeholder-slate-light/50 font-body text-sm focus:outline-none focus:border-teal/50 focus:ring-1 focus:ring-teal/30 transition-colors min-h-[44px]"
           />
         </div>
         <div>
           <label className="block font-body text-xs text-slate-light uppercase tracking-widest mb-2">
-            When did you notice this?{" "}
+            {t("whenLabel")}{" "}
             <span className="normal-case tracking-normal text-slate-light/60">
-              optional
+              {t("optional")}
             </span>
           </label>
           <input
@@ -132,23 +131,22 @@ export function SignalForm({ subscriberName, subscriberEmail }: Props) {
         </div>
       </div>
 
-      {/* Name */}
       <div>
         <label className="block font-body text-xs text-slate-light uppercase tracking-widest mb-2">
-          Your name{" "}
+          {t("nameLabel")}{" "}
           <span className="normal-case tracking-normal text-slate-light/60">
-            optional
+            {t("optional")}
           </span>
         </label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="First name is fine"
+          placeholder={t("namePlaceholder")}
           className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/12 text-warm-white placeholder-slate-light/50 font-body text-sm focus:outline-none focus:border-teal/50 focus:ring-1 focus:ring-teal/30 transition-colors min-h-[44px]"
         />
         <p className="font-body text-xs text-slate-light/60 mt-1.5">
-          We never share who sent a tip.
+          {t("namePrivacy")}
         </p>
       </div>
 
@@ -163,7 +161,7 @@ export function SignalForm({ subscriberName, subscriberEmail }: Props) {
         disabled={loading || !what.trim()}
         className="w-full bg-teal hover:bg-teal-light disabled:opacity-40 disabled:cursor-not-allowed text-white font-body font-bold text-base py-3.5 rounded-xl transition-colors duration-200 min-h-[48px]"
       >
-        {loading ? "Sending…" : "Send Tip"}
+        {loading ? t("sending") : t("submit")}
       </button>
     </form>
   );
