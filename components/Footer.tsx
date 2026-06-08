@@ -144,7 +144,7 @@ export default function Footer() {
         </div>
 
         <div className="pb-24 lg:pb-8 pt-2 text-center">
-          <p className="font-body text-xs text-slate-light/60">
+          <p className="font-body text-sm text-slate-light/75">
             Created by{" "}
             <a
               href="https://thunderloud.com"
