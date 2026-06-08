@@ -189,7 +189,7 @@ function buildLockedStoryRow(story: Story): string {
   return `<tr><td style="padding:6px 0;font-family:Georgia,serif;font-size:14px;line-height:1.4;color:#2D2D2D;border-bottom:1px solid #f0ede6;">${esc(story.headline)}</td>${nriHtml}</tr>`;
 }
 
-function buildStoryRow(story: Story): string {
+function buildStoryRow(story: Story, compactPills = false): string {
   const sectionLabel = SECTION_LABELS[story.section] ?? story.section;
   const badge = story.nolana_score
     ? (() => {
@@ -227,13 +227,15 @@ function buildStoryRow(story: Story): string {
             .filter(Boolean)
         : [];
     if (actors.length > 0) {
-      const tags = actors
-        .map(
-          (t) =>
-            `<span style="display:inline-block;background:#E8E4DC;border-radius:12px;padding:2px 10px;margin:2px 3px;font-family:Arial,sans-serif;font-size:13px;color:#2D2D2D;">${esc(t.replace(/\.$/, ""))}</span>`,
-        )
-        .join("");
-      sections += `<tr><td colspan="2" style="padding:10px 0 0;"><p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#1D9E75;font-weight:700;">\u{1F465} Who Should Act</p><p style="margin:0;line-height:1.8;">${tags}</p></td></tr>`;
+      const actorContent = compactPills
+        ? `<span style="font-family:Arial,sans-serif;font-size:13px;color:#2D2D2D;">${actors.map((t) => esc(t.replace(/\.$/, ""))).join(", ")}</span>`
+        : actors
+            .map(
+              (t) =>
+                `<span style="display:inline-block;background:#E8E4DC;border-radius:12px;padding:2px 10px;margin:2px 3px;font-family:Arial,sans-serif;font-size:13px;color:#2D2D2D;">${esc(t.replace(/\.$/, ""))}</span>`,
+            )
+            .join("");
+      sections += `<tr><td colspan="2" style="padding:10px 0 0;"><p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#1D9E75;font-weight:700;">\u{1F465} Who Should Act</p><p style="margin:0;line-height:1.8;">${actorContent}</p></td></tr>`;
     }
 
     if (story.why_it_matters) {
@@ -341,7 +343,9 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
   const readingTime = estimateReadingTime(stories);
   const issueUrl = `https://nolanareport.com/issues/${issueSlug}`;
 
-  const validBreathers = (breathers ?? []).filter((b) => b && b.type && b.text);
+  const allBreathers = (breathers ?? []).filter((b) => b && b.type && b.text);
+  const maxBreathers = canSeePro ? 3 : allBreathers.length;
+  const validBreathers = allBreathers.slice(0, maxBreathers);
   const breatherInterval = canSeePro ? 3 : 2;
 
   let html = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${esc(issueTitle)}</title><!-- nolana-email-v4 --><!--[if mso]><style>table{border-collapse:collapse;}td{font-family:Arial,sans-serif;}</style><![endif]--></head><body style="margin:0;padding:0;background-color:${PAGE_BG};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${PAGE_BG};"><tr><td align="center" style="padding:20px 12px;"><table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background-color:${CARD_BG};border-radius:8px;overflow:hidden;">`;
@@ -400,7 +404,7 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
 
   let breatherIdx = 0;
   freeFullStories.forEach((s, i) => {
-    html += buildStoryRow(s);
+    html += buildStoryRow(s, canSeePro);
     if (
       (i + 1) % breatherInterval === 0 &&
       i < freeFullStories.length - 1 &&
