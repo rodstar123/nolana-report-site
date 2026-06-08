@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import AdvertiseForm from "@/components/AdvertiseForm";
 
 export const metadata: Metadata = {
   title: "Advertise — The Nolana Report",
@@ -89,14 +90,9 @@ export default function AdvertisePage() {
               that serve our readers. If that&apos;s you, let&apos;s talk.
             </p>
 
-            <a
-              href="mailto:info@nationalboco.com?subject=Nolana%20Report%20Advertising%20Inquiry"
-              className="inline-flex items-center gap-2 font-body font-semibold text-sm text-white px-6 py-3 rounded-lg transition-all duration-200 hover:-translate-y-0.5"
-              style={{ background: "var(--teal)" }}
-            >
-              Contact Us About Sponsorship →
-            </a>
-            <p className="font-body text-slate-light text-xs mt-3">
+            <AdvertiseForm />
+
+            <p className="font-body text-slate-light text-xs mt-6">
               Or email directly:{" "}
               <a
                 href="mailto:info@nationalboco.com"
