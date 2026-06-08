@@ -72,7 +72,7 @@ export default function Footer() {
               Reach RGV business owners every Monday
             </p>
             <a
-              href="mailto:info@nationalboco.com?subject=Nolana%20Report%20Sponsorship"
+              href="/advertise"
               className="hover:underline"
               style={{
                 display: "inline-block",
@@ -148,6 +148,7 @@ export default function Footer() {
                 { label: "Terms of Service", href: "/terms" },
                 { label: "Contact", href: "mailto:info@nationalboco.com" },
                 { label: "Telegram", href: "https://t.me/NolanaReport" },
+                { label: "Advertise", href: "/advertise" },
               ].map((link) => (
                 <li key={link.label}>
                   <a
