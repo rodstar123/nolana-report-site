@@ -32,6 +32,12 @@ export default function Footer() {
       {/* NBC Publisher Banner */}
       <div className="max-w-6xl mx-auto px-6 lg:px-8 pt-12">
         <div className="mb-12">
+          <p
+            className="text-center text-xs uppercase tracking-[3px] mb-2"
+            style={{ color: "rgba(212,168,83,0.55)" }}
+          >
+            Advertisement
+          </p>
           <NBCBanner />
         </div>
 
