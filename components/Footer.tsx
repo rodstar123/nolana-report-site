@@ -29,8 +29,67 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* NBC Publisher Banner */}
+      {/* Open Ad Slot */}
       <div className="max-w-6xl mx-auto px-6 lg:px-8 pt-12">
+        <div className="mb-10">
+          <p
+            className="text-center text-xs uppercase tracking-[3px] mb-2"
+            style={{ color: "rgba(212,168,83,0.55)" }}
+          >
+            Advertisement
+          </p>
+          <div
+            style={{
+              maxWidth: "900px",
+              margin: "0 auto",
+              border: "1px dashed rgba(91,164,164,0.25)",
+              borderRadius: "12px",
+              padding: "32px 24px",
+              textAlign: "center",
+              background: "rgba(91,164,164,0.02)",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "14px",
+                letterSpacing: "3px",
+                textTransform: "uppercase",
+                color: "rgba(91,164,164,0.7)",
+                fontWeight: 600,
+                margin: 0,
+              }}
+            >
+              Your Ad Here
+            </p>
+            <p
+              style={{
+                fontSize: "13px",
+                color: "rgba(138,150,173,0.7)",
+                marginTop: "6px",
+                marginBottom: 0,
+              }}
+            >
+              Reach RGV business owners every Monday
+            </p>
+            <a
+              href="mailto:info@nationalboco.com?subject=Nolana%20Report%20Sponsorship"
+              className="hover:underline"
+              style={{
+                display: "inline-block",
+                fontSize: "12px",
+                color: "#D4A853",
+                marginTop: "10px",
+                textDecoration: "none",
+              }}
+            >
+              Learn about sponsorship →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* NBC Publisher Banner */}
+      <div className="max-w-6xl mx-auto px-6 lg:px-8">
         <div className="mb-12">
           <p
             className="text-center text-xs uppercase tracking-[3px] mb-2"
