@@ -52,9 +52,13 @@ export async function GET(req: NextRequest) {
   const iss = issue as any;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
-  // TEST MODE: ?test_email=someone@example.com sends one pro-tier email, no logging
+  // TEST MODE: ?test_email=someone@example.com&tier=pro|free sends one email, no logging
   const testEmail = req.nextUrl.searchParams.get("test_email");
   if (testEmail) {
+    const testTier = (req.nextUrl.searchParams.get("tier") || "pro") as
+      | "free"
+      | "pro"
+      | "intel";
     const tempLabelTest = iss.business_temperature
       ? extractTemperatureLabel(iss.business_temperature as string)
       : null;
@@ -70,7 +74,7 @@ export async function GET(req: NextRequest) {
       issueTitle: issue.title,
       issueSlug: issue.slug,
       stories: stories as Story[],
-      tier: "pro",
+      tier: testTier,
       opening: issue.opening ?? null,
       businessTemperature: iss.business_temperature ?? null,
       valleyMoneyMap: iss.valley_money_map ?? null,
@@ -82,10 +86,12 @@ export async function GET(req: NextRequest) {
       beforeYouGo: iss.before_you_go ?? null,
     });
 
+    const htmlSizeKB = Math.round(Buffer.byteLength(testHtml, "utf-8") / 1024);
+
     const { data, error } = await resend.emails.send({
       from: "The Nolana Report <briefing@mail.nationalboco.com>",
       to: testEmail,
-      subject: `[TEST v2] ${subjectTest}`,
+      subject: `[TEST v3 ${testTier}] ${subjectTest}`,
       html: testHtml,
     });
 
@@ -94,7 +100,9 @@ export async function GET(req: NextRequest) {
     }
     return NextResponse.json({
       test: true,
+      tier: testTier,
       sent_to: testEmail,
+      html_size_kb: htmlSizeKB,
       resend_id: data?.id,
     });
   }

@@ -143,7 +143,17 @@ function mdBold(text: string): string {
   return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 }
 
-function buildStoryRow(story: Story): string {
+function buildLockedStoryRow(story: Story): string {
+  const badge = story.nolana_score
+    ? (() => {
+        const c = nriBadgeColors(story.nolana_score);
+        return ` &nbsp;<span style="display:inline-block;background:${c.bg};color:${c.color};padding:2px 6px;border-radius:4px;font-size:11px;font-weight:bold;font-family:'Courier New',monospace;white-space:nowrap;">NRI ${story.nolana_score}/10</span>`;
+      })()
+    : "";
+  return `<tr><td style="padding:6px 0;font-family:Georgia,serif;font-size:15px;line-height:1.4;color:${NAVY};border-bottom:1px solid #f0ede6;">${esc(story.headline)}${badge}</td></tr>`;
+}
+
+function buildStoryRow(story: Story, compactPills = false): string {
   const sectionLabel = SECTION_LABELS[story.section] ?? story.section;
   const badge = story.nolana_score
     ? (() => {
@@ -188,16 +198,18 @@ function buildStoryRow(story: Story): string {
             .filter(Boolean)
         : [];
     if (actors.length > 0) {
-      const tags = actors
-        .map(
-          (t) =>
-            `<span style="display:inline-block;background:#E8E4DC;border-radius:12px;padding:2px 10px;margin:2px 3px;font-family:Arial,sans-serif;font-size:13px;color:#2D2D2D;">${esc(t.replace(/\.$/, ""))}</span>`,
-        )
-        .join("");
+      const actorContent = compactPills
+        ? `<span style="font-family:Arial,sans-serif;font-size:13px;color:#2D2D2D;">${actors.map((t) => esc(t.replace(/\.$/, ""))).join(", ")}</span>`
+        : actors
+            .map(
+              (t) =>
+                `<span style="display:inline-block;background:#E8E4DC;border-radius:12px;padding:2px 10px;margin:2px 3px;font-family:Arial,sans-serif;font-size:13px;color:#2D2D2D;">${esc(t.replace(/\.$/, ""))}</span>`,
+            )
+            .join("");
       sections += `
         <tr><td colspan="2" style="padding:10px 0 0;">
           <p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#1D9E75;font-weight:700;">\u{1F465} Who Should Act</p>
-          <p style="margin:0;line-height:1.8;">${tags}</p>
+          <p style="margin:0;line-height:1.8;">${actorContent}</p>
         </td></tr>`;
     }
 
@@ -295,8 +307,11 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
   } = opts;
 
   const canSeePro = tier === "pro" || tier === "intel";
-  const visibleStories = canSeePro ? stories : stories.filter((s) => s.is_free);
-  const lockedStories = canSeePro ? [] : stories.filter((s) => !s.is_free);
+  const FREE_FULL_LIMIT = 5;
+  const freeFullStories = canSeePro
+    ? stories
+    : stories.slice(0, FREE_FULL_LIMIT);
+  const freeLockedStories = canSeePro ? [] : stories.slice(FREE_FULL_LIMIT);
   const readingTime = estimateReadingTime(stories);
 
   const issueUrl = `https://nolanareport.com/issues/${issueSlug}`;
@@ -305,7 +320,7 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>${esc(issueTitle)}</title>
-<!-- nolana-email-v2 -->
+<!-- nolana-email-v3 -->
 <!--[if mso]><style>table{border-collapse:collapse;}td{font-family:Arial,sans-serif;}</style><![endif]-->
 </head>
 <body style="margin:0;padding:0;background-color:#f0ede6;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
@@ -404,19 +419,19 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
     ${canSeePro ? "This Week's Stories" : "Top Stories This Week"}
   </h2>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
-    ${visibleStories.map(buildStoryRow).join("")}
+    ${freeFullStories.map((s) => buildStoryRow(s, canSeePro)).join("")}
   </table>
 </td></tr>
 `;
 
-  // PRO UPGRADE CTA (free only)
-  if (!canSeePro && lockedStories.length > 0) {
+  // PRO UPGRADE CTA + locked story titles (free only)
+  if (!canSeePro && freeLockedStories.length > 0) {
     html += `
 <tr><td style="padding:8px 32px 0;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${NAVY};border-radius:10px;">
     <tr><td style="padding:28px 24px;text-align:center;">
       <p style="margin:0 0 6px;font-family:Georgia,serif;font-size:20px;font-weight:bold;color:#ffffff;">The Full Briefing Is Where the Moves Are</p>
-      <p style="margin:0 0 18px;font-family:Arial,sans-serif;font-size:14px;color:rgba(255,255,255,0.75);">You're reading ${visibleStories.length} of ${stories.length} scored stories.</p>
+      <p style="margin:0 0 18px;font-family:Arial,sans-serif;font-size:14px;color:rgba(255,255,255,0.75);">You're reading ${freeFullStories.length} of ${stories.length} scored stories.</p>
       <p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:12px;color:${GOLD};font-weight:bold;">Pro members also get:</p>
       <p style="margin:0 0 20px;font-family:Arial,sans-serif;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;">
         Valley Money Map &middot; 3 Moves This Week &middot; Sub-breakdowns on every story
@@ -425,6 +440,13 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
       <!--[if !mso]><!--><a href="https://nolanareport.com/#pricing" style="display:inline-block;background:${TEAL};color:#ffffff;padding:14px 32px;border-radius:8px;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold;font-size:15px;line-height:1;">Unlock Pro &mdash; $7/mo</a><!--<![endif]-->
       <p style="margin:14px 0 0;font-family:Arial,sans-serif;font-size:11px;color:rgba(255,255,255,0.5);">Founding members lock in $7/mo forever &middot; Cancel anytime</p>
     </td></tr>
+  </table>
+</td></tr>
+
+<tr><td style="padding:20px 32px 0;">
+  <p style="margin:0 0 10px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:${SLATE};text-transform:uppercase;letter-spacing:1px;">Also in this issue</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    ${freeLockedStories.map(buildLockedStoryRow).join("")}
   </table>
 </td></tr>
 `;
