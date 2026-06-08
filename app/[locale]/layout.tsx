@@ -1,8 +1,16 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../globals.css";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages, setRequestLocale } from "next-intl/server";
+import { routing } from "@/i18n/routing";
+import { notFound } from "next/navigation";
 import Navigation from "@/components/Navigation";
 import LenisProvider from "@/components/LenisProvider";
 import GeoAnalytics from "@/components/GeoAnalytics";
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
 
 export const metadata: Metadata = {
   title: "The Nolana Report | RGV Business Intelligence & Weekly Business News",
@@ -16,8 +24,6 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://nolanareport.com",
   ),
-  // Relative canonical/url resolve against metadataBase (non-www) — no host
-  // literal to drift, self-referential per route via each page's own metadata.
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
@@ -162,21 +168,30 @@ const periodicalSchema = {
   ],
 };
 
-export default function RootLayout({
+export default async function LocaleLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: { locale: string };
 }) {
+  const { locale } = params;
+
+  if (!routing.locales.includes(locale as "en" | "es")) {
+    notFound();
+  }
+
+  setRequestLocale(locale);
+  const messages = await getMessages();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
-        {/* Anti-flash: apply dark class before hydration */}
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var s=localStorage.getItem('nolana-theme');if(s==='dark'||(s===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`,
           }}
         />
-        {/* Font performance — preconnect + stylesheet link avoids @import waterfall */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -195,33 +210,27 @@ export default function RootLayout({
           // @ts-expect-error onLoad not typed on link
           onLoad="this.media='all'"
         />
-        {/* Hero image preload — reduces LCP */}
         <link rel="preload" as="image" href="/images/hero-nolana-mockup.webp" />
-        {/* RSS — reserved for Phase 2 feed */}
         <link
           rel="alternate"
           type="application/rss+xml"
           title="The Nolana Report"
           href="/feed.xml"
         />
-        {/* Local SEO geo signals */}
         <meta name="geo.region" content="US-TX" />
         <meta name="geo.placename" content="McAllen, Texas" />
         <meta name="geo.position" content="26.2034;-98.2300" />
         <meta name="ICBM" content="26.2034, -98.2300" />
-        {/* Structured data — Organization */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationSchema),
           }}
         />
-        {/* Structured data — WebSite */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
-        {/* Structured data — Periodical */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -231,10 +240,12 @@ export default function RootLayout({
       </head>
       <body>
         <GeoAnalytics />
-        <LenisProvider>
-          <Navigation />
-          <main aria-label="Main content">{children}</main>
-        </LenisProvider>
+        <NextIntlClientProvider messages={messages}>
+          <LenisProvider>
+            <Navigation />
+            <main aria-label="Main content">{children}</main>
+          </LenisProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

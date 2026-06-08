@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { ThemeToggle } from "./ThemeToggle";
+import LanguageToggle from "./LanguageToggle";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function Navigation() {
@@ -14,6 +15,7 @@ export default function Navigation() {
   const pathname = usePathname();
   const isHomepage = pathname === "/";
   const menuRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("nav");
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
@@ -97,12 +99,13 @@ export default function Navigation() {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-2">
+          <LanguageToggle />
           <ThemeToggle />
           <Link
             href="/money-map"
             className="font-body text-sm font-semibold text-slate-light hover:text-warm-white transition-colors duration-200 min-h-[44px] flex items-center"
           >
-            Money Map
+            {t("moneyMap")}
           </Link>
           {isHomepage && (
             <>
@@ -110,13 +113,13 @@ export default function Navigation() {
                 href={isLoggedIn ? "/account" : "/login"}
                 className="font-body text-sm font-semibold text-slate-light hover:text-warm-white transition-colors duration-200 min-h-[44px] flex items-center"
               >
-                {isLoggedIn ? "My Account" : "Login"}
+                {isLoggedIn ? t("myAccount") : t("login")}
               </Link>
               <a
                 href="#pricing"
                 className="font-body text-sm font-bold text-warm-white bg-teal hover:bg-teal-light px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
               >
-                Subscribe
+                {t("subscribe")}
               </a>
             </>
           )}
@@ -126,20 +129,21 @@ export default function Navigation() {
                 href="/account"
                 className="font-body text-sm font-semibold text-teal-light hover:text-warm-white border border-teal/30 hover:border-teal/60 px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
               >
-                My Account
+                {t("myAccount")}
               </Link>
             ) : (
               <Link
                 href="/login"
                 className="font-body text-sm font-semibold text-teal-light hover:text-warm-white border border-teal/30 hover:border-teal/60 px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
               >
-                Login
+                {t("login")}
               </Link>
             ))}
         </div>
 
-        {/* Mobile: theme toggle + hamburger */}
+        {/* Mobile: language + theme toggle + hamburger */}
         <div className="flex md:hidden items-center gap-1">
+          <LanguageToggle />
           <ThemeToggle />
           <button
             onClick={() => setMenuOpen(!menuOpen)}
@@ -175,14 +179,14 @@ export default function Navigation() {
             onClick={closeMenu}
             className="font-body text-base font-semibold text-slate-light hover:text-warm-white transition-colors py-3 min-h-[48px] flex items-center"
           >
-            Money Map
+            {t("moneyMap")}
           </Link>
           <Link
             href={isLoggedIn ? "/account" : "/login"}
             onClick={closeMenu}
             className="font-body text-base font-semibold text-slate-light hover:text-warm-white transition-colors py-3 min-h-[48px] flex items-center"
           >
-            {isLoggedIn ? "My Account" : "Login"}
+            {isLoggedIn ? t("myAccount") : t("login")}
           </Link>
           {isHomepage && (
             <a
@@ -190,7 +194,7 @@ export default function Navigation() {
               onClick={closeMenu}
               className="font-body text-base font-bold text-warm-white bg-teal hover:bg-teal-light px-5 py-3 rounded-lg transition-colors mt-2 min-h-[48px] flex items-center justify-center w-full"
             >
-              Subscribe
+              {t("subscribe")}
             </a>
           )}
         </div>
