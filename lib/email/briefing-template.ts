@@ -131,7 +131,7 @@ function nriBadgeColors(score: number): { bg: string; color: string } {
   return { bg: "#f1f5f9", color: SLATE };
 }
 
-function subScorePills(story: Story): string {
+function subScorePills(story: Story, compact = false): string {
   const items: { label: string; value: string }[] = [];
   if (story.money_impact)
     items.push({ label: "Money", value: story.money_impact });
@@ -140,6 +140,9 @@ function subScorePills(story: Story): string {
     items.push({ label: "Reach", value: story.local_reach });
   if (story.risk) items.push({ label: "Risk", value: story.risk });
   if (items.length === 0) return "";
+  if (compact) {
+    return `<tr><td colspan="2" style="padding:4px 0 0;font-family:Arial,sans-serif;font-size:11px;color:${SLATE};letter-spacing:0.3px;">${items.map(({ label, value }) => `${label}: ${value}`).join(" &middot; ")}</td></tr>`;
+  }
   const colors: Record<string, string> = {
     High: "#C65D3A",
     Med: "#D4A843",
@@ -198,7 +201,7 @@ function buildStoryRow(story: Story, compactPills = false): string {
       })()
     : '<td width="70"></td>';
 
-  const scoresRow = subScorePills(story);
+  const scoresRow = subScorePills(story, compactPills);
 
   const sourceHtml = story.source_name
     ? `<tr><td colspan="2" style="padding:8px 0 0;font-family:Arial,sans-serif;font-size:12px;color:#999;">Source: ${story.source_url ? `<a href="${esc(story.source_url)}" style="color:${TEAL};text-decoration:none;">${esc(story.source_name)}</a>` : esc(story.source_name)}${story.source_date ? ` &middot; ${new Date(story.source_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : ""}</td></tr>`
