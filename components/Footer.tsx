@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { PUBLISHER, PUBLISHER_URL } from "@/lib/constants";
 import SignupForm from "./SignupForm";
+import NBCBanner from "./NBCBanner";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -28,26 +29,10 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* SmartBook ad slot */}
+      {/* NBC Publisher Banner */}
       <div className="max-w-6xl mx-auto px-6 lg:px-8 pt-12">
-        <div className="glass-nolana rounded-xl p-6 mb-12 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <p className="font-body text-xs text-teal-light uppercase tracking-widest mb-1 font-semibold">
-              From the publisher
-            </p>
-            <p className="font-display font-bold text-warm-white text-lg">
-              Bookkeeping for Valley businesses
-            </p>
-            <p className="font-body text-slate-light text-sm">
-              SmartBook — starting at $350/mo
-            </p>
-          </div>
-          <a
-            href={PUBLISHER_URL}
-            className="flex-shrink-0 w-full sm:w-auto text-center bg-teal hover:bg-teal-light text-white font-body font-bold text-sm px-6 py-3 rounded-lg transition-all duration-200 min-h-[48px] flex items-center justify-center hover:-translate-y-0.5"
-          >
-            Learn More &rarr;
-          </a>
+        <div className="mb-12">
+          <NBCBanner />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">

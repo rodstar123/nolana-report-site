@@ -510,6 +510,162 @@ label[for] {
   }
 }
 
+/* ─── NBC Publisher Banner ──────────────────────────── */
+.nbc-banner {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #111c2e 0%, #162238 100%);
+  display: flex;
+  align-items: stretch;
+  min-height: 180px;
+}
+
+.nbc-banner__border {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1.5px;
+  background: linear-gradient(
+    135deg,
+    #d4a853 0%,
+    rgba(212, 168, 83, 0.15) 40%,
+    rgba(91, 164, 164, 0.15) 60%,
+    #5ba4a4 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.nbc-banner__accent {
+  width: 5px;
+  background: linear-gradient(180deg, #d4a853, #5ba4a4);
+  flex-shrink: 0;
+}
+
+.nbc-banner__content {
+  flex: 1;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  z-index: 1;
+}
+
+.nbc-banner__label {
+  font-family: "DM Sans", sans-serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #d4a853;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.nbc-banner__headline {
+  font-family: "Playfair Display", serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.nbc-banner__desc {
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  color: #8a96ad;
+  line-height: 1.5;
+}
+
+.nbc-banner__smartbook {
+  color: #5ba4a4;
+  font-weight: 600;
+}
+
+.nbc-banner__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: #d4a853;
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(212, 168, 83, 0.4);
+  text-decoration: none;
+  letter-spacing: 0.3px;
+  align-self: flex-start;
+  margin-top: 4px;
+  transition: all 0.3s ease;
+}
+
+.nbc-banner__cta:hover {
+  background: rgba(212, 168, 83, 0.08);
+  border-color: #d4a853;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(212, 168, 83, 0.15);
+}
+
+.nbc-banner__image-wrap {
+  width: 300px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.nbc-banner__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.nbc-banner__image-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(270deg, transparent 50%, #162238 100%);
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .nbc-banner {
+    flex-direction: column-reverse;
+    min-height: auto;
+  }
+
+  .nbc-banner__accent {
+    display: none;
+  }
+
+  .nbc-banner__image-wrap {
+    width: 100%;
+    height: 140px;
+  }
+
+  .nbc-banner__image-fade {
+    background: linear-gradient(0deg, #162238 0%, transparent 60%);
+  }
+
+  .nbc-banner__content {
+    padding: 20px 24px 28px;
+  }
+
+  .nbc-banner__headline {
+    font-size: 20px;
+  }
+}
+
 /* Typography line length guard */
 .prose-nolana {
   max-width: 68ch;
