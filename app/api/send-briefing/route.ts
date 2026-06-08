@@ -84,6 +84,7 @@ export async function GET(req: NextRequest) {
       riskRadar: iss.risk_radar ?? null,
       thinkingQuestion: iss.thinking_question ?? null,
       beforeYouGo: iss.before_you_go ?? null,
+      breathers: iss.breathers ?? null,
     });
 
     const htmlSizeKB = Math.round(Buffer.byteLength(testHtml, "utf-8") / 1024);
@@ -91,7 +92,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await resend.emails.send({
       from: "The Nolana Report <briefing@mail.nationalboco.com>",
       to: testEmail,
-      subject: `[TEST v3 ${testTier}] ${subjectTest}`,
+      subject: `[TEST v4 ${testTier}] ${subjectTest}`,
       html: testHtml,
     });
 
@@ -167,6 +168,7 @@ export async function GET(req: NextRequest) {
         riskRadar: iss.risk_radar ?? null,
         thinkingQuestion: iss.thinking_question ?? null,
         beforeYouGo: iss.before_you_go ?? null,
+        breathers: iss.breathers ?? null,
       });
 
       const { data, error } = await resend.emails.send({
