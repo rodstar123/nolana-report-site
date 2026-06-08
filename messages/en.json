@@ -363,7 +363,14 @@
       "briefingDesc": "Monday morning summary delivered to your inbox",
       "alerts": "Breaking News Email Alerts",
       "alertsActive": "Real-time alerts when high-scoring stories break",
-      "alertsLocked": "Available on Pro and Intel plans"
+      "alertsLocked": "Available on Pro and Intel plans",
+      "language": "Language / Idioma",
+      "languageDesc": "Choose which language you receive your briefing in",
+      "langOption": {
+        "en": "English",
+        "es": "Español",
+        "both": "Both"
+      }
     },
     "telegram": {
       "heading": "Get Instant RGV Alerts",

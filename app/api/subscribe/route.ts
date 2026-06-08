@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
     referral_code?: string;
     turnstileToken?: string;
     website?: string;
+    language_preference?: string;
   };
   try {
     body = await req.json();
@@ -61,7 +62,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const { email, referral_code, turnstileToken = "" } = body;
+  const {
+    email,
+    referral_code,
+    turnstileToken = "",
+    language_preference,
+  } = body;
+  const langPref = ["en", "es", "both"].includes(language_preference ?? "")
+    ? (language_preference as "en" | "es" | "both")
+    : "en";
   if (!email || !isValidEmail(email)) {
     return NextResponse.json(
       { error: "Valid email required" },
@@ -161,6 +170,7 @@ export async function POST(req: NextRequest) {
       unsubscribed: false,
       referred_by: referredBy,
       verification_token: verificationToken,
+      language_preference: langPref,
     },
     { onConflict: "email" },
   );

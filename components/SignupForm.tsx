@@ -179,11 +179,77 @@ function InfoCard({
   );
 }
 
+type LangPref = "en" | "es" | "both";
+
+const langCopy = {
+  en: {
+    label: "Receive your briefing in:",
+    en: "English",
+    es: "Español",
+    both: "Both",
+  },
+  es: {
+    label: "Recibe tu reporte en:",
+    en: "English",
+    es: "Español",
+    both: "Ambos",
+  },
+};
+
+function LangPills({
+  value,
+  onChange,
+  locale,
+  isLight,
+}: {
+  value: LangPref;
+  onChange: (v: LangPref) => void;
+  locale: "en" | "es";
+  isLight: boolean;
+}) {
+  const lc = langCopy[locale];
+  const options: { key: LangPref; label: string }[] = [
+    { key: "en", label: lc.en },
+    { key: "es", label: lc.es },
+    { key: "both", label: lc.both },
+  ];
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span
+        className={`font-body text-xs ${isLight ? "text-slate/70" : "text-slate-light/70"}`}
+      >
+        {lc.label}
+      </span>
+      <div className="flex gap-2">
+        {options.map((o) => (
+          <button
+            key={o.key}
+            type="button"
+            onClick={() => onChange(o.key)}
+            className={`font-body text-xs px-3 py-1.5 rounded-full border transition-colors duration-200 min-h-[32px] ${
+              value === o.key
+                ? "bg-teal border-teal text-white font-semibold"
+                : isLight
+                  ? "border-cream-dark text-slate hover:border-teal/50"
+                  : "border-[#2a3a4d] text-slate-light hover:border-teal/50"
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function SignupForm({ variant = "dark" }: Props) {
   const locale = useLocale() as "en" | "es";
   const [email, setEmail] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const [agreed, setAgreed] = useState(false);
+  const [langPref, setLangPref] = useState<LangPref>(
+    locale === "es" ? "es" : "en",
+  );
   const [status, setStatus] = useState<FormStatus>("idle");
   const [submittedEmail, setSubmittedEmail] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -256,6 +322,7 @@ export default function SignupForm({ variant = "dark" }: Props) {
           email: normalized,
           turnstileToken: turnstileToken.current,
           website: honeypot,
+          language_preference: langPref,
         }),
       });
       const data = await res.json();
@@ -337,6 +404,13 @@ export default function SignupForm({ variant = "dark" }: Props) {
         required
         aria-label="Email address"
         className={styles.input}
+      />
+
+      <LangPills
+        value={langPref}
+        onChange={setLangPref}
+        locale={locale}
+        isLight={isLight}
       />
 
       <label className="flex items-center gap-3 cursor-pointer group">

@@ -16,7 +16,11 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { unsubscribed?: boolean; alert_email?: boolean };
+  let body: {
+    unsubscribed?: boolean;
+    alert_email?: boolean;
+    language_preference?: string;
+  };
   try {
     body = await req.json();
   } catch {
@@ -39,6 +43,13 @@ export async function PATCH(req: NextRequest) {
 
   if (typeof body.alert_email === "boolean") {
     update.alert_preferences = { email: body.alert_email };
+  }
+
+  if (
+    body.language_preference &&
+    ["en", "es", "both"].includes(body.language_preference)
+  ) {
+    update.language_preference = body.language_preference;
   }
 
   const { error } = await admin

@@ -363,7 +363,14 @@
       "briefingDesc": "Resumen del lunes entregado a tu bandeja",
       "alerts": "Alertas de Noticias de Última Hora",
       "alertsActive": "Alertas en tiempo real cuando salen historias de alto puntaje",
-      "alertsLocked": "Disponible en planes Pro e Intel"
+      "alertsLocked": "Disponible en planes Pro e Intel",
+      "language": "Idioma / Language",
+      "languageDesc": "Elige en qué idioma recibes tu reporte",
+      "langOption": {
+        "en": "English",
+        "es": "Español",
+        "both": "Ambos"
+      }
     },
     "telegram": {
       "heading": "Recibe Alertas Instantáneas del RGV",

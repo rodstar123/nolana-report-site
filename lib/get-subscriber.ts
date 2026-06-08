@@ -38,6 +38,7 @@ export type Subscriber = {
   email_verified: boolean;
   unsubscribed: boolean;
   alert_preferences: { email: boolean } | null;
+  language_preference: "en" | "es" | "both";
   current_period_end: string | null;
   created_at: string;
   updated_at: string;

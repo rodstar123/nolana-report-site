@@ -197,6 +197,7 @@ export default async function AccountPage({
         <PreferencesCard
           initialUnsubscribed={subscriber.unsubscribed}
           initialAlertEmail={subscriber.alert_preferences?.email ?? true}
+          initialLangPref={subscriber.language_preference ?? "en"}
           tier={tier}
         />
 

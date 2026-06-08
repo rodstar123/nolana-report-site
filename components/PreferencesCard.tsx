@@ -4,9 +4,12 @@ import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { trackEvent } from "@/lib/analytics";
 
+type LangPref = "en" | "es" | "both";
+
 interface Props {
   initialUnsubscribed: boolean;
   initialAlertEmail: boolean;
+  initialLangPref: LangPref;
   tier: "free" | "pro" | "intel";
 }
 
@@ -43,13 +46,21 @@ function Toggle({
   );
 }
 
+const LANG_OPTIONS: { key: LangPref; en: string; es: string }[] = [
+  { key: "en", en: "English", es: "English" },
+  { key: "es", en: "Español", es: "Español" },
+  { key: "both", en: "Both", es: "Ambos" },
+];
+
 export function PreferencesCard({
   initialUnsubscribed,
   initialAlertEmail,
+  initialLangPref,
   tier,
 }: Props) {
   const [briefingOn, setBriefingOn] = useState(!initialUnsubscribed);
   const [alertOn, setAlertOn] = useState(initialAlertEmail);
+  const [langPref, setLangPref] = useState<LangPref>(initialLangPref);
   const [saved, setSaved] = useState(false);
   const t = useTranslations("account.preferences");
 
@@ -61,6 +72,7 @@ export function PreferencesCard({
   async function updatePref(payload: {
     unsubscribed?: boolean;
     alert_email?: boolean;
+    language_preference?: string;
   }) {
     await fetch("/api/preferences", {
       method: "PATCH",
@@ -79,6 +91,11 @@ export function PreferencesCard({
   function toggleAlert(val: boolean) {
     setAlertOn(val);
     updatePref({ alert_email: val });
+  }
+
+  function changeLang(val: LangPref) {
+    setLangPref(val);
+    updatePref({ language_preference: val });
   }
 
   const isPaid = tier === "pro" || tier === "intel";
@@ -125,6 +142,33 @@ export function PreferencesCard({
           onChange={toggleAlert}
           disabled={!isPaid}
         />
+      </div>
+
+      <div className="px-6 py-4 flex items-center justify-between gap-4">
+        <div>
+          <p className="font-body font-semibold text-warm-white text-sm">
+            {t("language")}
+          </p>
+          <p className="font-body text-slate-light text-xs mt-0.5">
+            {t("languageDesc")}
+          </p>
+        </div>
+        <div className="flex gap-1.5">
+          {LANG_OPTIONS.map((o) => (
+            <button
+              key={o.key}
+              type="button"
+              onClick={() => changeLang(o.key)}
+              className={`font-body text-xs px-3 py-1.5 rounded-full border transition-colors duration-200 min-h-[32px] ${
+                langPref === o.key
+                  ? "bg-teal border-teal text-white font-semibold"
+                  : "border-white/15 text-slate-light hover:border-teal/50"
+              }`}
+            >
+              {t(`langOption.${o.key}`)}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
