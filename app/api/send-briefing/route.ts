@@ -48,6 +48,57 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No stories" }, { status: 404 });
   }
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const iss = issue as any;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  // TEST MODE: ?test_email=someone@example.com sends one pro-tier email, no logging
+  const testEmail = req.nextUrl.searchParams.get("test_email");
+  if (testEmail) {
+    const tempLabelTest = iss.business_temperature
+      ? extractTemperatureLabel(iss.business_temperature as string)
+      : null;
+    const dateLabelTest = new Date(issue.published_at).toLocaleDateString(
+      "en-US",
+      { month: "long", day: "numeric" },
+    );
+    const subjectTest = tempLabelTest
+      ? `${tempLabelTest} — The Nolana Report, Week of ${dateLabelTest}`
+      : `The Nolana Report — Week of ${dateLabelTest}`;
+
+    const testHtml = buildBriefingEmail({
+      issueTitle: issue.title,
+      issueSlug: issue.slug,
+      stories: stories as Story[],
+      tier: "pro",
+      opening: issue.opening ?? null,
+      businessTemperature: iss.business_temperature ?? null,
+      valleyMoneyMap: iss.valley_money_map ?? null,
+      threeMoves: iss.three_moves ?? null,
+      quietSignal: iss.quiet_signal ?? null,
+      ownersMove: iss.owners_move ?? null,
+      riskRadar: iss.risk_radar ?? null,
+      thinkingQuestion: iss.thinking_question ?? null,
+      beforeYouGo: iss.before_you_go ?? null,
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: "The Nolana Report <briefing@mail.nationalboco.com>",
+      to: testEmail,
+      subject: `[TEST] ${subjectTest}`,
+      html: testHtml,
+    });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({
+      test: true,
+      sent_to: testEmail,
+      resend_id: data?.id,
+    });
+  }
+
   const { data: subscribers } = await supabase
     .from("subscribers")
     .select("*")
@@ -79,12 +130,9 @@ export async function GET(req: NextRequest) {
 
   const results = { sent: 0, failed: 0, errors: [] as string[] };
 
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const iss = issue as any;
   const tempLabel = iss.business_temperature
     ? extractTemperatureLabel(iss.business_temperature as string)
     : null;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   const dateLabel = new Date(issue.published_at).toLocaleDateString("en-US", {
     month: "long",
@@ -93,42 +141,6 @@ export async function GET(req: NextRequest) {
   const subjectLine = tempLabel
     ? `${tempLabel} — The Nolana Report, Week of ${dateLabel}`
     : `The Nolana Report — Week of ${dateLabel}`;
-
-  // TEST MODE: ?test_email=someone@example.com sends one pro-tier email, no logging
-  const testEmail = req.nextUrl.searchParams.get("test_email");
-  if (testEmail) {
-    const testHtml = buildBriefingEmail({
-      issueTitle: issue.title,
-      issueSlug: issue.slug,
-      stories: stories as Story[],
-      tier: "pro",
-      opening: issue.opening ?? null,
-      businessTemperature: iss.business_temperature ?? null,
-      valleyMoneyMap: iss.valley_money_map ?? null,
-      threeMoves: iss.three_moves ?? null,
-      quietSignal: iss.quiet_signal ?? null,
-      ownersMove: iss.owners_move ?? null,
-      riskRadar: iss.risk_radar ?? null,
-      thinkingQuestion: iss.thinking_question ?? null,
-      beforeYouGo: iss.before_you_go ?? null,
-    });
-
-    const { data, error } = await resend.emails.send({
-      from: "The Nolana Report <briefing@mail.nationalboco.com>",
-      to: testEmail,
-      subject: `[TEST] ${subjectLine}`,
-      html: testHtml,
-    });
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    return NextResponse.json({
-      test: true,
-      sent_to: testEmail,
-      resend_id: data?.id,
-    });
-  }
 
   // Send sequentially — Resend free tier is 5 req/sec; sequential with 250ms gap is safe
   for (const sub of pending) {
