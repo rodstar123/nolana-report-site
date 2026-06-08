@@ -4,5 +4,225 @@
     "login": "Inicia Sesión",
     "myAccount": "Mi Cuenta",
     "subscribe": "Suscríbete"
+  },
+  "hero": {
+    "brand": "The Nolana Report",
+    "readTime": "~7 min de lectura cada lunes",
+    "headline": "El reporte de negocios del Valle que te dice <highlight>qué hacer al respecto</highlight>",
+    "tagline": "Cada lunes: noticias con puntaje, señales del mercado, y los movimientos que los operadores más listos del Valle están haciendo — para que tú te muevas primero.",
+    "bestForLabel": "Ideal para",
+    "bestForList": "operadores de logística · contratistas · importadores/exportadores · bienes raíces comerciales · dueños de negocios · cualquiera que mueve dinero en el Valle",
+    "freeForever": "Gratis para siempre —",
+    "viewSample": "Ver edición de ejemplo",
+    "telegramAlerts": "Alertas en Telegram"
+  },
+  "socialProof": {
+    "trusted": "De confianza para {count} profesionales del Valle",
+    "join": "Únete a {count} profesionales del Valle"
+  },
+  "dataBar": {
+    "title": "Datos de inteligencia de esta semana"
+  },
+  "sampleBriefing": {
+    "label": "Edición de Ejemplo",
+    "headline": "Esta semana en el Valle",
+    "minRead": "~{minutes} min de lectura",
+    "intro": "Cada lunes, evaluamos más de 30 noticias de negocios del RGV con el <nri>Índice de Relevancia Nolana</nri>. Aquí van las historias más importantes — los suscriptores Pro reciben el reporte completo.",
+    "disclaimer": "Formato de ejemplo para demostración. Las ediciones reales incluyen enlaces directos a registros públicos, agendas municipales, permisos y medios locales."
+  },
+  "insideEveryIssue": {
+    "label": "En Cada Edición",
+    "headline": "No solo noticias. Un kit de decisiones.",
+    "subtitle": "Cada reporte del lunes incluye estas secciones — diseñadas para que te muevas más rápido que los que solo leen titulares.",
+    "features": {
+      "businessTemperature": {
+        "title": "Temperatura de Negocios",
+        "description": "La lectura estratégica: dónde se mueve el dinero y dónde se está acumulando presión."
+      },
+      "moveBar": {
+        "title": "The Move Bar",
+        "description": "Cada historia termina con una acción específica que un operador real puede tomar esta semana."
+      },
+      "nriSubScores": {
+        "title": "Sub-Puntajes NRI",
+        "description": "Cuatro dimensiones por historia: Impacto Económico, Urgencia, Alcance Local, Riesgo."
+      },
+      "valleyMoneyMap": {
+        "title": "Mapa de Dinero del Valle",
+        "description": "Quién va ganando, quién está expuesto, dónde posicionarte."
+      },
+      "threeMoves": {
+        "title": "3 Movimientos de la Semana",
+        "description": "Acciones cruzadas entre historias, organizadas por industria."
+      },
+      "quietSignal": {
+        "title": "La Señal Silenciosa",
+        "description": "La historia que importa más de lo que su nivel de ruido sugiere."
+      }
+    }
+  },
+  "whoItsFor": {
+    "label": "¿Para Quién Es?",
+    "headline": "Hecho para dueños de negocios, inversionistas, brokers, prestamistas, consultores, contratistas y operadores del RGV que necesitan detectar movimiento antes que el mercado.",
+    "audience": {
+      "businessOwners": {
+        "title": "Dueños de Negocios",
+        "description": "Monitoreando la competencia, la demanda local y nuevos entrantes antes de que afecten tu negocio."
+      },
+      "investors": {
+        "title": "Inversionistas",
+        "description": "Observando movimiento industrial, comercial y de bienes raíces en todo el Valle del Río Grande."
+      },
+      "professionals": {
+        "title": "Profesionales",
+        "description": "Brokers, prestamistas, contadores y consultores buscando señales de prospección y oportunidades de negocio."
+      },
+      "crossBorder": {
+        "title": "Operadores Transfronterizos",
+        "description": "Monitoreando flujos de comercio, movimientos de tipo de cambio y tráfico en los puentes que afectan logística, precios y abastecimiento."
+      }
+    }
+  },
+  "pricing": {
+    "label": "Lo Que Recibes",
+    "headline": "Una señal temprana puede pagar todo el año.",
+    "subtitle": "Una nueva planta, permiso, grant, cambio de zonificación o movimiento de comercio puede crear oportunidades antes de que tu competencia se dé cuenta.",
+    "foundingRate": "$7/mes tarifa de fundador — fija para siempre para los primeros 100 suscriptores",
+    "fineprint": "Primer mes gratis · Cancela cuando quieras · Sin contratos",
+    "loading": "Cargando…",
+    "tiers": {
+      "free": {
+        "name": "Gratis",
+        "priceLabel": "Gratis",
+        "tagline": "Mantente al Tanto — 5 historias top cada lunes.",
+        "description": "Resumen semanal por correo + acceso a la barra de datos",
+        "cta": "Suscríbete Gratis",
+        "features": [
+          "Lectura de Temperatura de Negocios",
+          "5 historias con puntaje cada lunes",
+          "La Señal Silenciosa (cierre con insight)",
+          "Barra de datos en vivo (USD/MXN, espera en puentes)",
+          "Alertas en Telegram — t.me/NolanaReport"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "priceLabel": "$9/mes",
+        "tagline": "Ve un Paso Adelante — Reporte completo, con puntaje de relevancia de negocio.",
+        "description": "Reporte semanal completo — todas las historias con puntaje + secciones exclusivas Pro",
+        "cta": "Únete a Pro — $7/mes",
+        "badge": "Más Popular",
+        "foundingBadge": "$7/mes — tarifa de fundador para los primeros 100 suscriptores",
+        "features": [
+          "Todo lo de Gratis",
+          "Reporte semanal completo — todas las historias con puntaje",
+          "Sub-puntajes NRI (Dinero, Urgencia, Alcance, Riesgo)",
+          "Mapa de Dinero del Valle",
+          "3 Movimientos de la Semana",
+          "Alertas de noticias de última hora",
+          "Acceso completo al archivo"
+        ]
+      },
+      "intel": {
+        "name": "Intel",
+        "priceLabel": "$19/mes",
+        "tagline": "Ve los Movimientos Grandes — Análisis mensuales profundos sobre comercio, actividad industrial, inversión y cambios del mercado.",
+        "description": "Pro + Edición Intel Mensual con análisis profundos por industria",
+        "cta": "Únete a Intel",
+        "features": [
+          "Todo lo de Pro",
+          "Alertas personalizadas por palabra clave",
+          "Análisis profundos mensuales Intel",
+          "Acceso prioritario a nuevas funciones"
+        ]
+      }
+    },
+    "yearly": {
+      "pro": { "label": "$89/año", "savings": "Ahorra $19 · 2 meses gratis" },
+      "intel": { "label": "$189/año", "savings": "Ahorra $39 · 2 meses gratis" }
+    },
+    "billing": {
+      "monthly": "Mensual",
+      "yearly": "Anual",
+      "twoMonthsFree": "2 meses gratis"
+    }
+  },
+  "about": {
+    "label": "Acerca de",
+    "headline": "Publicado por la gente que conoce tus números.",
+    "body": "Publicado por <link>{publisher}</link>, una firma de contabilidad y coordinación de taxes en McAllen que trabaja de cerca con dueños de negocios del Valle. Creamos The Nolana Report para convertir señales públicas de negocios en un reporte semanal que los dueños realmente puedan usar.",
+    "methodLabel": "Nuestro Método",
+    "methodBody": "Cada semana, revisamos fuentes públicas incluyendo agendas municipales, registros de negocios, actualizaciones de desarrollo económico, datos de espera en puentes, movimiento de tipo de cambio, medios locales y anuncios regionales. Las historias se evalúan por relevancia de negocio local, urgencia e impacto potencial en el mercado usando el Índice de Relevancia Nolana.",
+    "publishedBy": "Publicado por"
+  },
+  "faq": {
+    "label": "Preguntas Frecuentes",
+    "headline": "Preguntas comunes",
+    "subtitle": "Todo lo que necesitas saber sobre The Nolana Report.",
+    "items": [
+      {
+        "question": "¿Qué es The Nolana Report?",
+        "answer": "The Nolana Report es un reporte semanal de inteligencia de negocios para el Valle del Río Grande, cubriendo nuevos negocios, movimientos del gobierno, comercio transfronterizo e inversión industrial en McAllen, Edinburg, Brownsville y todo el RGV. Se publica cada lunes por National Bookkeeping Company."
+      },
+      {
+        "question": "¿Qué fuentes de noticias cubren el Valle del Río Grande?",
+        "answer": "The Nolana Report agrega y evalúa más de 25 fuentes de noticias del RGV incluyendo KRGV, ValleyCentral, RGV Business Journal, The Monitor, Brownsville Herald, Rio Grande Guardian, Texas Border Business y Valley Business Report, además de datos del gobierno como el Federal Register, tiempos de espera en puentes del CBP y el tipo de cambio USD/MXN."
+      },
+      {
+        "question": "¿Cuánto cuesta The Nolana Report?",
+        "answer": "The Nolana Report ofrece tres niveles: Gratis (resumen semanal por correo + barra de datos), Pro a $9/mes (reporte completo de 30+ historias con puntajes y acceso al archivo), e Intel a $19/mes (todo lo de Pro más análisis profundos mensuales por industria). Los miembros fundadores obtienen Pro fijo a $7/mes para siempre."
+      },
+      {
+        "question": "¿Qué negocios nuevos están abriendo en McAllen y el RGV?",
+        "answer": "The Nolana Report monitorea aperturas de negocios nuevos, registros de LLC, permisos y expansiones en McAllen, Edinburg, Pharr, Mission, Brownsville, Harlingen y todo el Valle del Río Grande cada semana. Suscríbete gratis en nolanareport.com para recibir lo más reciente."
+      },
+      {
+        "question": "¿Qué empresas están invirtiendo en el Valle del Río Grande?",
+        "answer": "El Industrial & Investment Watch de The Nolana Report monitorea plantas manufactureras, reubicaciones corporativas, actividad en Zonas de Comercio Exterior y anuncios de desarrollo económico en todo el RGV, incluyendo noticias de los EDC de Edinburg, McAllen, Weslaco y el Puerto de Brownsville."
+      }
+    ]
+  },
+  "footer": {
+    "ctaHeadline": "Mantente adelante en el Valle.",
+    "ctaBody": "Únete a dueños de negocios, inversionistas y profesionales que empiezan su lunes con 30 historias del RGV con puntaje. Gratis para siempre.",
+    "tagline": "Lo que se mueve en el Valle. Cada lunes.",
+    "publishedBy": "Publicado por",
+    "linksHeading": "Enlaces",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "contact": "Contacto",
+    "telegram": "Telegram",
+    "advertise": "Publicidad",
+    "nbcServicesHeading": "Servicios NBC",
+    "smartbook": "Contabilidad SmartBook",
+    "taxCoordination": "Coordinación de Taxes",
+    "businessConsulting": "Consultoría de Negocios",
+    "copyright": "© {year} {publisher}. Todos los derechos reservados.",
+    "motto": "Lo que se mueve en el Valle",
+    "createdBy": "Creado por"
+  },
+  "nbcBanner": {
+    "label": "Del Editor",
+    "headline": "Tu contabilidad, resuelta.",
+    "description": "National Bookkeeping Company® — <strong>SmartBook</strong> bookkeeping para negocios del Valle desde $350/mes",
+    "cta": "Ver Servicios →"
+  },
+  "adSlot": {
+    "advertisement": "Publicidad",
+    "headline": "Tu Anuncio Aquí",
+    "subtitle": "Llega a dueños de negocios del Valle cada lunes",
+    "cta": "Conoce nuestros patrocinios →"
+  },
+  "paywallBlur": {
+    "moreStories": "+ 26 historias más esta semana",
+    "subtitle": "Con puntaje, fuentes verificadas y resumidas — cada lunes antes de las 7 AM.",
+    "cta": "Recibe el Reporte del Lunes — Gratis →",
+    "fineprint": "Gratis para siempre · Cancela cuando quieras"
+  },
+  "stickyMobileCTA": {
+    "placeholder": "tu@correo.com",
+    "submit": "Suscríbete Gratis",
+    "confirmHeading": "¡Casi listo! Confirma tu correo.",
+    "confirmBody": "Checa tu bandeja de entrada y la carpeta de spam."
   }
 }

@@ -1,11 +1,15 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 interface Props {
   value: "monthly" | "yearly";
   onChange: (v: "monthly" | "yearly") => void;
 }
 
 export function BillingToggle({ value, onChange }: Props) {
+  const t = useTranslations("pricing.billing");
+
   return (
     <div className="inline-flex items-center gap-1 bg-white/6 border border-white/10 rounded-full p-1">
       <button
@@ -16,7 +20,7 @@ export function BillingToggle({ value, onChange }: Props) {
             : "text-slate-light hover:text-warm-white"
         }`}
       >
-        Monthly
+        {t("monthly")}
       </button>
       <button
         onClick={() => onChange("yearly")}
@@ -26,7 +30,7 @@ export function BillingToggle({ value, onChange }: Props) {
             : "text-slate-light hover:text-warm-white"
         }`}
       >
-        Yearly
+        {t("yearly")}
         <span
           className={`text-xs font-bold px-2 py-0.5 rounded-full transition-colors duration-200 ${
             value === "yearly"
@@ -34,7 +38,7 @@ export function BillingToggle({ value, onChange }: Props) {
               : "bg-gold/15 text-gold"
           }`}
         >
-          2 months free
+          {t("twoMonthsFree")}
         </span>
       </button>
     </div>

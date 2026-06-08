@@ -1,10 +1,27 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { PUBLISHER, PUBLISHER_URL } from "@/lib/constants";
 import SignupForm from "./SignupForm";
 import NBCBanner from "./NBCBanner";
 
-export default function Footer() {
+export default async function Footer() {
   const year = new Date().getFullYear();
+  const t = await getTranslations("footer");
+  const tAd = await getTranslations("adSlot");
+
+  const footerLinks = [
+    { label: t("privacy"), href: "/privacy" },
+    { label: t("terms"), href: "/terms" },
+    { label: t("contact"), href: "mailto:info@nationalboco.com" },
+    { label: t("telegram"), href: "https://t.me/NolanaReport" },
+    { label: t("advertise"), href: "/advertise" },
+  ];
+
+  const nbcServices = [
+    { label: t("smartbook"), href: PUBLISHER_URL },
+    { label: t("taxCoordination"), href: PUBLISHER_URL },
+    { label: t("businessConsulting"), href: PUBLISHER_URL },
+  ];
 
   return (
     <footer
@@ -17,11 +34,10 @@ export default function Footer() {
       <div className="py-12 md:py-20 border-b border-white/5">
         <div className="max-w-lg mx-auto px-6 lg:px-8 text-center">
           <h2 className="font-display font-bold text-warm-white text-2xl md:text-3xl mb-4">
-            Stay ahead of the Valley.
+            {t("ctaHeadline")}
           </h2>
           <p className="font-body text-slate-light text-sm mb-8 leading-relaxed">
-            Join business owners, investors, and professionals who start their
-            Monday with 30 scored RGV stories. Free forever.
+            {t("ctaBody")}
           </p>
           <div className="max-w-sm mx-auto">
             <SignupForm variant="dark" />
@@ -36,7 +52,7 @@ export default function Footer() {
             className="text-center text-xs uppercase tracking-[3px] mb-2"
             style={{ color: "rgba(212,168,83,0.55)" }}
           >
-            Advertisement
+            {tAd("advertisement")}
           </p>
           <div
             style={{
@@ -59,7 +75,7 @@ export default function Footer() {
                 margin: 0,
               }}
             >
-              Your Ad Here
+              {tAd("headline")}
             </p>
             <p
               style={{
@@ -69,7 +85,7 @@ export default function Footer() {
                 marginBottom: 0,
               }}
             >
-              Reach RGV business owners every Monday
+              {tAd("subtitle")}
             </p>
             <a
               href="/advertise"
@@ -82,7 +98,7 @@ export default function Footer() {
                 textDecoration: "none",
               }}
             >
-              Learn about sponsorship →
+              {tAd("cta")}
             </a>
           </div>
         </div>
@@ -95,7 +111,7 @@ export default function Footer() {
             className="text-center text-xs uppercase tracking-[3px] mb-2"
             style={{ color: "rgba(212,168,83,0.55)" }}
           >
-            Advertisement
+            {tAd("advertisement")}
           </p>
           <NBCBanner />
         </div>
@@ -125,10 +141,10 @@ export default function Footer() {
               </h3>
             </div>
             <p className="font-body text-slate-light text-sm leading-relaxed">
-              Business intelligence for the Rio Grande Valley. Every Monday.
+              {t("tagline")}
             </p>
             <p className="font-body text-slate-light text-xs mt-3">
-              Published by{" "}
+              {t("publishedBy")}{" "}
               <a
                 href={PUBLISHER_URL}
                 className="text-teal-light hover:text-teal underline underline-offset-2 transition-colors"
@@ -140,16 +156,10 @@ export default function Footer() {
 
           <div>
             <h4 className="font-body font-bold text-warm-white text-sm uppercase tracking-widest mb-4">
-              Links
+              {t("linksHeading")}
             </h4>
             <ul className="space-y-2.5 font-body text-sm">
-              {[
-                { label: "Privacy Policy", href: "/privacy" },
-                { label: "Terms of Service", href: "/terms" },
-                { label: "Contact", href: "mailto:info@nationalboco.com" },
-                { label: "Telegram", href: "https://t.me/NolanaReport" },
-                { label: "Advertise", href: "/advertise" },
-              ].map((link) => (
+              {footerLinks.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
@@ -164,14 +174,10 @@ export default function Footer() {
 
           <div>
             <h4 className="font-body font-bold text-warm-white text-sm uppercase tracking-widest mb-4">
-              NBC Services
+              {t("nbcServicesHeading")}
             </h4>
             <ul className="space-y-2.5 font-body text-sm">
-              {[
-                { label: "SmartBook Bookkeeping", href: PUBLISHER_URL },
-                { label: "Tax Coordination", href: PUBLISHER_URL },
-                { label: "Business Consulting", href: PUBLISHER_URL },
-              ].map((link) => (
+              {nbcServices.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
@@ -187,16 +193,16 @@ export default function Footer() {
 
         <div className="border-t border-white/5 py-8 flex flex-col sm:flex-row justify-between items-center gap-3">
           <p className="font-body text-slate-light text-xs">
-            &copy; {year} {PUBLISHER}. All rights reserved.
+            {t("copyright", { year: String(year), publisher: PUBLISHER })}
           </p>
           <p className="font-body text-slate-light text-xs italic">
-            Lo que se mueve en el Valle
+            {t("motto")}
           </p>
         </div>
 
         <div className="pb-24 lg:pb-8 pt-2 text-center">
           <p className="font-body text-sm text-slate-light/75">
-            Created by{" "}
+            {t("createdBy")}{" "}
             <a
               href="https://thunderloud.com"
               target="_blank"

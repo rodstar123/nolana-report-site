@@ -1,25 +1,26 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { PUBLISHER_URL } from "@/lib/constants";
 
-export default function NBCBanner() {
+export default async function NBCBanner() {
+  const t = await getTranslations("nbcBanner");
+
   return (
     <div className="nbc-banner">
-      {/* Gold-to-teal gradient border */}
       <div className="nbc-banner__border" />
-
-      {/* Left accent bar */}
       <div className="nbc-banner__accent" />
 
-      {/* Content */}
       <div className="nbc-banner__content">
-        <div className="nbc-banner__label">From the Publisher</div>
+        <div className="nbc-banner__label">{t("label")}</div>
 
-        <h3 className="nbc-banner__headline">Your books, handled.</h3>
+        <h3 className="nbc-banner__headline">{t("headline")}</h3>
 
         <div className="nbc-banner__desc">
-          National Bookkeeping Company® —{" "}
-          <strong className="nbc-banner__smartbook">SmartBook</strong>{" "}
-          bookkeeping for Valley businesses starting at $350/mo
+          {t.rich("description", {
+            strong: (chunks) => (
+              <strong className="nbc-banner__smartbook">{chunks}</strong>
+            ),
+          })}
         </div>
 
         <a
@@ -28,11 +29,10 @@ export default function NBCBanner() {
           rel="noopener noreferrer"
           className="nbc-banner__cta"
         >
-          Explore Services →
+          {t("cta")}
         </a>
       </div>
 
-      {/* Image panel — right side (top on mobile) */}
       <div className="nbc-banner__image-wrap">
         <Image
           src="/images/nbc-office.webp"

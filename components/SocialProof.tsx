@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { getTranslations } from "next-intl/server";
 
 async function getActiveSubscriberCount(): Promise<number> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -19,10 +20,11 @@ export default async function SocialProof() {
   const count = await getActiveSubscriberCount();
   if (count === 0) return null;
 
+  const t = await getTranslations("socialProof");
   const label =
     count >= 50
-      ? `Trusted by ${count} Valley professionals`
-      : `Join ${count} Valley professionals`;
+      ? t("trusted", { count: String(count) })
+      : t("join", { count: String(count) });
 
   return (
     <section
@@ -32,7 +34,6 @@ export default async function SocialProof() {
       }}
     >
       <div className="max-w-4xl mx-auto px-6 flex items-center justify-center gap-3">
-        {/* People icon cluster */}
         <div className="flex -space-x-2" aria-hidden="true">
           {[...Array(Math.min(count, 5))].map((_, i) => (
             <div

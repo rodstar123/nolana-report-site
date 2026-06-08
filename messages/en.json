@@ -4,5 +4,225 @@
     "login": "Login",
     "myAccount": "My Account",
     "subscribe": "Subscribe"
+  },
+  "hero": {
+    "brand": "The Nolana Report",
+    "readTime": "~7 min read every Monday",
+    "headline": "The RGV business briefing that tells you <highlight>what to do about it</highlight>",
+    "tagline": "Every Monday: scored stories, market signals, and the moves smart Valley operators are making — so you can move first.",
+    "bestForLabel": "Best for",
+    "bestForList": "logistics operators · contractors · import/exporters · commercial real estate · small business owners · anyone who moves money in the Valley",
+    "freeForever": "Free forever —",
+    "viewSample": "View sample issue",
+    "telegramAlerts": "Telegram alerts"
+  },
+  "socialProof": {
+    "trusted": "Trusted by {count} Valley professionals",
+    "join": "Join {count} Valley professionals"
+  },
+  "dataBar": {
+    "title": "This week's intelligence snapshot"
+  },
+  "sampleBriefing": {
+    "label": "Sample Issue",
+    "headline": "This week in the Valley",
+    "minRead": "~{minutes} min read",
+    "intro": "Every Monday, we score 30+ RGV business stories by the <nri>Nolana Relevance Index</nri>. Here are sample top stories — Pro subscribers get the full briefing.",
+    "disclaimer": "Sample format shown for demonstration. Real issues include direct source links to public records, city agendas, filings, and local media."
+  },
+  "insideEveryIssue": {
+    "label": "Inside Every Issue",
+    "headline": "Not just news. A decision toolkit.",
+    "subtitle": "Every Monday briefing includes these sections — designed to help you move faster than operators who only read headlines.",
+    "features": {
+      "businessTemperature": {
+        "title": "Business Temperature",
+        "description": "The strategic read: where money is moving and where pressure is building."
+      },
+      "moveBar": {
+        "title": "The Move Bar",
+        "description": "Every story ends with a specific action a real operator can take this week."
+      },
+      "nriSubScores": {
+        "title": "NRI Sub-Scores",
+        "description": "Four dimensions per story: Money Impact, Urgency, Local Reach, Risk."
+      },
+      "valleyMoneyMap": {
+        "title": "Valley Money Map",
+        "description": "Who's winning, who's exposed, where to position."
+      },
+      "threeMoves": {
+        "title": "3 Moves This Week",
+        "description": "Cross-story actions tagged by industry."
+      },
+      "quietSignal": {
+        "title": "The Quiet Signal",
+        "description": "The story that matters more than its noise level suggests."
+      }
+    }
+  },
+  "whoItsFor": {
+    "label": "Who It's For",
+    "headline": "Built for RGV business owners, investors, brokers, lenders, consultants, contractors, and operators who need to spot movement before the market does.",
+    "audience": {
+      "businessOwners": {
+        "title": "Business Owners",
+        "description": "Tracking competition, local demand, and new entrants before they affect your bottom line."
+      },
+      "investors": {
+        "title": "Investors",
+        "description": "Watching industrial, commercial, and real estate movement across the Rio Grande Valley."
+      },
+      "professionals": {
+        "title": "Professionals",
+        "description": "Brokers, lenders, accountants, and consultants looking for prospecting signals and business leads."
+      },
+      "crossBorder": {
+        "title": "Cross-Border Operators",
+        "description": "Watching trade flows, FX shifts, and bridge movement that affect sourcing, pricing, and logistics."
+      }
+    }
+  },
+  "pricing": {
+    "label": "What You Get",
+    "headline": "One early signal can pay for the whole year.",
+    "subtitle": "A new facility, permit, grant, zoning move, or trade shift can create opportunities before your competitors notice.",
+    "foundingRate": "$7/mo founding rate — locked forever for the first 100 subscribers",
+    "fineprint": "First month free · Cancel anytime · No contracts",
+    "loading": "Loading…",
+    "tiers": {
+      "free": {
+        "name": "Free",
+        "priceLabel": "Free",
+        "tagline": "Stay Aware — 5 top stories every Monday.",
+        "description": "Weekly summary email + data bar access",
+        "cta": "Subscribe Free",
+        "features": [
+          "Business Temperature reading",
+          "5 scored stories every Monday",
+          "The Quiet Signal (closing insight)",
+          "Live data bar (USD/MXN, bridge wait)",
+          "Telegram alerts — t.me/NolanaReport"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "priceLabel": "$9/mo",
+        "tagline": "Stay Ahead — Full briefing, scored by business relevance.",
+        "description": "Full weekly briefing — every scored story + pro-only sections",
+        "cta": "Join Pro — $7/mo",
+        "badge": "Most Popular",
+        "foundingBadge": "$7/mo — founding rate for first 100 subscribers",
+        "features": [
+          "Everything in Free",
+          "Full weekly briefing — all scored stories",
+          "NRI sub-breakdowns (Money, Urgency, Reach, Risk)",
+          "Valley Money Map",
+          "3 Moves This Week",
+          "Breaking news email alerts",
+          "Full archive access"
+        ]
+      },
+      "intel": {
+        "name": "Intel",
+        "priceLabel": "$19/mo",
+        "tagline": "See the Bigger Moves — Monthly deep dives on trade, industrial activity, investment, and market shifts.",
+        "description": "Pro + Monthly Intel Edition with industry deep dives",
+        "cta": "Join Intel",
+        "features": [
+          "Everything in Pro",
+          "Custom keyword alerts",
+          "Monthly Intel deep dives",
+          "Priority access to new features"
+        ]
+      }
+    },
+    "yearly": {
+      "pro": { "label": "$89/yr", "savings": "Save $19 · 2 months free" },
+      "intel": { "label": "$189/yr", "savings": "Save $39 · 2 months free" }
+    },
+    "billing": {
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "twoMonthsFree": "2 months free"
+    }
+  },
+  "about": {
+    "label": "About",
+    "headline": "Published by the people who know your numbers.",
+    "body": "Published by <link>{publisher}</link>, a McAllen-based bookkeeping and tax coordination firm that works closely with Valley business owners. We built The Nolana Report to turn public business signals into a weekly briefing owners can actually use.",
+    "methodLabel": "Our Method",
+    "methodBody": "Every week, we review public sources including city agendas, business filings, economic development updates, bridge wait data, FX movement, local media, and regional announcements. Stories are scored by local business relevance, urgency, and potential market impact using the Nolana Relevance Index.",
+    "publishedBy": "Published by"
+  },
+  "faq": {
+    "label": "FAQ",
+    "headline": "Common questions",
+    "subtitle": "Everything you need to know about The Nolana Report.",
+    "items": [
+      {
+        "question": "What is The Nolana Report?",
+        "answer": "The Nolana Report is a weekly business intelligence briefing for the Rio Grande Valley, covering new businesses, government moves, cross-border trade, and industrial investment across McAllen, Edinburg, Brownsville, and the RGV. Published every Monday by National Bookkeeping Company."
+      },
+      {
+        "question": "What business news sources cover the Rio Grande Valley?",
+        "answer": "The Nolana Report aggregates and scores 25+ RGV news sources including KRGV, ValleyCentral, RGV Business Journal, The Monitor, Brownsville Herald, Rio Grande Guardian, Texas Border Business, and Valley Business Report, plus government data from the Federal Register, CBP bridge wait times, and USD/MXN exchange rates."
+      },
+      {
+        "question": "How much does The Nolana Report cost?",
+        "answer": "The Nolana Report offers three tiers: Free (weekly summary email + live data bar), Pro at $9/month (full 30-story briefing with score badges and archive access), and Intel at $19/month (Pro features plus monthly deep-dive industry analysis). Founding members get Pro locked at $7/month forever."
+      },
+      {
+        "question": "What new businesses are opening in McAllen and the RGV?",
+        "answer": "The Nolana Report tracks new business openings, LLC filings, permits, and expansions across McAllen, Edinburg, Pharr, Mission, Brownsville, Harlingen, and the entire Rio Grande Valley every week. Subscribe free at nolanareport.com to get the latest."
+      },
+      {
+        "question": "What companies are investing in the Rio Grande Valley?",
+        "answer": "The Nolana Report's Industrial & Investment Watch tracks manufacturing plants, corporate relocations, Foreign Trade Zone activity, and economic development announcements across the RGV, including EDC news from Edinburg, McAllen, Weslaco, and the Port of Brownsville."
+      }
+    ]
+  },
+  "footer": {
+    "ctaHeadline": "Stay ahead of the Valley.",
+    "ctaBody": "Join business owners, investors, and professionals who start their Monday with 30 scored RGV stories. Free forever.",
+    "tagline": "Business intelligence for the Rio Grande Valley. Every Monday.",
+    "publishedBy": "Published by",
+    "linksHeading": "Links",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact",
+    "telegram": "Telegram",
+    "advertise": "Advertise",
+    "nbcServicesHeading": "NBC Services",
+    "smartbook": "SmartBook Bookkeeping",
+    "taxCoordination": "Tax Coordination",
+    "businessConsulting": "Business Consulting",
+    "copyright": "© {year} {publisher}. All rights reserved.",
+    "motto": "Lo que se mueve en el Valle",
+    "createdBy": "Created by"
+  },
+  "nbcBanner": {
+    "label": "From the Publisher",
+    "headline": "Your books, handled.",
+    "description": "National Bookkeeping Company® — <strong>SmartBook</strong> bookkeeping for Valley businesses starting at $350/mo",
+    "cta": "Explore Services →"
+  },
+  "adSlot": {
+    "advertisement": "Advertisement",
+    "headline": "Your Ad Here",
+    "subtitle": "Reach RGV business owners every Monday",
+    "cta": "Learn about sponsorship →"
+  },
+  "paywallBlur": {
+    "moreStories": "+ 26 more stories this week",
+    "subtitle": "Scored, sourced, and summarized — every Monday before 7 AM.",
+    "cta": "Get the Free Monday Brief →",
+    "fineprint": "Free forever · Cancel anytime"
+  },
+  "stickyMobileCTA": {
+    "placeholder": "your@email.com",
+    "submit": "Subscribe Free",
+    "confirmHeading": "Almost there! Confirm your email.",
+    "confirmBody": "Check your inbox and spam folder."
   }
 }

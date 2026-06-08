@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { countUpNumbers } from "@/lib/animations";
 import type { SnapshotMetric } from "@/lib/snapshot";
 
@@ -11,6 +12,7 @@ interface DataBarProps {
 export default function DataBar({ metrics, updatedLabel }: DataBarProps) {
   const ref = useRef<HTMLDivElement>(null);
   const fired = useRef(false);
+  const t = useTranslations("dataBar");
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -30,7 +32,7 @@ export default function DataBar({ metrics, updatedLabel }: DataBarProps) {
     <div id="data-bar" ref={ref} className="bar-shimmer relative card-stack">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
         <p className="font-body text-warm-white/50 text-xs uppercase tracking-[0.2em] text-center mb-6 md:mb-8 font-semibold">
-          This week&apos;s intelligence snapshot
+          {t("title")}
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
           {metrics.map((metric, i) => (

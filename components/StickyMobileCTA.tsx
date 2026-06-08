@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
@@ -12,6 +13,7 @@ export default function StickyMobileCTA() {
   const turnstileToken = useRef("");
   const widgetContainerRef = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
+  const t = useTranslations("stickyMobileCTA");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -137,10 +139,10 @@ export default function StickyMobileCTA() {
             </div>
             <div className="text-left">
               <p className="font-body text-amber-300 text-sm font-bold leading-tight">
-                Almost there! Confirm your email.
+                {t("confirmHeading")}
               </p>
               <p className="font-body text-amber-200/60 text-xs leading-tight mt-0.5">
-                Check your inbox and spam folder.
+                {t("confirmBody")}
               </p>
             </div>
           </div>
@@ -151,7 +153,7 @@ export default function StickyMobileCTA() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
+              placeholder={t("placeholder")}
               required
               aria-label="Email for free brief"
               className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-[#1a2a3d] border border-[#2a3a4d] text-warm-white placeholder-[#6b7a8d] font-body text-base focus:outline-none focus:border-teal min-h-[44px]"
@@ -161,7 +163,7 @@ export default function StickyMobileCTA() {
               disabled={loading}
               className="flex-shrink-0 bg-teal hover:bg-teal-light text-white font-body font-bold text-sm px-4 py-2.5 rounded-lg transition-colors min-h-[44px] disabled:opacity-50"
             >
-              {loading ? "..." : "Subscribe Free"}
+              {loading ? "..." : t("submit")}
             </button>
             <button
               type="button"

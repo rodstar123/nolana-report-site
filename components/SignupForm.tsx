@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { useLocale } from "next-intl";
 import { trackEvent } from "@/lib/analytics";
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 interface Props {
-  lang?: "en" | "es";
   variant?: "dark" | "light";
 }
 
@@ -24,21 +24,17 @@ const copy = {
     submitIdle: "Get the Free Monday Brief",
     submitLoading: "Subscribing…",
     checkbox: "I agree to receive The Nolana Report weekly via email",
-    // new subscriber
     confirmHeading: "Almost there! Confirm your email.",
     confirmBody: (email: string) =>
       `We just sent a confirmation link to ${email}. Click it to activate your subscription. No confirmation = no briefing.`,
     confirmSmall: "Don't see it? Check your spam folder.",
-    // already active
     alreadyHeading: "You're already subscribed!",
     alreadyBody:
       "This email is already receiving The Nolana Report. Check your inbox on Mondays at 7 AM CST.",
-    // pending — resent
     pendingHeading: "Almost there! Confirm your email.",
     pendingBody: (email: string) =>
       `We just sent a confirmation link to ${email}. Click it to activate your subscription. No confirmation = no briefing.`,
     pendingSmall: "Don't see it? Check your spam folder.",
-    // real error
     errorFallback: "Something went wrong.",
     errorConn: "Connection error — try again.",
   },
@@ -183,14 +179,15 @@ function InfoCard({
   );
 }
 
-export default function SignupForm({ lang = "en", variant = "dark" }: Props) {
+export default function SignupForm({ variant = "dark" }: Props) {
+  const locale = useLocale() as "en" | "es";
   const [email, setEmail] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [status, setStatus] = useState<FormStatus>("idle");
   const [submittedEmail, setSubmittedEmail] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-  const t = copy[lang];
+  const t = copy[locale];
 
   const isLight = variant === "light";
   const styles = {
@@ -321,9 +318,7 @@ export default function SignupForm({ lang = "en", variant = "dark" }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full">
-      {/* Cloudflare Turnstile — invisible, activated by NEXT_PUBLIC_TURNSTILE_SITE_KEY */}
       <div ref={widgetContainerRef} aria-hidden="true" />
-      {/* Honeypot */}
       <input
         name="website"
         type="text"
@@ -344,7 +339,6 @@ export default function SignupForm({ lang = "en", variant = "dark" }: Props) {
         className={styles.input}
       />
 
-      {/* Consent checkbox */}
       <label className="flex items-center gap-3 cursor-pointer group">
         <input
           type="checkbox"

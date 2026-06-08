@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { TIERS } from "@/lib/constants";
 import SectionReveal from "./SectionReveal";
 import { pricingEntrance } from "@/lib/animations";
@@ -7,25 +8,12 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { BillingToggle } from "./BillingToggle";
 import { trackEvent } from "@/lib/analytics";
 
-const YEARLY: Record<string, { label: string; savings: string; plan: string }> =
-  {
-    pro: {
-      label: "$89/yr",
-      savings: "Save $19 · 2 months free",
-      plan: "pro-yearly",
-    },
-    intel: {
-      label: "$189/yr",
-      savings: "Save $39 · 2 months free",
-      plan: "intel-yearly",
-    },
-  };
-
 export default function Pricing() {
   const fired = useRef(false);
   const sectionRef = useRef<HTMLElement>(null);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
+  const t = useTranslations("pricing");
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -52,7 +40,6 @@ export default function Pricing() {
 
     setLoadingPlan(tierId);
 
-    // Try to pre-fill email if user is logged in, but never block on it
     let email: string | undefined;
     try {
       const supabase = createSupabaseBrowserClient();
@@ -61,7 +48,7 @@ export default function Pricing() {
       } = await supabase.auth.getUser();
       email = user?.email ?? undefined;
     } catch {
-      // Auth check failed — proceed without email, Stripe will collect it
+      // Auth check failed — proceed without email
     }
 
     const res = await fetch("/api/checkout", {
@@ -132,17 +119,16 @@ export default function Pricing() {
         <SectionReveal>
           <div className="text-center mb-12">
             <span className="section-label justify-center mb-4">
-              <span className="text-teal-light">What You Get</span>
+              <span className="text-teal-light">{t("label")}</span>
             </span>
             <h2
               className="font-display font-bold text-warm-white mt-4 mb-5"
               style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)" }}
             >
-              One early signal can pay for the whole year.
+              {t("headline")}
             </h2>
             <p className="font-editorial text-slate-light text-lg max-w-xl mx-auto leading-relaxed mb-8">
-              A new facility, permit, grant, zoning move, or trade shift can
-              create opportunities before your competitors notice.
+              {t("subtitle")}
             </p>
             <div className="flex justify-center">
               <BillingToggle value={billing} onChange={setBilling} />
@@ -153,12 +139,24 @@ export default function Pricing() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center mb-12 mt-6 md:mt-0">
           {TIERS.map((tier) => {
             const isYearly = billing === "yearly";
-            const yearly = YEARLY[tier.id];
+            const yearlyData =
+              tier.id !== "free"
+                ? (t.raw(`yearly.${tier.id}`) as {
+                    label: string;
+                    savings: string;
+                  })
+                : null;
             const priceLabel =
-              isYearly && yearly ? yearly.label : tier.priceLabel;
-            const planId = isYearly && yearly ? yearly.plan : tier.id;
+              isYearly && yearlyData
+                ? yearlyData.label
+                : t(`tiers.${tier.id}.priceLabel` as Parameters<typeof t>[0]);
+            const planId =
+              isYearly && yearlyData ? `${tier.id}-yearly` : tier.id;
             const showFoundingBadge = !!tier.foundingBadge && !isYearly;
-            const showYearlySavings = isYearly && !!yearly;
+            const showYearlySavings = isYearly && !!yearlyData;
+            const features = t.raw(
+              `tiers.${tier.id}.features`,
+            ) as unknown as string[];
 
             return (
               <div
@@ -175,16 +173,16 @@ export default function Pricing() {
 
                 {tier.highlight && tier.badge && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gold text-navy-deep text-xs font-bold font-body px-4 py-1.5 rounded-full uppercase tracking-widest whitespace-nowrap shadow-lg">
-                    {tier.badge}
+                    {t(`tiers.${tier.id}.badge` as Parameters<typeof t>[0])}
                   </div>
                 )}
 
                 <div className="mb-6">
                   <h3 className="font-display font-bold text-warm-white text-2xl mb-1">
-                    {tier.name}
+                    {t(`tiers.${tier.id}.name` as Parameters<typeof t>[0])}
                   </h3>
                   <p className="font-body text-xs text-teal-light/80 font-semibold mb-4 leading-snug">
-                    {tier.tagline}
+                    {t(`tiers.${tier.id}.tagline` as Parameters<typeof t>[0])}
                   </p>
                   <div className="flex items-baseline gap-2 mb-3">
                     <span className="font-mono font-bold text-gold text-4xl">
@@ -194,26 +192,32 @@ export default function Pricing() {
                   {showFoundingBadge && (
                     <div className="inline-flex items-center bg-gold/12 border border-gold/25 rounded-lg px-3 py-1.5 mb-3">
                       <span className="text-gold text-xs font-bold font-body">
-                        {tier.foundingBadge}
+                        {t(
+                          `tiers.${tier.id}.foundingBadge` as Parameters<
+                            typeof t
+                          >[0],
+                        )}
                       </span>
                     </div>
                   )}
-                  {showYearlySavings && (
+                  {showYearlySavings && yearlyData && (
                     <div className="inline-flex items-center bg-gold/12 border border-gold/25 rounded-lg px-3 py-1.5 mb-3">
                       <span className="text-gold text-xs font-bold font-body">
-                        {yearly.savings}
+                        {yearlyData.savings}
                       </span>
                     </div>
                   )}
                   <p className="font-editorial text-slate-light text-sm leading-relaxed">
-                    {tier.description}
+                    {t(
+                      `tiers.${tier.id}.description` as Parameters<typeof t>[0],
+                    )}
                   </p>
                 </div>
 
                 <ul className="space-y-3 flex-1 mb-8">
-                  {tier.features.map((feature) => (
+                  {features.map((feature, fi) => (
                     <li
-                      key={feature}
+                      key={fi}
                       className="flex items-start gap-2 text-sm font-body"
                     >
                       <svg
@@ -252,7 +256,9 @@ export default function Pricing() {
                       : "border border-white/15 text-warm-white hover:border-teal hover:text-teal-light hover:shadow-lg hover:shadow-teal/10"
                   }`}
                 >
-                  {loadingPlan === planId ? "Loading…" : tier.cta}
+                  {loadingPlan === planId
+                    ? t("loading")
+                    : t(`tiers.${tier.id}.cta` as Parameters<typeof t>[0])}
                 </button>
               </div>
             );
@@ -271,12 +277,11 @@ export default function Pricing() {
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
               <p className="font-body text-gold text-sm font-bold">
-                $7/mo founding rate &mdash; locked forever for the first 100
-                subscribers
+                {t("foundingRate")}
               </p>
             </div>
             <p className="font-body text-warm-white/50 text-xs">
-              First month free &middot; Cancel anytime &middot; No contracts
+              {t("fineprint")}
             </p>
           </div>
         </SectionReveal>
