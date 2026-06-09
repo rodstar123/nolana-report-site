@@ -86,6 +86,10 @@ interface EmailChrome {
   valleyVsNational: string;
   sectionLabels: Record<string, string>;
   source: string;
+  adLabel: string;
+  adHeadline: string;
+  adSubtext: string;
+  adCta: string;
 }
 
 const CHROME_EN: EmailChrome = {
@@ -143,6 +147,11 @@ const CHROME_EN: EmailChrome = {
     industrial_investment: "Industrial &amp; Investment Watch",
   },
   source: "Source",
+  adLabel: "ADVERTISEMENT",
+  adHeadline: "Your Business Deserves a Website That Brings In Customers",
+  adSubtext:
+    "Custom websites for RGV businesses. Mobile-first. Bilingual. Live in 14 days. Starting at $497.",
+  adCta: "Book a Free Call →",
 };
 
 const CHROME_ES: EmailChrome = {
@@ -200,6 +209,11 @@ const CHROME_ES: EmailChrome = {
     industrial_investment: "Inversión Industrial",
   },
   source: "Fuente",
+  adLabel: "PUBLICIDAD",
+  adHeadline: "Tu Negocio Merece un Sitio Web Que Traiga Clientes",
+  adSubtext:
+    "Sitios web a la medida para negocios del RGV. Mobile-first. Bilingüe. Listo en 14 días. Desde $497.",
+  adCta: "Agenda Tu Llamada Gratis →",
 };
 
 export function estimateReadingTime(stories: Story[]): number {
@@ -663,6 +677,16 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
 
   // CLOSING + VIEW ON WEB
   html += `<tr><td style="padding:28px 32px 0;text-align:center;"><p style="margin:0 0 16px;font-family:Georgia,serif;font-size:15px;color:${SLATE};font-style:italic;">${chrome.closingLine}</p><a href="${issueUrl}" style="display:inline-block;background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};color:${TEAL};padding:10px 24px;border-radius:6px;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold;font-size:13px;">${chrome.viewOnWeb}</a></td></tr>`;
+
+  // THUNDERLOUD AD BANNER (free tier only)
+  if (!canSeePro) {
+    const TL_GREEN = "#00E87B";
+    const TL_DARK = "#111C2E";
+    const TL_BORDER = "#1E3048";
+    const TL_MUTED = "#8A96AD";
+    const TL_IMG = "https://nolanareport.com/images/thunderloud-hero.webp";
+    html += `<tr><td style="padding:28px 32px 0;"><p style="margin:0 0 8px;text-align:center;font-family:Arial,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#D4A853;">${chrome.adLabel}</p><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${TL_DARK};border:1px solid ${TL_BORDER};border-radius:12px;overflow:hidden;"><!--[if mso]><tr><td width="60%" valign="top"><![endif]--><!--[if !mso]><!--><tr><td style="display:inline-block;width:100%;max-width:324px;vertical-align:top;"><!--<![endif]--><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:24px;"><p style="margin:0 0 10px;font-family:Arial,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:3px;font-weight:bold;color:${TL_GREEN};">THUNDERLOUD</p><p style="margin:0 0 10px;font-family:Georgia,serif;font-size:20px;font-weight:bold;color:#ffffff;line-height:1.3;">${chrome.adHeadline}</p><p style="margin:0 0 16px;font-family:Arial,sans-serif;font-size:13px;color:${TL_MUTED};line-height:1.5;">${chrome.adSubtext}</p><a href="https://thunderloud.com" style="display:inline-block;background:${TL_GREEN};color:#000000;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;padding:10px 20px;border-radius:6px;text-decoration:none;">${chrome.adCta}</a></td></tr></table><!--[if mso]></td><td width="40%" valign="top"><![endif]--><!--[if !mso]><!--></td><td style="display:inline-block;width:100%;max-width:216px;vertical-align:top;"><!--<![endif]--><img src="${TL_IMG}" alt="ThunderLoud" width="216" style="display:block;width:100%;height:auto;max-height:240px;object-fit:cover;" /><!--[if mso]></td></tr><![endif]--><!--[if !mso]><!--></td></tr><!--<![endif]--></table></td></tr>`;
+  }
 
   // FOOTER
   html += `<tr><td style="padding:28px 32px;"><hr style="border:none;border-top:1px solid ${CREAM_BORDER};margin:0 0 20px;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="text-align:center;font-family:Arial,sans-serif;font-size:12px;color:#999;line-height:1.6;"><p style="margin:0;">${chrome.footerPublisher}</p><p style="margin:4px 0 0;">${chrome.footerAddress}</p><p style="margin:12px 0 0;"><a href="${issueUrl}" style="color:${TEAL};text-decoration:none;">${chrome.viewOnWeb}</a> &nbsp;&middot;&nbsp; <a href="${accountUrl}" style="color:${TEAL};text-decoration:none;">${chrome.manageSubscription}</a> &nbsp;&middot;&nbsp; <a href="${accountUrl}" style="color:#999;text-decoration:none;">${chrome.unsubscribe}</a></p></td></tr></table></td></tr>`;
