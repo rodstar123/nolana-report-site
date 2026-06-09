@@ -48,6 +48,63 @@ interface TranslatedStory {
   nolana_take: string;
 }
 
+export async function GET(req: NextRequest) {
+  const cronHeader = req.headers.get("x-vercel-cron");
+  const authHeader = req.headers.get("authorization");
+  const isAuthorized =
+    authHeader === `Bearer ${process.env.CRON_SECRET}` || cronHeader === "1";
+  if (!isAuthorized) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
+    return NextResponse.json(
+      { error: "Missing Supabase configuration" },
+      { status: 500 },
+    );
+  }
+
+  const slug = req.nextUrl.searchParams.get("slug") || cdtSlug();
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+  );
+
+  const { data: issue } = await supabase
+    .from("issues")
+    .select(
+      "title, title_es, opening_es, owners_move_es, risk_radar_es, thinking_question_es, before_you_go_es",
+    )
+    .eq("slug", slug)
+    .single();
+
+  if (!issue) {
+    return NextResponse.json({ error: "Issue not found" }, { status: 404 });
+  }
+
+  const { data: stories } = await supabase
+    .from("stories")
+    .select(
+      "position, headline, headline_es, signal_es, why_it_matters_es, smart_move_es, nolana_take_es",
+    )
+    .eq(
+      "issue_id",
+      (await supabase.from("issues").select("id").eq("slug", slug).single())
+        .data?.id ?? "",
+    )
+    .order("position", { ascending: true });
+
+  return NextResponse.json({
+    slug,
+    issue,
+    stories: stories ?? [],
+  });
+}
+
 export async function POST(req: NextRequest) {
   const cronHeader = req.headers.get("x-vercel-cron");
   const authHeader = req.headers.get("authorization");
