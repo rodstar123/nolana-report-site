@@ -121,6 +121,21 @@ export type Database = {
           slug: string;
           stories_count: number | null;
           title: string;
+          owners_move: string | null;
+          risk_radar: string | null;
+          thinking_question: string | null;
+          before_you_go: string | null;
+          breathers: Json | null;
+          nri_sub_growth: number | null;
+          nri_sub_development: number | null;
+          nri_sub_policy: number | null;
+          nri_sub_trade: number | null;
+          title_es: string | null;
+          opening_es: string | null;
+          owners_move_es: string | null;
+          risk_radar_es: string | null;
+          thinking_question_es: string | null;
+          before_you_go_es: string | null;
         };
         Insert: {
           created_at?: string | null;
@@ -135,6 +150,21 @@ export type Database = {
           slug: string;
           stories_count?: number | null;
           title: string;
+          owners_move?: string | null;
+          risk_radar?: string | null;
+          thinking_question?: string | null;
+          before_you_go?: string | null;
+          breathers?: Json | null;
+          nri_sub_growth?: number | null;
+          nri_sub_development?: number | null;
+          nri_sub_policy?: number | null;
+          nri_sub_trade?: number | null;
+          title_es?: string | null;
+          opening_es?: string | null;
+          owners_move_es?: string | null;
+          risk_radar_es?: string | null;
+          thinking_question_es?: string | null;
+          before_you_go_es?: string | null;
         };
         Update: {
           created_at?: string | null;
@@ -149,6 +179,21 @@ export type Database = {
           slug?: string;
           stories_count?: number | null;
           title?: string;
+          owners_move?: string | null;
+          risk_radar?: string | null;
+          thinking_question?: string | null;
+          before_you_go?: string | null;
+          breathers?: Json | null;
+          nri_sub_growth?: number | null;
+          nri_sub_development?: number | null;
+          nri_sub_policy?: number | null;
+          nri_sub_trade?: number | null;
+          title_es?: string | null;
+          opening_es?: string | null;
+          owners_move_es?: string | null;
+          risk_radar_es?: string | null;
+          thinking_question_es?: string | null;
+          before_you_go_es?: string | null;
         };
         Relationships: [];
       };
@@ -273,6 +318,15 @@ export type Database = {
           urgency: string | null;
           local_reach: string | null;
           risk: string | null;
+          signal: string | null;
+          who_should_act: string[] | null;
+          smart_move: string | null;
+          nolana_take: string | null;
+          headline_es: string | null;
+          signal_es: string | null;
+          why_it_matters_es: string | null;
+          smart_move_es: string | null;
+          nolana_take_es: string | null;
         };
         Insert: {
           created_at?: string | null;
@@ -292,6 +346,15 @@ export type Database = {
           urgency?: string | null;
           local_reach?: string | null;
           risk?: string | null;
+          signal?: string | null;
+          who_should_act?: string[] | null;
+          smart_move?: string | null;
+          nolana_take?: string | null;
+          headline_es?: string | null;
+          signal_es?: string | null;
+          why_it_matters_es?: string | null;
+          smart_move_es?: string | null;
+          nolana_take_es?: string | null;
         };
         Update: {
           created_at?: string | null;
@@ -311,6 +374,15 @@ export type Database = {
           urgency?: string | null;
           local_reach?: string | null;
           risk?: string | null;
+          signal?: string | null;
+          who_should_act?: string[] | null;
+          smart_move?: string | null;
+          nolana_take?: string | null;
+          headline_es?: string | null;
+          signal_es?: string | null;
+          why_it_matters_es?: string | null;
+          smart_move_es?: string | null;
+          nolana_take_es?: string | null;
         };
         Relationships: [
           {

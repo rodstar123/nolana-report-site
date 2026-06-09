@@ -219,6 +219,23 @@ Rules: Be specific (real numbers, cities, industries from the stories above). 1-
       // Non-fatal — page will still build on first visitor click
     }
 
+    // Trigger Spanish translation pass (non-blocking — English goes out regardless)
+    try {
+      await fetch(`${baseUrl}/api/translate-briefing`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-vercel-cron": "1",
+        },
+        body: JSON.stringify({ slug }),
+      });
+    } catch (translationErr) {
+      console.warn(
+        "[aggregator] Spanish translation failed (non-blocking):",
+        translationErr,
+      );
+    }
+
     return NextResponse.json({
       ok: true,
       poolSize: poolItems.length,
