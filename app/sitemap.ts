@@ -1,68 +1,100 @@
 import { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
 
-export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  let issues: Array<{ slug: string; published_at: string }> | null = null;
+const BASE = "https://nolanareport.com";
 
-  if (
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  ) {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-    );
+export async function generateSitemaps() {
+  return [{ id: 0 }, { id: 1 }];
+}
 
-    const { data } = await supabase
-      .from("issues")
-      .select("slug, published_at")
-      .eq("is_published", true)
-      .order("published_at", { ascending: false });
+type ChangeFreq = "weekly" | "monthly" | "yearly";
 
-    issues = data;
+function bilingual(
+  path: string,
+  opts: { lastModified: Date; changeFrequency: ChangeFreq; priority: number },
+): MetadataRoute.Sitemap {
+  const enUrl = path === "/" ? BASE : `${BASE}${path}`;
+  const esUrl = path === "/" ? `${BASE}/es` : `${BASE}/es${path}`;
+  const alternates = {
+    languages: { en: enUrl, es: esUrl, "x-default": enUrl },
+  };
+  return [
+    { url: enUrl, ...opts, alternates },
+    { url: esUrl, ...opts, alternates },
+  ];
+}
+
+export default async function sitemap({
+  id,
+}: {
+  id: number;
+}): Promise<MetadataRoute.Sitemap> {
+  if (id === 0) {
+    const now = new Date();
+    return [
+      ...bilingual("/", {
+        lastModified: now,
+        changeFrequency: "weekly",
+        priority: 1.0,
+      }),
+      ...bilingual("/issues", {
+        lastModified: now,
+        changeFrequency: "weekly",
+        priority: 0.9,
+      }),
+      ...bilingual("/money-map", {
+        lastModified: now,
+        changeFrequency: "weekly",
+        priority: 0.8,
+      }),
+      ...bilingual("/advertise", {
+        lastModified: now,
+        changeFrequency: "monthly",
+        priority: 0.7,
+      }),
+      ...bilingual("/signals", {
+        lastModified: now,
+        changeFrequency: "monthly",
+        priority: 0.7,
+      }),
+      ...bilingual("/privacy", {
+        lastModified: now,
+        changeFrequency: "yearly",
+        priority: 0.3,
+      }),
+      ...bilingual("/terms", {
+        lastModified: now,
+        changeFrequency: "yearly",
+        priority: 0.3,
+      }),
+    ];
   }
 
-  const issueEntries: MetadataRoute.Sitemap = (issues ?? []).map((issue) => ({
-    url: `https://nolanareport.com/issues/${issue.slug}`,
-    lastModified: new Date(issue.published_at),
-    changeFrequency: "weekly" as const,
-    priority: 0.8,
-  }));
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
+    return [];
+  }
 
-  return [
-    {
-      url: "https://nolanareport.com",
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    {
-      url: "https://nolanareport.com/issues",
-      lastModified: new Date(),
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+  );
+
+  const { data: issues } = await supabase
+    .from("issues")
+    .select("slug, published_at")
+    .eq("is_published", true)
+    .order("published_at", { ascending: false });
+
+  return (issues ?? []).flatMap((issue) =>
+    bilingual(`/issues/${issue.slug}`, {
+      lastModified: new Date(issue.published_at),
       changeFrequency: "weekly",
       priority: 0.9,
-    },
-    {
-      url: "https://nolanareport.com/money-map",
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    ...issueEntries,
-    {
-      url: "https://nolanareport.com/privacy",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
-    {
-      url: "https://nolanareport.com/terms",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
-  ];
+    }),
+  );
 }

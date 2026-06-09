@@ -14,6 +14,26 @@ import { getSnapshot, formatUpdatedLabel } from "@/lib/snapshot";
 
 export const revalidate = 3600;
 
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://nolanareport.com/#website",
+  name: "The Nolana Report",
+  alternateName: "Nolana Report",
+  url: "https://nolanareport.com",
+  description:
+    "Weekly briefing covering new businesses, government moves, cross-border trade, and industrial investment across McAllen, Edinburg, Brownsville, and the RGV.",
+  publisher: {
+    "@id": "https://nolanareport.com/#organization",
+  },
+  inLanguage: ["en", "es"],
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://nolanareport.com/issues?q={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+};
+
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -67,6 +87,10 @@ export default async function Home() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}

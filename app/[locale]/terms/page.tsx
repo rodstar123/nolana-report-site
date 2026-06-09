@@ -5,7 +5,6 @@ import { Link } from "@/i18n/navigation";
 export const metadata: Metadata = {
   title: "Terms of Service — The Nolana Report",
   description: "Terms of service for The Nolana Report newsletter.",
-  alternates: { canonical: "/terms" },
   robots: { index: false, follow: false },
 };
 

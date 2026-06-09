@@ -1,27 +1,41 @@
 # The Nolana Report
-> Weekly business intelligence briefing for the Rio Grande Valley, Texas
+
+Weekly business intelligence briefing for Rio Grande Valley entrepreneurs and business owners. Published every Monday.
 
 ## About
-The Nolana Report is published every Monday by National Bookkeeping Company (nationalboco.com). It covers new business openings, government and economic policy, cross-border trade with Mexico, community events, and industrial investment across McAllen, Edinburg, Brownsville, Pharr, Harlingen, Mission, and the entire Rio Grande Valley.
 
-## Coverage Areas
-- New Business Pulse: openings, expansions, closings, LLC filings
-- Opportunity Radar: grants, RFPs, permits, contracts, EDC/SBA incentives
-- Cross-Border & Trade: USD/MXN rates, bridge wait times, tariffs, customs
-- Community Buzz: events, social signals, local TV coverage
-- Industrial & Investment Watch: manufacturing, corporate relocations, FTZ activity, EDC announcements
+The Nolana Report is an AI-powered weekly business intelligence briefing covering the Rio Grande Valley (RGV) in South Texas. It delivers scored, summarized local business stories every Monday via email and web, serving entrepreneurs, small business owners, and decision-makers in McAllen, Edinburg, Pharr, Mission, and across Hidalgo County.
 
-## Data
-- Sources: 25+ including KRGV, ValleyCentral, RGV Business Journal, The Monitor, Brownsville Herald, Rio Grande Guardian, Texas Border Business, Valley Business Report, Federal Register, CBP, Edinburg EDC, McAllen EDC, Port of Brownsville
-- Every story is scored 0-100 for relevance to RGV business owners
-- Coverage area: Hidalgo County, Cameron County, Starr County, Willacy County
+## Key Information
 
-## Pricing
-- Free: weekly summary email + live data bar
-- Pro: $9/month (founding members $7/month locked forever) — full 30-story briefing, score badges, archive
-- Intel: $19/month — Pro + monthly deep-dive industry analysis
+- Published by: National Bookkeeping Company® (nationalboco.com)
+- Location: McAllen, Texas
+- Frequency: Weekly (every Monday)
+- Languages: English and Spanish
+- Coverage area: Rio Grande Valley, Texas
+- Subscription tiers: Free, Pro ($9/mo), Intel ($19/mo)
 
-## Contact
-- Website: https://nolanareport.com
-- Publisher: National Bookkeeping Company, 315 W Nolana Ave, McAllen, TX 78504
-- Parent site: https://nationalboco.com
+## Content
+
+- Current Issue: https://nolanareport.com/issues
+- Subscribe: https://nolanareport.com/
+- Advertise: https://nolanareport.com/advertise
+- Money Map: https://nolanareport.com/money-map
+- Contact: info@nationalboco.com
+
+## Topics Covered
+
+- Local business openings, closings, and expansions
+- Commercial real estate and development
+- Government decisions affecting business
+- Cross-border trade and commerce
+- Workforce and employment trends
+- Healthcare and education business impact
+- Industrial investment and Foreign Trade Zone activity
+- USD/MXN exchange rates and bridge wait times
+
+## Data Sources
+
+25+ sources including KRGV, ValleyCentral, RGV Business Journal, The Monitor, Brownsville Herald, Rio Grande Guardian, Texas Border Business, Valley Business Report, Federal Register, CBP, and local EDCs.
+
+Every story is scored 0-10 for relevance to RGV business owners using the Nolana Relevance Index (NRI).

@@ -360,31 +360,59 @@ export default async function IssuePage({
 
   const articleSchema = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "NewsArticle",
     headline: `Week of ${dateLabel} — The Nolana Report`,
     datePublished: issue.published_at,
+    dateModified: issue.updated_at ?? issue.published_at,
     author: {
       "@type": "Organization",
-      name: "National Bookkeeping Company",
-      url: "https://nationalboco.com",
+      name: "The Nolana Report",
     },
     publisher: {
       "@type": "Organization",
       name: "The Nolana Report",
-      url: "https://nolanareport.com",
       logo: {
         "@type": "ImageObject",
-        url: "https://nolanareport.com/images/og-social-card.png",
+        url: "https://nolanareport.com/images/logo-nolana-report.png",
       },
     },
     description: articleDescription,
-    mainEntityOfPage: `https://nolanareport.com/issues/${issue.slug}`,
+    inLanguage: "en",
     isAccessibleForFree: false,
-    hasPart: proStories.map(() => ({
+    hasPart: {
       "@type": "WebPageElement",
       isAccessibleForFree: false,
       cssSelector: ".pro-story",
-    })),
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://nolanareport.com/issues/${issue.slug}`,
+    },
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://nolanareport.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Archive",
+        item: "https://nolanareport.com/issues",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: issue.title,
+        item: `https://nolanareport.com/issues/${issue.slug}`,
+      },
+    ],
   };
 
   return (
@@ -392,6 +420,10 @@ export default async function IssuePage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <TrackBriefingView
         issueSlug={issue.slug}

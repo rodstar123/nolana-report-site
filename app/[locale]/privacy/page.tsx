@@ -5,7 +5,6 @@ import { Link } from "@/i18n/navigation";
 export const metadata: Metadata = {
   title: "Privacy Policy — The Nolana Report",
   description: "Privacy policy for The Nolana Report newsletter.",
-  alternates: { canonical: "/privacy" },
   robots: { index: false, follow: false },
 };
 

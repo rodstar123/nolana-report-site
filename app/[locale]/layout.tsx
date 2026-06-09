@@ -5,6 +5,8 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import Navigation from "@/components/Navigation";
+import { HreflangLinks } from "@/components/HreflangLinks";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import LenisProvider from "@/components/LenisProvider";
 import GeoAnalytics from "@/components/GeoAnalytics";
 
@@ -12,59 +14,71 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-export const metadata: Metadata = {
-  title: "The Nolana Report | RGV Business Intelligence & Weekly Business News",
-  description:
-    "Get the weekly Rio Grande Valley business intelligence briefing covering new businesses, permits, trade, bridge waits, government moves, and industrial investment across McAllen and the RGV.",
-  keywords:
-    "Rio Grande Valley, RGV, McAllen, Edinburg, Brownsville, Pharr, Harlingen, business news, business intelligence, cross-border trade, economic development, South Texas, Hidalgo County, Cameron County",
-  authors: [{ name: "National Bookkeeping Company" }],
-  publisher: "National Bookkeeping Company®",
-  creator: "The Nolana Report",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://nolanareport.com",
-  ),
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "/",
-    siteName: "The Nolana Report",
-    title: "The Nolana Report — Lo que se mueve en el Valle",
-    description:
-      "Weekly business intelligence briefing for the Rio Grande Valley. 30 stories scored and summarized every Monday.",
-    images: [
-      {
-        url: "/images/og-social-card.png",
-        width: 1200,
-        height: 630,
-        alt: "The Nolana Report — Business Intelligence for the RGV",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "The Nolana Report — Business Intelligence for the RGV",
-    description:
-      "Weekly briefing covering new businesses, government moves, cross-border trade across McAllen, Edinburg, and the Rio Grande Valley.",
-    images: ["/images/og-social-card.png"],
-  },
-  icons: {
-    icon: "/icon.png",
-    apple: "/apple-icon.png",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const isEs = params.locale === "es";
+
+  return {
+    title:
+      "The Nolana Report | RGV Business Intelligence & Weekly Business News",
+    description: isEs
+      ? "Recibe el reporte semanal de inteligencia de negocios del Valle del Río Grande. Nuevos negocios, comercio transfronterizo, permisos e inversión industrial en McAllen y el RGV."
+      : "Get the weekly Rio Grande Valley business intelligence briefing covering new businesses, permits, trade, bridge waits, government moves, and industrial investment across McAllen and the RGV.",
+    keywords:
+      "Rio Grande Valley, RGV, McAllen, Edinburg, Brownsville, Pharr, Harlingen, business news, business intelligence, cross-border trade, economic development, South Texas, Hidalgo County, Cameron County",
+    authors: [{ name: "National Bookkeeping Company" }],
+    publisher: "National Bookkeeping Company®",
+    creator: "The Nolana Report",
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_SITE_URL ?? "https://nolanareport.com",
+    ),
+    openGraph: {
+      type: "website",
+      locale: isEs ? "es_MX" : "en_US",
+      alternateLocale: [isEs ? "en_US" : "es_MX"],
+      url: "/",
+      siteName: "The Nolana Report",
+      title: "The Nolana Report — Lo que se mueve en el Valle",
+      description: isEs
+        ? "Reporte semanal de inteligencia de negocios para el Valle del Río Grande. 30 historias con puntaje y resumen cada lunes."
+        : "Weekly business intelligence briefing for the Rio Grande Valley. 30 stories scored and summarized every Monday.",
+      images: [
+        {
+          url: "/images/og-social-card.png",
+          width: 1200,
+          height: 630,
+          alt: "The Nolana Report — Business Intelligence for the RGV",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "The Nolana Report — Business Intelligence for the RGV",
+      description: isEs
+        ? "Reporte semanal cubriendo nuevos negocios, movimientos del gobierno, comercio transfronterizo en McAllen, Edinburg y el Valle del Río Grande."
+        : "Weekly briefing covering new businesses, government moves, cross-border trade across McAllen, Edinburg, and the Rio Grande Valley.",
+      images: ["/images/og-social-card.png"],
+    },
+    icons: {
+      icon: "/icon.png",
+      apple: "/apple-icon.png",
+    },
+    robots: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
-  },
-};
+  };
+}
 
 const organizationSchema = {
   "@context": "https://schema.org",
@@ -82,6 +96,11 @@ const organizationSchema = {
   description:
     "Get the weekly Rio Grande Valley business intelligence briefing covering new businesses, permits, trade, bridge waits, government moves, and industrial investment across McAllen and the RGV.",
   foundingDate: "2026",
+  founder: {
+    "@type": "Person",
+    name: "Noe Rodriguez",
+  },
+  inLanguage: ["en", "es"],
   address: {
     "@type": "PostalAddress",
     streetAddress: "315 W Nolana Ave",
@@ -118,21 +137,6 @@ const organizationSchema = {
     contactType: "customer service",
   },
   sameAs: ["https://t.me/NolanaReport"],
-};
-
-const websiteSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "@id": "https://nolanareport.com/#website",
-  name: "The Nolana Report",
-  alternateName: "Nolana Report",
-  url: "https://nolanareport.com",
-  description:
-    "Weekly briefing covering new businesses, government moves, cross-border trade, and industrial investment across McAllen, Edinburg, Brownsville, and the RGV.",
-  publisher: {
-    "@id": "https://nolanareport.com/#organization",
-  },
-  inLanguage: "en-US",
 };
 
 const periodicalSchema = {
@@ -187,6 +191,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        <HreflangLinks />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var s=localStorage.getItem('nolana-theme');if(s==='dark'||(s===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`,
@@ -229,10 +234,6 @@ export default async function LocaleLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
-        <script
-          type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(periodicalSchema),
           }}
@@ -240,6 +241,7 @@ export default async function LocaleLayout({
       </head>
       <body>
         <GeoAnalytics />
+        <BreadcrumbSchema />
         <NextIntlClientProvider messages={messages}>
           <LenisProvider>
             <Navigation />

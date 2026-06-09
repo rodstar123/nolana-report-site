@@ -18,6 +18,11 @@ export async function middleware(req: NextRequest) {
     path: "/",
   });
 
+  res.headers.set(
+    "Content-Language",
+    req.nextUrl.pathname.startsWith("/es") ? "es" : "en",
+  );
+
   // If intl middleware is redirecting, return early with geo cookie
   if (res.status >= 300 && res.status < 400) {
     return res;
