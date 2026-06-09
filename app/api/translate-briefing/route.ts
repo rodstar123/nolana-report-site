@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { cdtSlug } from "@/lib/cdt";
 
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 const TRANSLATION_SYSTEM_PROMPT = `You are the Spanish voice of The Nolana Report, a weekly business intelligence briefing for the Rio Grande Valley.
 
