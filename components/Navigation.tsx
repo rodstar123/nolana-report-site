@@ -60,17 +60,9 @@ export default function Navigation() {
   return (
     <nav
       ref={menuRef}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled || menuOpen ? "bg-navy/95 backdrop-blur-md shadow-lg" : ""
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md ${
+        scrolled || menuOpen ? "bg-navy/95 shadow-lg" : "bg-navy/90"
       }`}
-      style={
-        !scrolled && !menuOpen
-          ? {
-              background:
-                "linear-gradient(to bottom, rgba(237,232,224,0.15) 0%, rgba(237,232,224,0.05) 50%, transparent 100%)",
-            }
-          : undefined
-      }
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link
