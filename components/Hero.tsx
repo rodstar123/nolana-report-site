@@ -20,7 +20,7 @@ export default function Hero() {
         <div className="absolute inset-0">
           <div className="hero-mockup opacity-0 absolute inset-0">
             <Image
-              src="/images/hero-section-3.png"
+              src="/images/nolana-website-cover.png"
               alt="Business professional reading The Nolana Report"
               fill
               priority
@@ -67,7 +67,7 @@ export default function Hero() {
         <div className="relative" style={{ height: "300px" }}>
           <div className="hero-mockup opacity-0 absolute inset-0">
             <Image
-              src="/images/hero-section-3.png"
+              src="/images/nolana-website-cover.png"
               alt="Business professional reading The Nolana Report"
               fill
               priority
