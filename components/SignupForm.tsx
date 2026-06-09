@@ -259,10 +259,10 @@ export default function SignupForm({ variant = "dark" }: Props) {
   const styles = {
     input: isLight
       ? "w-full px-5 py-4 rounded-xl bg-white border border-cream-dark text-charcoal placeholder-slate-light font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[52px] shadow-sm"
-      : "w-full px-5 py-4 rounded-xl bg-[#1a2a3d] border border-[#2a3a4d] text-warm-white placeholder-[#6b7a8d] font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[52px]",
+      : "w-full px-5 py-4 rounded-xl border border-white/20 text-charcoal placeholder-[#6B7280] font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[52px]",
     button: isLight
       ? "w-full bg-teal hover:bg-teal-light text-white font-body font-bold text-base py-4 px-8 rounded-xl transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed min-h-[52px] shadow-md"
-      : "w-full bg-teal hover:bg-teal-light text-white font-body font-bold text-base py-4 px-8 rounded-xl transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed min-h-[52px]",
+      : "w-full font-body font-bold rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed",
     checkbox: isLight
       ? `font-body text-sm leading-snug transition-colors duration-200 ${agreed ? "text-slate" : "text-slate/60"}`
       : `font-body text-sm leading-snug transition-colors duration-200 ${agreed ? "text-slate-light" : "text-slate-light/60"}`,
@@ -404,6 +404,7 @@ export default function SignupForm({ variant = "dark" }: Props) {
         required
         aria-label="Email address"
         className={styles.input}
+        {...(!isLight && { style: { background: "rgba(255,255,255,0.95)" } })}
       />
 
       <LangPills
@@ -427,6 +428,16 @@ export default function SignupForm({ variant = "dark" }: Props) {
         type="submit"
         disabled={status === "loading" || !agreed}
         className={styles.button}
+        {...(!isLight && {
+          style: {
+            background: "#2A9D8F",
+            color: "#FFFFFF",
+            fontSize: "16px",
+            padding: "16px 32px",
+            minHeight: "56px",
+            boxShadow: "0 4px 20px rgba(42,157,143,0.3)",
+          },
+        })}
       >
         {status === "loading" ? t.submitLoading : t.submitIdle}
       </button>

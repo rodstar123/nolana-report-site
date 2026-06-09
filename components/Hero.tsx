@@ -27,7 +27,7 @@ export default function Hero() {
           fill
           priority
           className="object-cover"
-          style={{ objectPosition: "center 20%" }}
+          style={{ objectPosition: "80% 10%" }}
           sizes="100vw"
         />
       </div>
@@ -38,7 +38,7 @@ export default function Hero() {
         aria-hidden="true"
         style={{
           background:
-            "linear-gradient(to right, rgba(11,20,38,0.98) 0%, rgba(11,20,38,0.95) 50%, rgba(11,20,38,0.7) 65%, rgba(11,20,38,0.3) 80%, transparent 100%)",
+            "linear-gradient(to right, rgba(11,20,38,0.97) 0%, rgba(11,20,38,0.95) 42%, rgba(11,20,38,0.75) 58%, rgba(11,20,38,0.3) 78%, rgba(11,20,38,0.1) 100%)",
         }}
       />
       {/* Mobile: heavier overlay for readability */}
@@ -55,15 +55,6 @@ export default function Hero() {
       >
         <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-14 sm:py-16 lg:py-20">
           <div className="max-w-xl lg:max-w-[55%] xl:max-w-[50%]">
-            <div className="hero-brand opacity-0 mb-5 lg:mb-8">
-              <span
-                className="font-body font-bold text-xs tracking-[0.22em] uppercase"
-                style={{ color: "#2A9D8F" }}
-              >
-                {t("brand")}
-              </span>
-            </div>
-
             <div className="hero-label opacity-0 mb-4 lg:mb-6">
               <span
                 className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5"
@@ -98,7 +89,7 @@ export default function Hero() {
             </div>
 
             <h1
-              className="hero-title font-display font-extrabold opacity-0 mb-4 lg:mb-5"
+              className="hero-title font-display font-extrabold opacity-0 mb-5 lg:mb-6"
               style={{
                 fontSize: "clamp(1.75rem, 4.5vw, 3.25rem)",
                 lineHeight: 1.08,
@@ -114,7 +105,7 @@ export default function Hero() {
             </h1>
 
             <p
-              className="hero-tagline font-body opacity-0 mb-6 lg:mb-8 leading-relaxed"
+              className="hero-tagline font-body opacity-0 mb-7 lg:mb-8 leading-relaxed"
               style={{
                 fontSize: "clamp(0.9rem, 1.5vw, 1.05rem)",
                 maxWidth: "28rem",
@@ -124,11 +115,17 @@ export default function Hero() {
               {t("tagline")}
             </p>
 
-            <div className="hero-form opacity-0 mb-5 lg:mb-6 max-w-md">
+            <div
+              className="hero-form opacity-0 max-w-md"
+              style={{ marginTop: "28px", marginBottom: "24px" }}
+            >
               <SignupForm variant="dark" />
             </div>
 
-            <div className="hero-social-proof opacity-0 mb-3 lg:mb-4">
+            <div
+              className="hero-social-proof opacity-0 mb-3 lg:mb-4"
+              style={{ marginTop: "24px" }}
+            >
               <p
                 className="font-body text-xs uppercase tracking-[0.12em] font-semibold mb-1.5"
                 style={{ color: "#2A9D8F" }}
