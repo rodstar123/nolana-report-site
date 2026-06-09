@@ -361,20 +361,27 @@ export async function GET(req: NextRequest) {
         .maybeSingle();
 
       if (todayIssue) {
-        const [emailLogResult, subscriberResult] = await Promise.all([
-          supabase
-            .from("email_log")
-            .select("resend_id", { count: "exact" })
-            .eq("issue_id", todayIssue.id)
-            .eq("email_type", "briefing"),
-          supabase
-            .from("subscribers")
-            .select("*", { count: "exact", head: true })
-            .eq("email_verified", true)
-            .eq("unsubscribed", false),
-        ]);
+        const [emailLogResult, emailLogEsResult, subscriberResult] =
+          await Promise.all([
+            supabase
+              .from("email_log")
+              .select("resend_id", { count: "exact" })
+              .eq("issue_id", todayIssue.id)
+              .eq("email_type", "briefing"),
+            supabase
+              .from("email_log")
+              .select("resend_id", { count: "exact" })
+              .eq("issue_id", todayIssue.id)
+              .eq("email_type", "briefing_es"),
+            supabase
+              .from("subscribers")
+              .select("*", { count: "exact", head: true })
+              .eq("email_verified", true)
+              .eq("unsubscribed", false),
+          ]);
 
         const delivered = emailLogResult.count ?? 0;
+        const deliveredEs = emailLogEsResult.count ?? 0;
         const totalSubs = subscriberResult.count ?? 0;
 
         // Check Resend for bounces/suppressions — sample up to 10 to stay under rate limits
@@ -415,7 +422,12 @@ export async function GET(req: NextRequest) {
         lines.push(
           `📬 Briefing delivered: ${delivered}/${totalSubs}${bounced > 0 ? ` | Bounced: ${bounced}` : ""}${suppressed > 0 ? ` | Suppressed: ${suppressed}` : ""}${notSent > 0 && bounced === 0 && suppressed === 0 ? ` | Skipped: ${notSent}` : ""}`,
         );
-        lines.push(`👥 Confirmed subscribers: ${totalSubs}`);
+        if (deliveredEs > 0) {
+          lines.push(`🇪🇸 Spanish edition: ${deliveredEs} emails delivered`);
+        }
+        lines.push(
+          `👥 Confirmed subscribers: ${totalSubs} | EN: ${delivered} | ES: ${deliveredEs}`,
+        );
       }
     }
 
