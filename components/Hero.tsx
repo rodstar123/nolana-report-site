@@ -22,12 +22,12 @@ export default function Hero() {
       {/* Full-width background image */}
       <div className="hero-mockup opacity-0 absolute inset-0">
         <Image
-          src="/images/nolana-report-hero-2.png"
+          src="/images/hero-section-3.png"
           alt="Business professional reading The Nolana Report"
           fill
           priority
           className="object-cover"
-          style={{ objectPosition: "95% 20%" }}
+          style={{ objectPosition: "center 20%" }}
           sizes="100vw"
         />
       </div>
