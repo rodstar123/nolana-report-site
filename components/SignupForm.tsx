@@ -226,7 +226,7 @@ function LangPills({
             key={o.key}
             type="button"
             onClick={() => onChange(o.key)}
-            className={`font-body text-xs px-3 py-1.5 rounded-full border transition-colors duration-200 min-h-[32px] ${
+            className={`font-body text-xs px-4 py-2 rounded-full border transition-colors duration-200 min-h-[44px] ${
               value === o.key
                 ? "bg-teal border-teal text-white font-semibold"
                 : isLight
@@ -259,7 +259,7 @@ export default function SignupForm({ variant = "dark" }: Props) {
   const styles = {
     input: isLight
       ? "w-full px-5 py-4 rounded-xl bg-white border border-cream-dark text-charcoal placeholder-slate-light font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[52px] shadow-sm"
-      : "w-full px-5 py-4 rounded-xl border border-white/20 text-charcoal placeholder-[#6B7280] font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[52px]",
+      : "w-full px-5 py-3.5 rounded-xl border border-white/20 text-charcoal placeholder-[#6B7280] font-body text-base focus:outline-none focus:border-teal focus:ring-2 focus:ring-teal/20 min-h-[48px] md:min-h-[52px]",
     button: isLight
       ? "w-full bg-teal hover:bg-teal-light text-white font-body font-bold text-base py-4 px-8 rounded-xl transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed min-h-[52px] shadow-md"
       : "w-full font-body font-bold rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed",
@@ -414,12 +414,12 @@ export default function SignupForm({ variant = "dark" }: Props) {
         isLight={isLight}
       />
 
-      <label className="flex items-center gap-3 cursor-pointer group">
+      <label className="flex items-center gap-3 cursor-pointer group min-h-[44px]">
         <input
           type="checkbox"
           checked={agreed}
           onChange={(e) => setAgreed(e.target.checked)}
-          className="w-4 h-4 flex-shrink-0 cursor-pointer accent-teal"
+          className="w-5 h-5 flex-shrink-0 cursor-pointer accent-teal"
         />
         <span className={styles.checkbox}>{t.checkbox}</span>
       </label>
