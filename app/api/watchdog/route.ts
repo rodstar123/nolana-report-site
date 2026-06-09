@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendTelegram } from "@/lib/agents/alerter";
+import { cdtSlug, cdtDay, cdtStartOfDay } from "@/lib/cdt";
 
 export const maxDuration = 60;
 
@@ -20,10 +21,9 @@ export async function GET(req: NextRequest) {
 
   const alerts: string[] = [];
   const now = new Date();
-  const startOfDay = new Date(now);
-  startOfDay.setUTCHours(0, 0, 0, 0);
-  const isSunday = now.getUTCDay() === 0;
-  const isMonday = now.getUTCDay() === 1;
+  const startOfDay = cdtStartOfDay(now);
+  const isSunday = cdtDay(now) === 0;
+  const isMonday = cdtDay(now) === 1;
 
   try {
     const { count: todayItems } = await supabase
@@ -108,13 +108,13 @@ export async function GET(req: NextRequest) {
     }
 
     if (alerts.length > 0) {
-      const msg = `🔍 Nolana Watchdog — ${now.toISOString().slice(0, 10)}\n\n${alerts.join("\n\n")}`;
+      const msg = `🔍 Nolana Watchdog — ${cdtSlug(now)}\n\n${alerts.join("\n\n")}`;
       await sendTelegram(msg);
     }
 
     return NextResponse.json({
       ok: true,
-      date: now.toISOString().slice(0, 10),
+      date: cdtSlug(now),
       todayItems: todayItems ?? 0,
       agentsMissing: missing,
       downSources: (downSources ?? []).length,

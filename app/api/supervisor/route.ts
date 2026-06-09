@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { AGENT_NAME_TO_SLUG, type AgentName } from "@/lib/agents/types";
 import { fetchBridgeReading } from "@/lib/cbp";
 import { sendTelegram } from "@/lib/agents/alerter";
+import { cdtSlug, cdtDay, cdtStartOfDay } from "@/lib/cdt";
 
 export const maxDuration = 300;
 
@@ -16,7 +17,7 @@ const ALL_AGENTS: AgentName[] = [
 
 function getLastMondayBriefingTime(now: Date): Date {
   const d = new Date(now);
-  const day = d.getUTCDay();
+  const day = cdtDay(d);
   const daysSinceMonday = day === 0 ? 6 : day - 1;
   d.setUTCDate(d.getUTCDate() - daysSinceMonday);
   d.setUTCHours(13, 30, 0, 0);
@@ -25,7 +26,7 @@ function getLastMondayBriefingTime(now: Date): Date {
 }
 
 function daysUntilNextMonday(now: Date): number {
-  const day = now.getUTCDay();
+  const day = cdtDay(now);
   if (day === 0) return 1;
   if (day === 1) return 7;
   return 8 - day;
@@ -47,10 +48,9 @@ export async function GET(req: NextRequest) {
 
   try {
     const now = new Date();
-    const startOfDay = new Date(now);
-    startOfDay.setUTCHours(0, 0, 0, 0);
-    const isMonday = now.getUTCDay() === 1;
-    const dateStr = now.toISOString().slice(0, 10);
+    const startOfDay = cdtStartOfDay(now);
+    const isMonday = cdtDay(now) === 1;
+    const dateStr = cdtSlug(now);
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL ?? "https://nolanareport.com";
 

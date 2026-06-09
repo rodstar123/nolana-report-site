@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { fetchBridgeReading } from "./cbp";
+import { cdtDay } from "./cdt";
 
 /**
  * Live homepage snapshot — powers the DataBar.
@@ -35,11 +36,11 @@ function getServiceClient() {
   return createClient(url, key);
 }
 
-/** Monday 00:00 UTC of the current week, ISO string. */
+/** Monday 00:00 CDT of the current week, ISO string. */
 function weekStartISO(): string {
   const now = new Date();
-  const day = now.getUTCDay(); // 0=Sun … 1=Mon
-  const diff = (day + 6) % 7; // days since Monday
+  const day = cdtDay(now);
+  const diff = (day + 6) % 7;
   const monday = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff),
   );

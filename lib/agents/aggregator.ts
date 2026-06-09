@@ -1,6 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { getSourceTier } from "./sources";
 import type { SourceTier } from "./types";
+import { cdtSlug } from "@/lib/cdt";
 
 const STOPWORDS = new Set([
   "a",
@@ -236,7 +237,7 @@ export function buildOpusUserMessage(
   const startDate = new Date(now.getTime() - 7 * 86_400_000)
     .toISOString()
     .slice(0, 10);
-  const weekStr = now.toISOString().slice(0, 10);
+  const weekStr = cdtSlug(now);
 
   const agentToSection: Record<string, string> = {
     "Agent 1": "New Business Pulse",
@@ -965,7 +966,7 @@ export async function writeBriefing(
     breathers: BreatherItem[] | null;
   },
 ): Promise<{ issueId: string; storiesWritten: number }> {
-  const slug = new Date().toISOString().slice(0, 10);
+  const slug = cdtSlug();
   const title = `The Nolana Report — Week of ${slug}`;
 
   const { data: existing } = await supabase

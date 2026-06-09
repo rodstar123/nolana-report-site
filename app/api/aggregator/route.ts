@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { cdtSlug } from "@/lib/cdt";
 import {
   fetchPoolItems,
   dedup,
@@ -207,7 +208,7 @@ Rules: Be specific (real numbers, cities, industries from the stories above). 1-
     });
 
     // Warm the ISR cache so the first subscriber click doesn't cold-start
-    const slug = new Date().toISOString().slice(0, 10);
+    const slug = cdtSlug();
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL ?? "https://nolanareport.com";
     try {
