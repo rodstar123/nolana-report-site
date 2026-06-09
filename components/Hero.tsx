@@ -135,8 +135,8 @@ export default function Hero() {
             <div className="flex-shrink-0 flex justify-center lg:justify-end lg:flex-1">
               <div className="hero-mockup opacity-0 relative">
                 <Image
-                  src="/images/nolana-iphone-hand.png"
-                  alt="Hand holding iPhone showing The Nolana Report newsletter with scored business stories"
+                  src="/images/nolana-report-hero-2.png"
+                  alt="Business professional reading The Nolana Report"
                   width={400}
                   height={500}
                   priority
