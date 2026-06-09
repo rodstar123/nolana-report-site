@@ -60,10 +60,8 @@ export default function Navigation() {
   return (
     <nav
       ref={menuRef}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled || menuOpen
-          ? "bg-navy/95 backdrop-blur-md shadow-lg"
-          : "bg-transparent"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md ${
+        scrolled || menuOpen ? "bg-navy/95 shadow-lg" : "bg-navy/90"
       }`}
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">

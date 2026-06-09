@@ -16,14 +16,17 @@ export default function Hero() {
   return (
     <section
       id="signup"
-      className="relative overflow-hidden"
-      style={{ minHeight: "600px" }}
+      className="relative overflow-hidden pt-16"
+      style={{ minHeight: "calc(600px + 4rem)" }}
     >
       <div className="flex flex-col md:flex-row" style={{ minHeight: "600px" }}>
         {/* LEFT — solid cream content area */}
         <div
           className="relative z-10 w-full md:w-[58%] flex items-center"
-          style={{ background: "#EDE8E0" }}
+          style={{
+            background: "#EDE8E0",
+            boxShadow: "4px 0 20px rgba(0,0,0,0.08)",
+          }}
         >
           <div className="w-full px-6 sm:px-10 lg:pl-16 lg:pr-10 xl:pl-20 xl:pr-12 py-14 sm:py-16 lg:py-20">
             <div className="max-w-xl">
@@ -124,13 +127,6 @@ export default function Hero() {
               </div>
             </div>
           </div>
-
-          {/* Teal accent divider — visible on desktop only */}
-          <div
-            className="hidden md:block absolute top-0 right-0 w-[3px] h-full z-20"
-            aria-hidden="true"
-            style={{ background: "#2A9D8F" }}
-          />
         </div>
 
         {/* RIGHT — hero image, edge-to-edge */}
@@ -162,7 +158,8 @@ export default function Hero() {
               alt="Business professional reading The Nolana Report"
               fill
               priority
-              className="hero-mockup opacity-0 object-cover object-center"
+              className="hero-mockup opacity-0 object-cover"
+              style={{ objectPosition: "center 15%" }}
               sizes="42vw"
             />
           </div>
