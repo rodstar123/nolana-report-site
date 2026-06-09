@@ -39,8 +39,18 @@ export default function Hero() {
           />
         </div>
 
+        {/* Subtle teal-gold glow at top */}
         <div
-          className="relative z-[2] w-full flex items-center"
+          className="absolute inset-0 z-[2] pointer-events-none"
+          aria-hidden="true"
+          style={{
+            background:
+              "radial-gradient(ellipse at 30% 0%, rgba(42,157,143,0.12) 0%, rgba(212,168,83,0.06) 30%, transparent 65%)",
+          }}
+        />
+
+        <div
+          className="relative z-[3] w-full flex items-center"
           style={{ minHeight: "600px" }}
         >
           <div className="w-full max-w-7xl mx-auto px-10 lg:px-16 py-16 lg:py-20">
@@ -78,13 +88,24 @@ export default function Hero() {
 
         {/* Content section */}
         <div
-          className="relative z-[2]"
+          className="relative"
           style={{
             background: "rgba(11,20,38,1)",
             padding: "24px 20px 32px",
           }}
         >
-          <HeroContent t={t} isMobile={true} />
+          {/* Subtle teal-gold glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            aria-hidden="true"
+            style={{
+              background:
+                "radial-gradient(ellipse at 30% 0%, rgba(42,157,143,0.12) 0%, rgba(212,168,83,0.06) 30%, transparent 65%)",
+            }}
+          />
+          <div className="relative z-[1]">
+            <HeroContent t={t} isMobile={true} />
+          </div>
         </div>
       </div>
 
