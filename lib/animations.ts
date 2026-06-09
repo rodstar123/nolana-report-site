@@ -55,8 +55,8 @@ export function heroEntrance() {
         {
           targets: ".hero-mockup",
           opacity: [0, 1],
-          translateX: [60, 0],
-          duration: 1000,
+          scale: [1.05, 1],
+          duration: 1200,
           easing: "easeOutCubic",
         },
         "-=1200",
