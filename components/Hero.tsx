@@ -27,7 +27,7 @@ export default function Hero() {
           fill
           priority
           className="object-cover"
-          style={{ objectPosition: "90% 20%" }}
+          style={{ objectPosition: "95% 20%" }}
           sizes="100vw"
         />
       </div>
@@ -38,7 +38,7 @@ export default function Hero() {
         aria-hidden="true"
         style={{
           background:
-            "linear-gradient(to right, rgba(11,20,38,0.95) 0%, rgba(11,20,38,0.95) 40%, rgba(11,20,38,0.8) 55%, rgba(11,20,38,0.3) 75%, transparent 100%)",
+            "linear-gradient(to right, rgba(11,20,38,0.98) 0%, rgba(11,20,38,0.95) 50%, rgba(11,20,38,0.7) 65%, rgba(11,20,38,0.3) 80%, transparent 100%)",
         }}
       />
       {/* Mobile: heavier overlay for readability */}
