@@ -3,8 +3,9 @@
 import Link from "next/link";
 
 interface Props {
-  moves: string[]; // Array of 1-3 move strings (already parsed from markdown)
-  canSeePro: boolean; // Whether user has Pro access
+  moves: string[];
+  canSeePro: boolean;
+  title?: string;
 }
 
 const BOLD_PATTERN = /^\*\*(.+?)\*\*\s*(.*)/;
@@ -56,13 +57,17 @@ function LockedMoveItem({ move, index }: { move: string; index: number }) {
   );
 }
 
-export function ThreeMovesSection({ moves, canSeePro }: Props) {
+export function ThreeMovesSection({
+  moves,
+  canSeePro,
+  title = "3 Moves This Week",
+}: Props) {
   if (!moves || moves.length === 0) return null;
 
   return (
     <div className="mb-8 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl p-7">
       <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-5">
-        3 Moves This Week
+        {title}
       </h2>
       <ol className="space-y-4">
         {canSeePro ? (

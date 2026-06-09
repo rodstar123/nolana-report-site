@@ -1,15 +1,8 @@
 "use client";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import NRITooltip from "./NRITooltip";
 import QuickReactions from "./QuickReactions";
-
-const SECTION_LABELS: Record<string, string> = {
-  new_business_pulse: "New Business Pulse",
-  gov_economic_watch: "Opportunity Radar",
-  cross_border_trade: "Cross-Border & Trade",
-  community_buzz: "Community Buzz",
-  industrial_investment: "Industrial & Investment Watch",
-};
 
 const SECTION_COLORS: Record<string, { bg: string; color: string }> = {
   new_business_pulse: { bg: "rgba(13,115,119,0.10)", color: "#0d7377" },
@@ -167,6 +160,10 @@ function SectionField({
 }
 
 export function StoryCard({ story, locked = false }: Props) {
+  const t = useTranslations("issue");
+  const sectionLabel = t.has(`sectionLabels.${story.section}`)
+    ? t(`sectionLabels.${story.section}`)
+    : story.section;
   const tagStyle = SECTION_COLORS[story.section] ?? {
     bg: "rgba(74,85,104,0.10)",
     color: "#4a5568",
@@ -184,7 +181,7 @@ export function StoryCard({ story, locked = false }: Props) {
           className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-body font-bold uppercase tracking-wide flex-shrink-0"
           style={{ background: tagStyle.bg, color: tagStyle.color }}
         >
-          {SECTION_LABELS[story.section] ?? story.section}
+          {sectionLabel}
         </span>
         <div className="flex items-center gap-2 flex-shrink-0">
           {story.nolana_score && (
@@ -256,7 +253,7 @@ export function StoryCard({ story, locked = false }: Props) {
 
       {locked ? (
         <p className="font-body text-slate-light dark:text-dark-dim italic text-sm">
-          Upgrade to Pro to read the full story.
+          {t("upgradeToPro")}
         </p>
       ) : isNewFormat ? (
         <>
@@ -264,7 +261,7 @@ export function StoryCard({ story, locked = false }: Props) {
             <SectionField
               icon={<SignalIcon />}
               iconColor="#534AB7"
-              label="THE SIGNAL"
+              label={t("theSignal")}
             >
               <p className="font-body text-[16px] text-charcoal dark:text-dark-text leading-[1.75]">
                 {story.signal}
@@ -275,7 +272,7 @@ export function StoryCard({ story, locked = false }: Props) {
               <SectionField
                 icon={<UsersIcon />}
                 iconColor="#1D9E75"
-                label="WHO SHOULD ACT"
+                label={t("whoShouldAct")}
               >
                 <div className="flex flex-wrap gap-1.5">
                   {story.who_should_act.map((tag) => {
@@ -297,7 +294,7 @@ export function StoryCard({ story, locked = false }: Props) {
               <SectionField
                 icon={<AlertTriangleIcon />}
                 iconColor="#BA7517"
-                label="WHY IT MATTERS"
+                label={t("whyItMatters")}
               >
                 <p className="font-body text-[16px] text-charcoal dark:text-dark-text leading-[1.75]">
                   {story.why_it_matters}
@@ -309,7 +306,7 @@ export function StoryCard({ story, locked = false }: Props) {
               <SectionField
                 icon={<TargetIcon />}
                 iconColor="#185FA5"
-                label="SMART MOVE"
+                label={t("smartMove")}
               >
                 <p className="font-body text-[16px] text-charcoal dark:text-dark-text leading-[1.75]">
                   {story.smart_move}
@@ -320,7 +317,7 @@ export function StoryCard({ story, locked = false }: Props) {
             {story.nolana_take && (
               <div className="bg-cream-dark/50 dark:bg-dark-border/30 rounded-lg px-3.5 py-3">
                 <p className="text-[13px] font-medium font-body uppercase tracking-[0.3px] text-slate-light dark:text-dark-dim mb-1">
-                  NOLANA TAKE
+                  {t("nolanaTake")}
                 </p>
                 <p className="font-editorial italic text-[16px] text-charcoal dark:text-dark-text leading-[1.75]">
                   {story.nolana_take}
@@ -353,7 +350,7 @@ export function StoryCard({ story, locked = false }: Props) {
                 rel="noopener noreferrer"
                 className="font-body text-xs font-semibold text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal transition-colors whitespace-nowrap"
               >
-                Read the full story →
+                {t("readFullStory")}
               </a>
             )}
           </div>
@@ -370,7 +367,7 @@ export function StoryCard({ story, locked = false }: Props) {
             <div className="mt-4 mb-5 pl-4 border-l-[3px] border-teal bg-teal/5 dark:bg-teal/10 rounded-r-md py-3">
               <p className="font-body text-[16px] text-slate dark:text-dark-muted leading-[1.75]">
                 <span className="font-semibold text-teal dark:text-teal-light">
-                  Why it matters:
+                  {t("whyItMattersOld")}
                 </span>{" "}
                 {story.why_it_matters}
               </p>
@@ -412,7 +409,7 @@ export function StoryCard({ story, locked = false }: Props) {
                 rel="noopener noreferrer"
                 className="font-body text-xs font-semibold text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal transition-colors whitespace-nowrap"
               >
-                Read the full story →
+                {t("readFullStory")}
               </a>
             )}
           </div>

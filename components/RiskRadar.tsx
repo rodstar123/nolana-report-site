@@ -1,9 +1,12 @@
 function parseRisks(md: string): { text: string; who: string }[] {
   return md
     .split("\n")
-    .filter((line) => line.trim().startsWith("RISK:"))
+    .filter(
+      (line) =>
+        line.trim().startsWith("RISK:") || line.trim().startsWith("RIESGO:"),
+    )
     .map((line) => {
-      const content = line.replace(/^RISK:\s*/, "").trim();
+      const content = line.replace(/^(RISK|RIESGO):\s*/, "").trim();
       const dashIdx = content.lastIndexOf(" — ");
       if (dashIdx > 0) {
         return {
@@ -15,8 +18,14 @@ function parseRisks(md: string): { text: string; who: string }[] {
     });
 }
 
-export function RiskRadar({ markdown }: { markdown: string }) {
-  const body = markdown.replace(/^##\s*Risk Radar\s*\n?/, "").trim();
+export function RiskRadar({
+  markdown,
+  title = "Risk Radar",
+}: {
+  markdown: string;
+  title?: string;
+}) {
+  const body = markdown.replace(/^##\s*.+\n?/, "").trim();
   if (!body) return null;
 
   const risks = parseRisks(body);
@@ -25,7 +34,7 @@ export function RiskRadar({ markdown }: { markdown: string }) {
   return (
     <div className="mb-10 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl p-6">
       <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-4">
-        Risk Radar
+        {title}
       </h2>
       <ul className="space-y-3">
         {risks.map((risk, i) => (

@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getSubscriber } from "@/lib/get-subscriber";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { StoryCard, type StoryData } from "@/components/StoryCard";
 import { UpgradeBanner } from "@/components/UpgradeBanner";
 import { IssueFooter } from "@/components/IssueFooter";
@@ -104,7 +105,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: { locale: string; slug: string };
 }) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return {};
   const supabase = getSupabase();
@@ -158,9 +159,14 @@ export async function generateMetadata({
 export default async function IssuePage({
   params,
 }: {
-  params: { slug: string };
+  params: { locale: string; slug: string };
 }) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) notFound();
+
+  const locale = params.locale || "en";
+  const isEs = locale === "es";
+  setRequestLocale(locale);
+  const t = await getTranslations("issue");
 
   const supabase = getSupabase();
   let subscriber: Awaited<ReturnType<typeof getSubscriber>> = null;
@@ -186,7 +192,19 @@ export default async function IssuePage({
     .eq("issue_id", issue.id)
     .order("position", { ascending: true });
 
-  const allStories = (stories ?? []) as StoryData[];
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const rawStories = (stories ?? []) as (StoryData & Record<string, any>)[];
+  const allStories: StoryData[] = isEs
+    ? rawStories.map((s) => ({
+        ...s,
+        headline: s.headline_es ?? s.headline,
+        signal: s.signal_es ?? s.signal,
+        why_it_matters: s.why_it_matters_es ?? s.why_it_matters,
+        smart_move: s.smart_move_es ?? s.smart_move,
+        nolana_take: s.nolana_take_es ?? s.nolana_take,
+      }))
+    : rawStories;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const freeStories = allStories.filter((s) => s.is_free);
   const proStories = allStories.filter((s) => !s.is_free);
 
@@ -213,15 +231,21 @@ export default async function IssuePage({
     ? parseMoneyMap(iss.valley_money_map)
     : null;
   const movesData = iss.three_moves ? parseMoves(iss.three_moves) : null;
-  const quietSignalText = iss.quiet_signal
-    ? (iss.quiet_signal as string)
-        .replace(/^##\s*The Quiet Signal\s*\n?/, "")
-        .trim() || null
+  const quietSignalRaw = iss.quiet_signal as string | null;
+  const quietSignalText = quietSignalRaw
+    ? quietSignalRaw.replace(/^##\s*.+\n?/, "").trim() || null
     : null;
-  const ownersMoveText = iss.owners_move ?? null;
-  const riskRadarText = iss.risk_radar ?? null;
-  const thinkingQuestionText = iss.thinking_question ?? null;
-  const beforeYouGoText = iss.before_you_go ?? null;
+  const ownersMoveText =
+    (isEs && iss.owners_move_es ? iss.owners_move_es : iss.owners_move) ?? null;
+  const riskRadarText =
+    (isEs && iss.risk_radar_es ? iss.risk_radar_es : iss.risk_radar) ?? null;
+  const thinkingQuestionText =
+    (isEs && iss.thinking_question_es
+      ? iss.thinking_question_es
+      : iss.thinking_question) ?? null;
+  const beforeYouGoText =
+    (isEs && iss.before_you_go_es ? iss.before_you_go_es : iss.before_you_go) ??
+    null;
 
   const rawBreathers: BreatherData[] = Array.isArray(iss.breathers)
     ? (iss.breathers as BreatherData[]).filter((b) => b && b.type && b.text)
@@ -348,15 +372,19 @@ export default async function IssuePage({
   ].filter((s) => s.value !== null && s.value !== undefined);
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
-  const dateLabel = new Date(issue.published_at).toLocaleDateString("en-US", {
+  const issueTitle = isEs && iss.title_es ? iss.title_es : issue.title;
+  const issueOpening = isEs && iss.opening_es ? iss.opening_es : issue.opening;
+  const dateLang = isEs ? "es-MX" : "en-US";
+
+  const dateLabel = new Date(issue.published_at).toLocaleDateString(dateLang, {
     month: "long",
     day: "numeric",
     year: "numeric",
   });
 
-  const articleDescription = issue.opening
-    ? stripMarkdown(issue.opening).slice(0, 155).replace(/\n/g, " ").trim()
-    : `${issue.stories_count} stories scored this week.`;
+  const articleDescription = issueOpening
+    ? stripMarkdown(issueOpening).slice(0, 155).replace(/\n/g, " ").trim()
+    : t("stories", { count: issue.stories_count ?? 0 });
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -377,7 +405,7 @@ export default async function IssuePage({
       },
     },
     description: articleDescription,
-    inLanguage: "en",
+    inLanguage: isEs ? "es" : "en",
     isAccessibleForFree: false,
     hasPart: {
       "@type": "WebPageElement",
@@ -437,20 +465,20 @@ export default async function IssuePage({
             href="/issues"
             className="font-body text-sm text-teal hover:text-teal-light dark:text-teal-light dark:hover:text-teal transition-colors"
           >
-            ← All Issues
+            {t("allIssues")}
           </Link>
         </div>
 
         <span className="section-label mb-4 block">
-          Week of{" "}
-          {new Date(issue.published_at).toLocaleDateString("en-US", {
+          {t("weekOf")}{" "}
+          {new Date(issue.published_at).toLocaleDateString(dateLang, {
             month: "long",
             day: "numeric",
             year: "numeric",
           })}
         </span>
         <h1 className="font-display font-bold text-navy dark:text-dark-text text-4xl mt-2 mb-4">
-          {issue.title}
+          {issueTitle}
         </h1>
         <div className="flex flex-wrap items-center gap-2 mb-8">
           <span className="inline-flex items-center gap-1.5 bg-teal/8 dark:bg-teal/15 border border-teal/15 dark:border-teal/25 rounded-full px-3 py-1">
@@ -470,32 +498,34 @@ export default async function IssuePage({
               />
             </svg>
             <span className="font-body text-teal dark:text-teal-light text-xs font-semibold">
-              ~{readingTime} min read
+              {t("minRead", { minutes: readingTime })}
             </span>
           </span>
           <span className="inline-flex items-center gap-1.5 bg-slate-light/8 dark:bg-dark-dim/15 border border-slate-light/15 dark:border-dark-border rounded-full px-3 py-1">
             <span className="font-body text-slate dark:text-dark-muted text-xs font-semibold">
-              {allStories.length} stories
+              {t("stories", { count: allStories.length })}
             </span>
           </span>
           {nriScores.length > 0 && (
             <span className="inline-flex items-center gap-1.5 bg-gold/8 dark:bg-gold/15 border border-gold/15 dark:border-gold/25 rounded-full px-3 py-1">
               <NRITooltip>
                 <span className="font-body text-gold dark:text-gold text-xs font-semibold">
-                  NRI range {Math.min(...nriScores)}&ndash;
+                  {t("nriRange")} {Math.min(...nriScores)}&ndash;
                   {Math.max(...nriScores)}
                 </span>
               </NRITooltip>
             </span>
           )}
           <span className="font-body text-slate-light dark:text-dark-dim text-xs">
-            {canSeePro ? "Full access" : `${freeStories.length} free stories`}
+            {canSeePro
+              ? t("fullAccess")
+              : t("freeStories", { count: freeStories.length })}
           </span>
         </div>
 
-        {issue.opening && (
+        {issueOpening && (
           <div className="mb-12 pb-10 border-b border-cream-dark dark:border-dark-border space-y-4">
-            {extractOpening(issue.opening)
+            {extractOpening(issueOpening)
               .split("\n\n")
               .filter(Boolean)
               .map((para: string, i: number) => (
@@ -513,7 +543,7 @@ export default async function IssuePage({
         {tempData && (
           <div className="mb-10 p-6 bg-gradient-to-br from-teal/5 to-gold/5 dark:from-teal/10 dark:to-gold/10 border border-teal/20 dark:border-teal/30 rounded-xl">
             <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-3">
-              This Week&rsquo;s Business Temperature:{" "}
+              {t("businessTemperature")}{" "}
               <span className="text-teal dark:text-teal-light">
                 {tempData.label}
               </span>
@@ -531,21 +561,23 @@ export default async function IssuePage({
               ))}
             {tempData.move && (
               <p className="font-body text-[15px] text-teal dark:text-teal-light font-semibold mt-4 pt-4 border-t border-teal/20">
-                The move: {tempData.move}
+                {t("theMove")} {tempData.move}
               </p>
             )}
           </div>
         )}
 
         {/* Owner's Move of the Week — free */}
-        {ownersMoveText && <OwnersMove markdown={ownersMoveText} />}
+        {ownersMoveText && (
+          <OwnersMove markdown={ownersMoveText} title={t("ownersMove")} />
+        )}
 
         {/* NRI Heatmap — score distribution */}
         {nriScores.length > 0 && (
           <div className="mb-10 p-5 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl">
             <div className="flex items-center gap-2 mb-3">
               <p className="font-body text-xs text-slate-light dark:text-dark-dim uppercase tracking-wide font-semibold">
-                Score Distribution
+                {t("scoreDistribution")}
               </p>
               <NRITooltip>
                 <span className="sr-only">What is the NRI?</span>
@@ -590,7 +622,7 @@ export default async function IssuePage({
 
         {/* Free stories with breathers */}
         <h2 className="font-display font-bold text-navy dark:text-dark-text text-2xl mb-6">
-          Top Stories This Week
+          {t("topStories")}
         </h2>
         <div className="space-y-4 mb-8">
           {freeStories.map((story, idx) => (
@@ -618,7 +650,7 @@ export default async function IssuePage({
         {canSeePro && proStories.length > 0 && (
           <>
             <h2 className="font-display font-bold text-navy dark:text-dark-text text-2xl mb-6 mt-12">
-              Full Briefing
+              {t("fullBriefing")}
             </h2>
             <div className="space-y-4">
               {proStories.map((story, idx) => (
@@ -639,9 +671,7 @@ export default async function IssuePage({
         {!canSeePro && proStories.length > 0 && (
           <div className="mt-6 mb-8 p-6 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl">
             <p className="font-body text-sm text-slate-light dark:text-dark-dim font-semibold mb-4">
-              {proStories.length} more{" "}
-              {proStories.length === 1 ? "story" : "stories"} in the full
-              briefing
+              {t("moreInFull", { count: proStories.length })}
             </p>
             <ul className="space-y-2">
               {proStories.map((story) => (
@@ -669,13 +699,15 @@ export default async function IssuePage({
         )}
 
         {/* Risk Radar — free */}
-        {riskRadarText && <RiskRadar markdown={riskRadarText} />}
+        {riskRadarText && (
+          <RiskRadar markdown={riskRadarText} title={t("riskRadar")} />
+        )}
 
         {/* Valley Money Map — pro only */}
         {canSeePro && moneyMapData && (
           <div className="mt-12 mb-8 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl p-7">
             <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-5">
-              The Valley Money Map
+              {t("valleyMoneyMap")}
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm font-body">
@@ -715,14 +747,18 @@ export default async function IssuePage({
 
         {/* 3 Moves This Week — Move #1 free, #2-3 teased */}
         {movesData && movesData.length > 0 && (
-          <ThreeMovesSection moves={movesData} canSeePro={canSeePro} />
+          <ThreeMovesSection
+            moves={movesData}
+            canSeePro={canSeePro}
+            title={t("threeMoves")}
+          />
         )}
 
         {/* The Quiet Signal — free */}
         {quietSignalText && (
           <div className="mt-12 mb-8 p-6 bg-navy/[0.03] dark:bg-dark-card border-l-4 border-gold dark:border-gold/70 rounded-r-xl">
             <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-3">
-              The Quiet Signal
+              {t("quietSignal")}
             </h2>
             {quietSignalText
               .split("\n\n")
@@ -740,7 +776,10 @@ export default async function IssuePage({
 
         {/* The Thinking Question — free */}
         {thinkingQuestionText && (
-          <ThinkingQuestion markdown={thinkingQuestionText} />
+          <ThinkingQuestion
+            markdown={thinkingQuestionText}
+            title={t("thinkingQuestion")}
+          />
         )}
 
         {/* Reader's Pick */}
@@ -765,7 +804,9 @@ export default async function IssuePage({
         />
 
         {/* Before You Go — free */}
-        {beforeYouGoText && <BeforeYouGo markdown={beforeYouGoText} />}
+        {beforeYouGoText && (
+          <BeforeYouGo markdown={beforeYouGoText} title={t("beforeYouGo")} />
+        )}
 
         {/* Bottom conversion / actions footer */}
         {canSeePro ? (

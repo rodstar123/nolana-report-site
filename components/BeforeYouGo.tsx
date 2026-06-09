@@ -1,11 +1,17 @@
-export function BeforeYouGo({ markdown }: { markdown: string }) {
-  const body = markdown.replace(/^##\s*Before You Go\s*\n?/, "").trim();
+export function BeforeYouGo({
+  markdown,
+  title = "Before You Go",
+}: {
+  markdown: string;
+  title?: string;
+}) {
+  const body = markdown.replace(/^##\s*.+\n?/, "").trim();
   if (!body) return null;
 
   return (
     <div className="mt-12 mb-6 max-w-2xl mx-auto text-center">
       <p className="font-body text-xs text-slate-light dark:text-dark-dim uppercase tracking-widest font-semibold mb-4">
-        Before You Go
+        {title}
       </p>
       {body
         .split("\n\n")

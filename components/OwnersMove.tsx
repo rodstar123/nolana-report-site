@@ -1,13 +1,17 @@
-export function OwnersMove({ markdown }: { markdown: string }) {
-  const body = markdown
-    .replace(/^##\s*Owner's Move of the Week\s*\n?/, "")
-    .trim();
+export function OwnersMove({
+  markdown,
+  title = "Owner’s Move of the Week",
+}: {
+  markdown: string;
+  title?: string;
+}) {
+  const body = markdown.replace(/^##\s*.+\n?/, "").trim();
   if (!body) return null;
 
   return (
     <div className="mb-10 p-6 bg-amber-50/70 dark:bg-amber-900/10 border-l-[3px] border-teal dark:border-teal-light rounded-r-xl">
       <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-3">
-        Owner&rsquo;s Move of the Week
+        {title}
       </h2>
       {body
         .split("\n\n")
