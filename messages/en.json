@@ -342,7 +342,7 @@
     "tiers": {
       "free": {
         "label": "Free",
-        "tagline": "You're getting 6 stories every Monday.",
+        "tagline": "You're getting the week's top stories every Monday.",
         "price": "Free"
       },
       "pro": {
@@ -461,7 +461,7 @@
     },
     "inlineCapture": {
       "heading": "Get next Monday's briefing free.",
-      "body": "6 scored stories, the Business Temperature, and the Quiet Signal — in your inbox before 7 AM.",
+      "body": "The week's top Valley stories, scored and decoded — in your inbox before 7 AM Monday.",
       "cta": "Send Me Monday's Brief",
       "microcopy": "Free forever · English o Español"
     },

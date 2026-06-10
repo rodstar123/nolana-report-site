@@ -342,7 +342,7 @@
     "tiers": {
       "free": {
         "label": "Free",
-        "tagline": "Estás recibiendo 6 historias cada lunes.",
+        "tagline": "Estás recibiendo las historias más importantes de la semana cada lunes.",
         "price": "Gratis"
       },
       "pro": {
@@ -461,7 +461,7 @@
     },
     "inlineCapture": {
       "heading": "Recibe el reporte del lunes gratis.",
-      "body": "6 historias con puntaje, la Temperatura de Negocios y La Señal Silenciosa — en tu bandeja antes de las 7 AM.",
+      "body": "Las historias más importantes del Valle, con puntaje y descifradas — en tu bandeja antes de las 7 AM del lunes.",
       "cta": "Envíame el Reporte del Lunes",
       "microcopy": "Gratis para siempre · English o Español"
     },
