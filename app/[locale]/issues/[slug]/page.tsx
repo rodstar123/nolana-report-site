@@ -20,7 +20,7 @@ import NRILegend from "@/components/NRILegend";
 import BreatherBlock, { type BreatherData } from "@/components/BreatherBlock";
 import { IssueSignupCard } from "@/components/IssueSignupCard";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 function getSupabase() {
   return createClient(
@@ -91,16 +91,6 @@ function renderMarkdownBold(text: string) {
     }
     return part;
   });
-}
-
-export async function generateStaticParams() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
-  const supabase = getSupabase();
-  const { data } = await supabase
-    .from("issues")
-    .select("slug")
-    .eq("is_published", true);
-  return (data ?? []).map((issue: { slug: string }) => ({ slug: issue.slug }));
 }
 
 export async function generateMetadata({

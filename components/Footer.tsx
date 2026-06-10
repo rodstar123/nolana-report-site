@@ -212,6 +212,10 @@ export default async function Footer() {
               ThunderLoud
             </a>
           </p>
+          <p className="font-mono text-[10px] text-slate-light/40 mt-2">
+            {process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "dev"} ·{" "}
+            {process.env.BUILD_TIMESTAMP ?? "local"}
+          </p>
         </div>
       </div>
     </footer>

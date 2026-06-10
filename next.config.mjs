@@ -7,6 +7,9 @@ const nextConfig = {
   images: {
     formats: ["image/webp"],
   },
+  env: {
+    BUILD_TIMESTAMP: new Date().toISOString().slice(0, 16).replace("T", " "),
+  },
 };
 
 export default withNextIntl(nextConfig);
