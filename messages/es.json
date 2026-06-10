@@ -468,7 +468,13 @@
     "footerFreeCta": {
       "prompt": "¿No estás listo para Pro? Recibe el reporte gratis del lunes.",
       "cta": "Suscríbete Gratis"
-    }
+    },
+    "movesLocked": {
+      "heading": "🔒 La Jugada Inteligente es para miembros Pro.",
+      "body": "Ya conoces la noticia — Pro te dice qué hacer al respecto.",
+      "cta": "Desbloquea Pro — $7/mes"
+    },
+    "statsLine": "Leyendo {visible} de {total} historias — {full} completas, {partial} con jugadas bloqueadas."
   },
   "moneyMap": {
     "back": "← The Nolana Report",

@@ -468,7 +468,13 @@
     "footerFreeCta": {
       "prompt": "Not ready for Pro? Get the free Monday brief.",
       "cta": "Subscribe Free"
-    }
+    },
+    "movesLocked": {
+      "heading": "🔒 The Smart Move is for Pro members.",
+      "body": "You know the story — Pro tells you what to do about it.",
+      "cta": "Unlock Pro — $7/mo"
+    },
+    "statsLine": "Reading {visible} of {total} stories — {full} in full, {partial} with moves locked."
   },
   "moneyMap": {
     "back": "← The Nolana Report",

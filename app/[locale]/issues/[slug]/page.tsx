@@ -215,6 +215,45 @@ export default async function IssuePage({
   const freeStories = allStories.filter((s) => s.is_free);
   const proStories = allStories.filter((s) => !s.is_free);
 
+  // Render-time story gating (web display only — does NOT modify is_free column)
+  const nriRanked = [...allStories].sort(
+    (a, b) =>
+      (b.nolana_score ?? 0) - (a.nolana_score ?? 0) || a.position - b.position,
+  );
+  const rank1Stories = nriRanked.slice(0, 1);
+  const partialStories = nriRanked.slice(1, Math.min(4, nriRanked.length));
+  const top4Ids = new Set(
+    nriRanked.slice(0, Math.min(4, nriRanked.length)).map((s) => s.id),
+  );
+  const bonusFullStories = nriRanked
+    .filter((s) => !top4Ids.has(s.id))
+    .slice(0, 2);
+  const shownIds = new Set([
+    ...Array.from(top4Ids),
+    ...bonusFullStories.map((s) => s.id),
+  ]);
+  const lockedStories = nriRanked.filter((s) => !shownIds.has(s.id));
+  const fullFreeCount = rank1Stories.length + bonusFullStories.length;
+  const partialCount = partialStories.length;
+
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const strippedPartials = partialStories.map((s) => {
+    const { smart_move, nolana_take, smart_move_es, nolana_take_es, ...safe } =
+      s as StoryData & Record<string, any>;
+    void smart_move;
+    void nolana_take;
+    void smart_move_es;
+    void nolana_take_es;
+    return safe as StoryData;
+  });
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  const visibleStories = [
+    ...rank1Stories.map((s) => ({ story: s, movesLocked: false })),
+    ...strippedPartials.map((s) => ({ story: s, movesLocked: true })),
+    ...bonusFullStories.map((s) => ({ story: s, movesLocked: false })),
+  ];
+
   const readingTime = Math.max(
     3,
     Math.ceil(
@@ -238,6 +277,17 @@ export default async function IssuePage({
     ? parseMoneyMap(iss.valley_money_map)
     : null;
   const movesData = iss.three_moves ? parseMoves(iss.three_moves) : null;
+  const clientMoves =
+    movesData && !canSeePro
+      ? movesData.map((m, i) => {
+          if (i === 0) return m;
+          const plain = m.replace(/\*\*/g, "");
+          const words = plain.split(/\s+/);
+          return words.length <= 15
+            ? plain
+            : words.slice(0, 15).join(" ") + "…";
+        })
+      : movesData;
   const quietSignalRaw = iss.quiet_signal as string | null;
   const quietSignalText = quietSignalRaw
     ? quietSignalRaw.replace(/^##\s*.+\n?/, "").trim() || null
@@ -369,6 +419,12 @@ export default async function IssuePage({
   const freeBreathers = buildBreatherQueue(freeStories, true);
   const proBreathers = canSeePro
     ? buildBreatherQueue(proStories, false)
+    : new Map<number, BreatherData>();
+  const visibleBreathers = !canSeePro
+    ? buildBreatherQueue(
+        visibleStories.map((e) => e.story),
+        true,
+      )
     : new Map<number, BreatherData>();
 
   const nriSubs = [
@@ -533,7 +589,12 @@ export default async function IssuePage({
           <span className="font-body text-slate-light dark:text-dark-dim text-xs">
             {canSeePro
               ? t("fullAccess")
-              : t("freeStories", { count: freeStories.length })}
+              : t("statsLine", {
+                  visible: fullFreeCount + partialCount,
+                  total: allStories.length,
+                  full: fullFreeCount,
+                  partial: partialCount,
+                })}
           </span>
         </div>
 
@@ -634,62 +695,88 @@ export default async function IssuePage({
           </div>
         )}
 
-        {/* Free stories with breathers */}
-        <h2 className="font-display font-bold text-navy dark:text-dark-text text-2xl mb-6">
-          {t("topStories")}
-        </h2>
-        <div className="space-y-4 mb-8">
-          {freeStories.map((story, idx) => (
-            <div key={story.id}>
-              <StoryCard story={story} />
-              {freeBreathers.has(idx + 1) && (
-                <div className="my-4">
-                  <BreatherBlock data={freeBreathers.get(idx + 1)!} />
-                </div>
-              )}
-              {idx === 1 && !canSeePro && <IssueSignupCard />}
-            </div>
-          ))}
-        </div>
-
-        {/* Upgrade banner */}
-        {!canSeePro && proStories.length > 0 && (
-          <UpgradeBanner
-            remaining={proStories.length}
-            total={allStories.length}
-            email={subscriber?.email}
-          />
-        )}
-
-        {/* Pro stories */}
-        {canSeePro && proStories.length > 0 && (
+        {/* Pro: original two-section layout */}
+        {canSeePro && (
           <>
-            <h2 className="font-display font-bold text-navy dark:text-dark-text text-2xl mb-6 mt-12">
-              {t("fullBriefing")}
+            <h2 className="font-display font-bold text-navy dark:text-dark-text text-2xl mb-6">
+              {t("topStories")}
             </h2>
-            <div className="space-y-4">
-              {proStories.map((story, idx) => (
-                <div key={story.id} className="pro-story">
+            <div className="space-y-4 mb-8">
+              {freeStories.map((story, idx) => (
+                <div key={story.id}>
                   <StoryCard story={story} />
-                  {proBreathers.has(idx + 1) && (
+                  {freeBreathers.has(idx + 1) && (
                     <div className="my-4">
-                      <BreatherBlock data={proBreathers.get(idx + 1)!} />
+                      <BreatherBlock data={freeBreathers.get(idx + 1)!} />
                     </div>
                   )}
+                </div>
+              ))}
+            </div>
+            {proStories.length > 0 && (
+              <>
+                <h2 className="font-display font-bold text-navy dark:text-dark-text text-2xl mb-6 mt-12">
+                  {t("fullBriefing")}
+                </h2>
+                <div className="space-y-4">
+                  {proStories.map((story, idx) => (
+                    <div key={story.id} className="pro-story">
+                      <StoryCard story={story} />
+                      {proBreathers.has(idx + 1) && (
+                        <div className="my-4">
+                          <BreatherBlock data={proBreathers.get(idx + 1)!} />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        )}
+
+        {/* Free: NRI-ranked visible stories */}
+        {!canSeePro && (
+          <>
+            <h2 className="font-display font-bold text-navy dark:text-dark-text text-2xl mb-6">
+              {t("topStories")}
+            </h2>
+            <div className="space-y-4 mb-8">
+              {visibleStories.map((entry, idx) => (
+                <div key={entry.story.id}>
+                  <StoryCard
+                    story={entry.story}
+                    movesLocked={entry.movesLocked}
+                  />
+                  {visibleBreathers.has(idx + 1) && (
+                    <div className="my-4">
+                      <BreatherBlock data={visibleBreathers.get(idx + 1)!} />
+                    </div>
+                  )}
+                  {idx === 1 && <IssueSignupCard />}
                 </div>
               ))}
             </div>
           </>
         )}
 
-        {/* Locked story previews for free users */}
-        {!canSeePro && proStories.length > 0 && (
+        {/* Upgrade banner (free only) */}
+        {!canSeePro && lockedStories.length > 0 && (
+          <UpgradeBanner
+            remaining={lockedStories.length}
+            total={allStories.length}
+            email={subscriber?.email}
+          />
+        )}
+
+        {/* Locked story previews (free only) */}
+        {!canSeePro && lockedStories.length > 0 && (
           <div className="mt-6 mb-8 p-6 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl">
             <p className="font-body text-sm text-slate-light dark:text-dark-dim font-semibold mb-4">
-              {t("moreInFull", { count: proStories.length })}
+              {t("moreInFull", { count: lockedStories.length })}
             </p>
             <ul className="space-y-2">
-              {proStories.map((story) => (
+              {lockedStories.map((story) => (
                 <li key={story.id} className="flex items-center gap-3">
                   <svg
                     className="w-3 h-3 text-gold/60 flex-shrink-0"
@@ -761,9 +848,9 @@ export default async function IssuePage({
         )}
 
         {/* 3 Moves This Week — Move #1 free, #2-3 teased */}
-        {movesData && movesData.length > 0 && (
+        {clientMoves && clientMoves.length > 0 && (
           <ThreeMovesSection
-            moves={movesData}
+            moves={clientMoves}
             canSeePro={canSeePro}
             title={t("threeMoves")}
           />
@@ -833,7 +920,7 @@ export default async function IssuePage({
         ) : (
           <IssueFooter
             variant="free"
-            freeCount={freeStories.length}
+            freeCount={fullFreeCount + partialCount}
             totalCount={allStories.length}
             freeCtaPrompt={t("footerFreeCta.prompt")}
             freeCtaLabel={t("footerFreeCta.cta")}

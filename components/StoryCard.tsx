@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import NRITooltip from "./NRITooltip";
 import QuickReactions from "./QuickReactions";
+import Link from "next/link";
 
 const SECTION_COLORS: Record<string, { bg: string; color: string }> = {
   new_business_pulse: { bg: "rgba(13,115,119,0.10)", color: "#0d7377" },
@@ -48,6 +49,7 @@ export interface StoryData {
 interface Props {
   story: StoryData;
   locked?: boolean;
+  movesLocked?: boolean;
 }
 
 function SignalIcon() {
@@ -159,7 +161,11 @@ function SectionField({
   );
 }
 
-export function StoryCard({ story, locked = false }: Props) {
+export function StoryCard({
+  story,
+  locked = false,
+  movesLocked = false,
+}: Props) {
   const t = useTranslations("issue");
   const sectionLabel = t.has(`sectionLabels.${story.section}`)
     ? t(`sectionLabels.${story.section}`)
@@ -302,6 +308,23 @@ export function StoryCard({ story, locked = false }: Props) {
               </SectionField>
             )}
 
+            {movesLocked && (
+              <div className="mt-2 p-4 bg-gold/5 dark:bg-gold/10 border border-gold/20 dark:border-gold/30 rounded-lg text-center">
+                <p className="font-body text-[15px] text-charcoal dark:text-dark-text leading-relaxed mb-1">
+                  {t("movesLocked.heading")}
+                </p>
+                <p className="font-body text-sm text-slate dark:text-dark-muted mb-3">
+                  {t("movesLocked.body")}
+                </p>
+                <Link
+                  href="/subscribe"
+                  className="inline-block font-body text-sm font-bold text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal transition-colors"
+                >
+                  {t("movesLocked.cta")} →
+                </Link>
+              </div>
+            )}
+
             {story.smart_move && (
               <SectionField
                 icon={<TargetIcon />}
@@ -371,6 +394,23 @@ export function StoryCard({ story, locked = false }: Props) {
                 </span>{" "}
                 {story.why_it_matters}
               </p>
+            </div>
+          )}
+
+          {movesLocked && (
+            <div className="mt-2 mb-4 p-4 bg-gold/5 dark:bg-gold/10 border border-gold/20 dark:border-gold/30 rounded-lg text-center">
+              <p className="font-body text-[15px] text-charcoal dark:text-dark-text leading-relaxed mb-1">
+                {t("movesLocked.heading")}
+              </p>
+              <p className="font-body text-sm text-slate dark:text-dark-muted mb-3">
+                {t("movesLocked.body")}
+              </p>
+              <Link
+                href="/subscribe"
+                className="inline-block font-body text-sm font-bold text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal transition-colors"
+              >
+                {t("movesLocked.cta")} →
+              </Link>
             </div>
           )}
 
