@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 
 interface Story {
   id: string;
@@ -30,6 +31,7 @@ export default function ReadersPickVote({
   stories,
   canSeePro,
 }: Props) {
+  const t = useTranslations("readersPick");
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [myVote, setMyVote] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
@@ -129,14 +131,14 @@ export default function ReadersPickVote({
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
         </svg>
         <h3 className="font-display font-bold text-navy dark:text-dark-text text-lg">
-          Reader&apos;s Pick
+          {t("title")}
         </h3>
       </div>
       <p className="font-body text-slate-light dark:text-dark-muted text-sm mb-5">
-        Which story mattered most to you this week?
+        {t("question")}
         {total > 0 && (
           <span className="ml-1 font-mono text-xs">
-            ({total} vote{total !== 1 ? "s" : ""})
+            ({total} {total !== 1 ? t("votes") : t("vote")})
           </span>
         )}
       </p>
@@ -205,7 +207,7 @@ export default function ReadersPickVote({
                       >
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
-                      Pick
+                      {t("pick")}
                     </span>
                   )}
                 </div>
@@ -222,7 +224,7 @@ export default function ReadersPickVote({
         {lockedStories.length > 0 && (
           <div className="mt-3 pt-3 border-t border-cream-dark dark:border-dark-border">
             <p className="font-body text-xs text-slate-light dark:text-dark-dim mb-2 italic">
-              {lockedStories.length} more stories in the full briefing
+              {t("moreStories", { count: lockedStories.length })}
             </p>
             {lockedStories.map((story) => {
               const voteCount = counts[story.id] ?? 0;
@@ -255,7 +257,7 @@ export default function ReadersPickVote({
                           >
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                           </svg>
-                          Pick
+                          {t("pick")}
                         </span>
                       )}
                     </div>

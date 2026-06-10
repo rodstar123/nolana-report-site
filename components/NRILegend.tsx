@@ -1,62 +1,25 @@
 "use client";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
-const DIMENSIONS = [
-  {
-    emoji: "💰",
-    label: "Money Impact",
-    desc: "Can this create or protect revenue for Valley businesses?",
-  },
-  {
-    emoji: "⏱️",
-    label: "Urgency",
-    desc: "Does the reader need to act soon?",
-  },
-  {
-    emoji: "📍",
-    label: "Local Reach",
-    desc: "How many RGV businesses could feel the impact?",
-  },
-  {
-    emoji: "⚠️",
-    label: "Risk",
-    desc: "Could this hurt unprepared businesses?",
-  },
-];
+const DIMENSION_KEYS = ["money", "urgency", "reach", "risk"] as const;
+const DIMENSION_EMOJIS = ["💰", "⏱️", "📍", "⚠️"];
 
-const TIERS = [
-  {
-    range: "9–10",
-    label: "Critical",
-    color: "var(--nri-critical-ring)",
-    fallback: "#0d7377",
-  },
-  {
-    range: "7–8",
-    label: "High",
-    color: "var(--nri-high-ring)",
-    fallback: "#D4880F",
-  },
-  {
-    range: "5–6",
-    label: "Moderate",
-    color: "var(--nri-moderate-ring)",
-    fallback: "#d4a843",
-  },
-  {
-    range: "3–4",
-    label: "Watch",
-    color: "var(--nri-watch-ring)",
-    fallback: "#94a3b8",
-  },
+const TIER_KEYS = ["critical", "high", "moderate", "watch"] as const;
+const TIER_RANGES = ["9–10", "7–8", "5–6", "3–4"];
+const TIER_COLORS = [
+  { color: "var(--nri-critical-ring)", fallback: "#0d7377" },
+  { color: "var(--nri-high-ring)", fallback: "#D4880F" },
+  { color: "var(--nri-moderate-ring)", fallback: "#d4a843" },
+  { color: "var(--nri-watch-ring)", fallback: "#94a3b8" },
 ];
 
 export default function NRILegend() {
   const [expanded, setExpanded] = useState(false);
+  const t = useTranslations("nri");
 
   return (
     <div className="bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl">
-      {/* Header — always visible, clickable */}
       <button
         type="button"
         onClick={() => setExpanded((prev) => !prev)}
@@ -65,7 +28,7 @@ export default function NRILegend() {
         aria-controls="nri-legend-content"
       >
         <span className="font-body text-sm font-semibold text-slate-light dark:text-dark-dim uppercase tracking-wide">
-          How We Score Stories
+          {t("howWeScore")}
         </span>
         <span
           className="text-slate-light dark:text-dark-dim transition-transform duration-200 select-none"
@@ -76,47 +39,45 @@ export default function NRILegend() {
         </span>
       </button>
 
-      {/* Expanded content */}
       {expanded && (
         <div id="nri-legend-content" className="px-5 pb-5 space-y-4">
           <p className="font-body text-sm text-slate dark:text-dark-muted leading-relaxed">
-            The Nolana Relevance Index (NRI) measures each story across four
-            dimensions:
+            {t("explanation")}
           </p>
 
-          {/* 4 dimensions */}
           <ul className="space-y-2">
-            {DIMENSIONS.map((dim) => (
-              <li key={dim.label} className="flex items-start gap-2.5">
+            {DIMENSION_KEYS.map((key, i) => (
+              <li key={key} className="flex items-start gap-2.5">
                 <span
                   className="text-base leading-none mt-0.5"
                   aria-hidden="true"
                 >
-                  {dim.emoji}
+                  {DIMENSION_EMOJIS[i]}
                 </span>
                 <div className="flex gap-1.5 flex-wrap">
                   <span className="font-body text-sm font-semibold text-charcoal dark:text-dark-text">
-                    {dim.label}
+                    {t(`dimensions.${key}.label`)}
                   </span>
                   <span className="font-body text-sm text-slate dark:text-dark-muted">
-                    — {dim.desc}
+                    — {t(`dimensions.${key}.desc`)}
                   </span>
                 </div>
               </li>
             ))}
           </ul>
 
-          {/* Score tier legend */}
           <div className="pt-3 border-t border-cream-dark dark:border-dark-border space-y-1.5">
-            {TIERS.map((tier) => (
-              <div key={tier.label} className="flex items-center gap-2">
+            {TIER_KEYS.map((key, i) => (
+              <div key={key} className="flex items-center gap-2">
                 <span
                   className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                  style={{ background: tier.color || tier.fallback }}
+                  style={{
+                    background: TIER_COLORS[i].color || TIER_COLORS[i].fallback,
+                  }}
                 />
                 <span className="font-mono text-xs text-slate dark:text-dark-muted">
-                  <span className="font-semibold">{tier.range}</span>{" "}
-                  {tier.label}
+                  <span className="font-semibold">{TIER_RANGES[i]}</span>{" "}
+                  {t(`tiers.${key}`)}
                 </span>
               </div>
             ))}

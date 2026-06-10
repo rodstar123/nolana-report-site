@@ -1,13 +1,29 @@
 "use client";
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 interface Props {
   children: React.ReactNode;
 }
 
+const DIMENSION_KEYS = ["money", "urgency", "reach", "risk"] as const;
+const DIMENSION_ICONS = [
+  "M12 2v10l4.5 4.5",
+  "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
+  "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2",
+  "M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z",
+];
+
+const TOOLTIP_TIERS = [
+  { range: "8–10", key: "actNow" as const, color: "var(--nri-critical-ring)" },
+  { range: "5–7", key: "monitor" as const, color: "var(--nri-moderate-ring)" },
+  { range: "1–4", key: "aware" as const, color: "var(--nri-watch-ring)" },
+];
+
 export default function NRITooltip({ children }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const t = useTranslations("nri");
 
   const close = useCallback(() => setOpen(false), []);
 
@@ -60,38 +76,14 @@ export default function NRITooltip({ children }: Props) {
           className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 bg-navy-deep border border-white/10 rounded-xl p-4 shadow-2xl"
         >
           <p className="font-body text-warm-white text-sm font-semibold mb-1.5">
-            Nolana Relevance Index (NRI)
+            {t("tooltip.title")}
           </p>
           <p className="font-body text-slate-light text-xs leading-relaxed mb-3">
-            Each story is scored 1&ndash;10 based on four dimensions. A score of
-            9&ndash;10 means high money + high urgency + wide RGV reach. A score
-            of 3&ndash;4 means narrow impact or low urgency. Stories below 3 are
-            excluded from the briefing.
+            {t("tooltip.body")}
           </p>
           <div className="grid grid-cols-2 gap-2 mb-3">
-            {[
-              {
-                icon: "M12 2v10l4.5 4.5",
-                label: "Money Impact",
-                desc: "Revenue, cost, or capital effect",
-              },
-              {
-                icon: "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
-                label: "Urgency",
-                desc: "Deadline or time-sensitive window",
-              },
-              {
-                icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2",
-                label: "Local Reach",
-                desc: "How many Valley operators affected",
-              },
-              {
-                icon: "M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z",
-                label: "Risk",
-                desc: "Downside exposure if you miss it",
-              },
-            ].map((dim) => (
-              <div key={dim.label} className="flex items-start gap-2">
+            {DIMENSION_KEYS.map((key, i) => (
+              <div key={key} className="flex items-start gap-2">
                 <svg
                   className="w-3.5 h-3.5 text-teal-light flex-shrink-0 mt-0.5"
                   fill="none"
@@ -102,40 +94,28 @@ export default function NRITooltip({ children }: Props) {
                   viewBox="0 0 24 24"
                   aria-hidden="true"
                 >
-                  <path d={dim.icon} />
+                  <path d={DIMENSION_ICONS[i]} />
                 </svg>
                 <div>
                   <p className="font-body text-warm-white text-[11px] font-semibold leading-tight">
-                    {dim.label}
+                    {t(`tooltip.${key}.label`)}
                   </p>
                   <p className="font-body text-slate-light text-[10px] leading-snug">
-                    {dim.desc}
+                    {t(`tooltip.${key}.desc`)}
                   </p>
                 </div>
               </div>
             ))}
           </div>
           <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-white/10">
-            {[
-              {
-                range: "8–10",
-                label: "Act now",
-                color: "var(--nri-critical-ring)",
-              },
-              {
-                range: "5–7",
-                label: "Monitor",
-                color: "var(--nri-moderate-ring)",
-              },
-              { range: "1–4", label: "Aware", color: "var(--nri-watch-ring)" },
-            ].map((t) => (
-              <div key={t.label} className="flex items-center gap-1.5">
+            {TOOLTIP_TIERS.map((tier) => (
+              <div key={tier.key} className="flex items-center gap-1.5">
                 <span
                   className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ background: t.color }}
+                  style={{ background: tier.color }}
                 />
                 <span className="font-mono text-[10px] text-slate-light">
-                  {t.range} {t.label}
+                  {tier.range} {t(`tooltip.${tier.key}`)}
                 </span>
               </div>
             ))}

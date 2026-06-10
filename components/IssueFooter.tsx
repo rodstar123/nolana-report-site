@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import SignupForm from "./SignupForm";
 
 interface FreeFooterProps {
@@ -31,6 +32,7 @@ function FreeConversion({
   freeCtaLabel,
 }: Omit<FreeFooterProps, "variant">) {
   const [loading, setLoading] = useState(false);
+  const t = useTranslations("issue");
 
   const handleUpgrade = async () => {
     setLoading(true);
@@ -52,22 +54,20 @@ function FreeConversion({
   return (
     <div className="mt-16 mb-8 rounded-2xl px-8 py-12 text-center bg-teal/[0.06] dark:bg-teal/[0.08] border border-teal/20">
       <p className="font-display font-bold text-charcoal dark:text-dark-text text-2xl mb-3">
-        You&rsquo;re seeing {freeCount} of {totalCount} stories this week.
+        {t("issueFooter.freeHeading", { freeCount, totalCount })}
       </p>
       <p className="font-body text-slate dark:text-dark-muted text-base max-w-md mx-auto mb-8 leading-relaxed">
-        Unlock the full briefing &mdash; Valley Money Map, 3 Moves, and every
-        scored story with sub-breakdowns.
+        {t("issueFooter.freeBody")}
       </p>
       <button
         onClick={handleUpgrade}
         disabled={loading}
         className="inline-block bg-teal hover:bg-teal-light text-white font-body font-bold px-10 py-4 rounded-xl text-base transition-colors duration-200 min-h-[52px] disabled:opacity-60 disabled:cursor-wait cursor-pointer"
       >
-        {loading ? "Loading..." : "Upgrade to Pro →"}
+        {loading ? t("issueFooter.freeLoading") : t("issueFooter.freeCta")}
       </button>
       <p className="font-body text-slate-light dark:text-dark-dim text-xs mt-4">
-        $7/mo founding rate &middot; locked forever for the first 100
-        subscribers
+        {t("issueFooter.freeFineprint")}
       </p>
 
       {freeCtaPrompt && (
@@ -89,6 +89,7 @@ function ProActions({
   referralCode,
 }: Omit<ProFooterProps, "variant">) {
   const [copied, setCopied] = useState(false);
+  const t = useTranslations("issue");
 
   const shareUrl = referralCode ? `${issueUrl}?ref=${referralCode}` : issueUrl;
 
@@ -112,7 +113,7 @@ function ProActions({
   return (
     <div className="mt-16 mb-8 rounded-2xl px-8 py-10 text-center bg-navy/[0.03] dark:bg-dark-card border border-cream-dark dark:border-dark-border">
       <p className="font-display font-bold text-charcoal dark:text-dark-text text-xl mb-5">
-        Share The Nolana Report with a Valley operator who needs it.
+        {t("issueFooter.proHeading")}
       </p>
       <button
         onClick={handleCopy}
@@ -139,14 +140,14 @@ function ProActions({
             strokeWidth={2}
           />
         </svg>
-        {copied ? "Link copied!" : "Copy referral link"}
+        {copied ? t("issueFooter.linkCopied") : t("issueFooter.copyReferral")}
       </button>
       <div className="mt-6 flex items-center justify-center gap-4 text-sm">
         <a
           href="/api/billing-portal"
           className="font-body font-medium text-slate-light dark:text-dark-dim hover:text-teal dark:hover:text-teal-light transition-colors"
         >
-          Manage subscription
+          {t("issueFooter.manageSubscription")}
         </a>
       </div>
     </div>

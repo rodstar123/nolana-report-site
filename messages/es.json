@@ -474,7 +474,44 @@
       "body": "Ya conoces la noticia — Pro te dice qué hacer al respecto.",
       "cta": "Desbloquea Pro — $7/mes"
     },
-    "statsLine": "Leyendo {visible} de {total} historias — {full} completas, {partial} con jugadas bloqueadas."
+    "statsLine": "Leyendo {visible} de {total} historias — {full} completas, {partial} con jugadas bloqueadas.",
+    "subScores": {
+      "money": "Dinero",
+      "urgency": "Urgencia",
+      "reach": "Alcance",
+      "risk": "Riesgo"
+    },
+    "subScoreValues": {
+      "High": "Alto",
+      "Med": "Med",
+      "Low": "Bajo"
+    },
+    "upgradeBanner": {
+      "heading": "El Reporte Completo Es Donde Están las Jugadas",
+      "reading": "Estás leyendo {shown} de {total} historias con puntaje.",
+      "proGets": "Los miembros Pro reciben:",
+      "feature1": "El reporte semanal completo de negocios del RGV",
+      "feature2": "El Mapa de Dinero del Valle — dónde se mueve el dinero y quién gana",
+      "feature3": "\"3 Movimientos de la Semana\" — acciones cruzadas por industria",
+      "feature4": "Análisis de oportunidad y riesgo en cada historia",
+      "feature5": "Notas de \"Quién debe actuar\" por tipo de operador",
+      "feature6": "Señales tempranas que la mayoría de los dueños notan demasiado tarde",
+      "loading": "Cargando…",
+      "cta": "Desbloquea Pro — $7/mes tarifa de fundador",
+      "fineprint": "Los fundadores aseguran $7/mes para siempre · Cancela cuando quieras"
+    },
+    "issueFooter": {
+      "freeHeading": "Estás viendo {freeCount} de {totalCount} historias esta semana.",
+      "freeBody": "Desbloquea el reporte completo — Mapa de Dinero del Valle, 3 Movimientos, y cada historia con sub-puntajes.",
+      "freeLoading": "Cargando...",
+      "freeCta": "Sube a Pro →",
+      "freeFineprint": "$7/mes tarifa de fundador · fija para siempre para los primeros 100 suscriptores",
+      "proHeading": "Comparte The Nolana Report con un operador del Valle que lo necesite.",
+      "linkCopied": "¡Enlace copiado!",
+      "copyReferral": "Copiar enlace de referido",
+      "manageSubscription": "Administrar suscripción"
+    },
+    "threeMovesCta": "Ver los {count} movimientos → Desbloquea Pro"
   },
   "moneyMap": {
     "back": "← The Nolana Report",
@@ -487,5 +524,105 @@
     "fullMapHeading": "Ve el Mapa de Dinero del Valle completo",
     "fullMapBody": "Los miembros Pro obtienen el rastro completo del dinero — cada grant, contrato, señal de infraestructura y quién gana — actualizado cada semana.",
     "unlockPro": "Desbloquea Pro — $7/mes tarifa de fundador"
+  },
+  "nri": {
+    "howWeScore": "Cómo Evaluamos las Historias",
+    "explanation": "El Índice de Relevancia Nolana (NRI) mide cada historia en cuatro dimensiones:",
+    "dimensions": {
+      "money": {
+        "label": "Impacto Económico",
+        "desc": "¿Puede esto crear o proteger ingresos para negocios del Valle?"
+      },
+      "urgency": {
+        "label": "Urgencia",
+        "desc": "¿El lector necesita actuar pronto?"
+      },
+      "reach": {
+        "label": "Alcance Local",
+        "desc": "¿A cuántos negocios del RGV les puede afectar?"
+      },
+      "risk": {
+        "label": "Riesgo",
+        "desc": "¿Podría perjudicar a negocios no preparados?"
+      }
+    },
+    "tiers": {
+      "critical": "Crítico",
+      "high": "Alto",
+      "moderate": "Moderado",
+      "watch": "Vigilar"
+    },
+    "tooltip": {
+      "title": "Índice de Relevancia Nolana (NRI)",
+      "body": "Cada historia se evalúa del 1 al 10 en cuatro dimensiones. Un puntaje de 9–10 significa alto impacto económico + alta urgencia + amplio alcance en el RGV. Un puntaje de 3–4 significa impacto limitado o baja urgencia. Las historias debajo de 3 se excluyen del reporte.",
+      "money": {
+        "label": "Impacto Económico",
+        "desc": "Efecto en ingresos, costos o capital"
+      },
+      "urgency": {
+        "label": "Urgencia",
+        "desc": "Fecha límite o ventana de tiempo"
+      },
+      "reach": {
+        "label": "Alcance Local",
+        "desc": "Cuántos operadores del Valle se ven afectados"
+      },
+      "risk": {
+        "label": "Riesgo",
+        "desc": "Exposición negativa si lo pierdes"
+      },
+      "actNow": "Actuar ya",
+      "monitor": "Monitorear",
+      "aware": "Estar atento"
+    },
+    "heatmap": {
+      "howScored": "Cómo puntuaron las historias de esta semana en el Índice de Relevancia Nolana",
+      "story": "historia",
+      "stories": "historias",
+      "scored": "puntuaron"
+    }
+  },
+  "readersPick": {
+    "title": "Favorita del Lector",
+    "question": "¿Cuál historia fue la más importante para ti esta semana?",
+    "vote": "voto",
+    "votes": "votos",
+    "pick": "Favorita",
+    "moreStories": "{count} historias más en el reporte completo"
+  },
+  "breather": {
+    "thisTimeLastYear": "En Esta Fecha el Año Pasado",
+    "valleyVsNational": "Valle vs. Nacional",
+    "unlockPro": "Desbloquea Pro →",
+    "readProgress": "Has leído {read} de {free} historias gratis.",
+    "moreInBriefing": "{remaining} más en el reporte completo →"
+  },
+  "whoShouldRead": {
+    "title": "¿Quién Debe Leer Esta Edición?",
+    "sectionAudiences": {
+      "new_business_pulse_1": "Dueños de negocios monitoreando nuevos competidores y cambios del mercado",
+      "new_business_pulse_2": "Operadores de bienes raíces comerciales siguiendo nuevos contratos y permisos",
+      "gov_economic_watch_1": "Contratistas del gobierno y buscadores de grants monitoreando oportunidades públicas",
+      "gov_economic_watch_2": "Líderes de organizaciones sin fines de lucro y desarrolladores comunitarios siguiendo cambios de política",
+      "cross_border_trade_1": "Operadores de logística moviendo mercancía por Brownsville y Laredo",
+      "cross_border_trade_2": "Import/export brokers navegando flujos de comercio transfronterizo",
+      "community_buzz_1": "Operadores de retail y food-service leyendo señales de demanda local",
+      "community_buzz_2": "Event planners y managers de hospitalidad siguiendo tendencias comunitarias",
+      "industrial_investment_1": "Desarrolladores industriales y operadores de warehouse en el Valle",
+      "industrial_investment_2": "Inversionistas evaluando bienes raíces e infraestructura del RGV"
+    },
+    "keywordAudiences": {
+      "produce": "Brokers de aguacate y transportistas en la cadena de suministro de McAllen",
+      "port": "Operadores portuarios y equipos de logística marítima en Brownsville",
+      "weather": "Facility managers y aseguradoras preparándose para temporada de huracanes",
+      "childcare": "Operadores de child care y centros de salud ante nuevas regulaciones",
+      "health": "Proveedores de salud y administradores de consultorios médicos",
+      "construction": "Contratistas generales y firmas de construcción siguiendo permisos",
+      "food": "Dueños de restaurantes y operadores de food-service monitoreando tendencias",
+      "tech": "Fundadores de startups de tech y proveedores de IT en el Valle"
+    },
+    "fallback1": "Operadores del Valle tomando decisiones con inteligencia de negocios en tiempo real",
+    "fallback2": "Cualquiera que quiera saber dónde se mueve el dinero en el Valle del Río Grande",
+    "fallback3": "Dueños de negocios que quieren saber antes que su competencia"
   }
 }

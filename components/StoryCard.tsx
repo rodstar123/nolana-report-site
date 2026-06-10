@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import NRITooltip from "./NRITooltip";
 import QuickReactions from "./QuickReactions";
 import Link from "next/link";
@@ -167,6 +167,12 @@ export function StoryCard({
   movesLocked = false,
 }: Props) {
   const t = useTranslations("issue");
+  const locale = useLocale();
+  const valueLabels: Record<string, string> = {
+    High: t("subScoreValues.High"),
+    Med: t("subScoreValues.Med"),
+    Low: t("subScoreValues.Low"),
+  };
   const sectionLabel = t.has(`sectionLabels.${story.section}`)
     ? t(`sectionLabels.${story.section}`)
     : story.section;
@@ -218,10 +224,10 @@ export function StoryCard({
           <div className="flex flex-wrap gap-2 mb-3">
             {(
               [
-                { label: "Money", value: story.money_impact },
-                { label: "Urgency", value: story.urgency },
-                { label: "Reach", value: story.local_reach },
-                { label: "Risk", value: story.risk },
+                { label: t("subScores.money"), value: story.money_impact },
+                { label: t("subScores.urgency"), value: story.urgency },
+                { label: t("subScores.reach"), value: story.local_reach },
+                { label: t("subScores.risk"), value: story.risk },
               ] as { label: string; value: string | null }[]
             )
               .filter(
@@ -250,7 +256,9 @@ export function StoryCard({
                       aria-hidden="true"
                     />
                     <span className="opacity-60 font-medium">{s.label}</span>
-                    <span className="font-bold">{s.value}</span>
+                    <span className="font-bold">
+                      {valueLabels[s.value] ?? s.value}
+                    </span>
                   </span>
                 );
               })}
@@ -434,11 +442,14 @@ export function StoryCard({
               )}
               {story.source_date && (
                 <span className="font-body text-xs text-slate-light dark:text-dark-dim">
-                  {new Date(story.source_date).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
+                  {new Date(story.source_date).toLocaleDateString(
+                    locale === "es" ? "es-MX" : "en-US",
+                    {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    },
+                  )}
                 </span>
               )}
             </div>

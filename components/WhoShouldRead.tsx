@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 interface Story {
   headline: string;
   summary: string;
@@ -9,27 +11,12 @@ interface Props {
   stories: Story[];
 }
 
-const SECTION_AUDIENCES: Record<string, string[]> = {
-  new_business_pulse: [
-    "Small business owners watching new competitors and market shifts",
-    "Commercial real estate operators tracking new leases and permits",
-  ],
-  gov_economic_watch: [
-    "Government contractors and grant-seekers monitoring public opportunities",
-    "Nonprofit leaders and community developers tracking policy changes",
-  ],
-  cross_border_trade: [
-    "Logistics operators moving goods through Brownsville and Laredo",
-    "Import/export brokers navigating cross-border trade flows",
-  ],
-  community_buzz: [
-    "Retail and food-service operators reading local demand signals",
-    "Event planners and hospitality managers tracking community trends",
-  ],
-  industrial_investment: [
-    "Industrial developers and warehouse operators in the Valley",
-    "Investors evaluating RGV real estate and infrastructure projects",
-  ],
+const SECTION_AUDIENCE_KEYS: Record<string, string[]> = {
+  new_business_pulse: ["new_business_pulse_1", "new_business_pulse_2"],
+  gov_economic_watch: ["gov_economic_watch_1", "gov_economic_watch_2"],
+  cross_border_trade: ["cross_border_trade_1", "cross_border_trade_2"],
+  community_buzz: ["community_buzz_1", "community_buzz_2"],
+  industrial_investment: ["industrial_investment_1", "industrial_investment_2"],
 };
 
 function extractKeywords(text: string): string[] {
@@ -54,25 +41,29 @@ function extractKeywords(text: string): string[] {
   return keywords;
 }
 
-const KEYWORD_AUDIENCES: Record<string, string> = {
-  produce: "Avocado brokers and haulers in the McAllen supply chain",
-  port: "Port operators and maritime logistics teams in Brownsville",
-  weather: "Facility managers and insurers preparing for hurricane season",
-  childcare:
-    "Child care and health facility operators ahead of new regulations",
-  health: "Healthcare providers and medical practice administrators",
-  construction: "General contractors and construction firms tracking permits",
-  food: "Restaurant owners and food-service operators watching trends",
-  tech: "Tech startup founders and IT service providers in the Valley",
-};
+const KEYWORD_KEYS = [
+  "produce",
+  "port",
+  "weather",
+  "childcare",
+  "health",
+  "construction",
+  "food",
+  "tech",
+] as const;
 
-export default function WhoShouldRead({ stories }: Props) {
-  const audiences = new Set<string>();
+export default async function WhoShouldRead({ stories }: Props) {
+  const t = await getTranslations("whoShouldRead");
+
+  const audiences = new Map<string, string>();
 
   const sections = new Set(stories.map((s) => s.section));
   sections.forEach((section) => {
-    const pool = SECTION_AUDIENCES[section];
-    if (pool) audiences.add(pool[0]);
+    const keys = SECTION_AUDIENCE_KEYS[section];
+    if (keys) {
+      const key = keys[0];
+      audiences.set(key, t(`sectionAudiences.${key}`));
+    }
   });
 
   const allText = stories
@@ -80,16 +71,14 @@ export default function WhoShouldRead({ stories }: Props) {
     .join(" ");
   const keywords = extractKeywords(allText);
   keywords.forEach((kw) => {
-    if (KEYWORD_AUDIENCES[kw]) audiences.add(KEYWORD_AUDIENCES[kw]);
+    if (KEYWORD_KEYS.includes(kw as (typeof KEYWORD_KEYS)[number])) {
+      audiences.set(`kw_${kw}`, t(`keywordAudiences.${kw}`));
+    }
   });
 
-  const items = Array.from(audiences).slice(0, 5);
+  const items = Array.from(audiences.values()).slice(0, 5);
   if (items.length < 3) {
-    const fallbacks = [
-      "Valley operators making decisions with real-time business intelligence",
-      "Anyone tracking where money is moving in the Rio Grande Valley",
-      "Business owners who want to know before their competitors do",
-    ];
+    const fallbacks = [t("fallback1"), t("fallback2"), t("fallback3")];
     for (const fb of fallbacks) {
       if (items.length >= 5) break;
       if (!items.includes(fb)) items.push(fb);
@@ -99,7 +88,7 @@ export default function WhoShouldRead({ stories }: Props) {
   return (
     <div className="mt-12 mb-8 p-6 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl">
       <h3 className="font-display font-bold text-navy dark:text-dark-text text-lg mb-4">
-        Who Should Read This Issue?
+        {t("title")}
       </h3>
       <ul className="space-y-2.5">
         {items.map((item, i) => (

@@ -474,7 +474,44 @@
       "body": "You know the story — Pro tells you what to do about it.",
       "cta": "Unlock Pro — $7/mo"
     },
-    "statsLine": "Reading {visible} of {total} stories — {full} in full, {partial} with moves locked."
+    "statsLine": "Reading {visible} of {total} stories — {full} in full, {partial} with moves locked.",
+    "subScores": {
+      "money": "Money",
+      "urgency": "Urgency",
+      "reach": "Reach",
+      "risk": "Risk"
+    },
+    "subScoreValues": {
+      "High": "High",
+      "Med": "Med",
+      "Low": "Low"
+    },
+    "upgradeBanner": {
+      "heading": "The Full Briefing Is Where the Moves Are",
+      "reading": "You're reading {shown} of {total} scored stories.",
+      "proGets": "Pro members get:",
+      "feature1": "The full weekly RGV business briefing",
+      "feature2": "The Valley Money Map — where money is moving and who wins",
+      "feature3": "\"3 Moves This Week\" — cross-story actions tagged by industry",
+      "feature4": "Opportunity and risk breakdowns on every story",
+      "feature5": "\"Who should act\" notes by operator type",
+      "feature6": "Early signals most owners notice too late",
+      "loading": "Loading…",
+      "cta": "Unlock Pro — $7/mo founding rate",
+      "fineprint": "Founding members lock in $7/mo forever · Cancel anytime"
+    },
+    "issueFooter": {
+      "freeHeading": "You're seeing {freeCount} of {totalCount} stories this week.",
+      "freeBody": "Unlock the full briefing — Valley Money Map, 3 Moves, and every scored story with sub-breakdowns.",
+      "freeLoading": "Loading...",
+      "freeCta": "Upgrade to Pro →",
+      "freeFineprint": "$7/mo founding rate · locked forever for the first 100 subscribers",
+      "proHeading": "Share The Nolana Report with a Valley operator who needs it.",
+      "linkCopied": "Link copied!",
+      "copyReferral": "Copy referral link",
+      "manageSubscription": "Manage subscription"
+    },
+    "threeMovesCta": "See all {count} moves → Unlock Pro"
   },
   "moneyMap": {
     "back": "← The Nolana Report",
@@ -487,5 +524,102 @@
     "fullMapHeading": "See the full Valley Money Map",
     "fullMapBody": "Pro members get the complete money trail — every grant, contract, infrastructure signal, and who wins — updated weekly.",
     "unlockPro": "Unlock Pro — $7/mo founding rate"
+  },
+  "nri": {
+    "howWeScore": "How We Score Stories",
+    "explanation": "The Nolana Relevance Index (NRI) measures each story across four dimensions:",
+    "dimensions": {
+      "money": {
+        "label": "Money Impact",
+        "desc": "Can this create or protect revenue for Valley businesses?"
+      },
+      "urgency": {
+        "label": "Urgency",
+        "desc": "Does the reader need to act soon?"
+      },
+      "reach": {
+        "label": "Local Reach",
+        "desc": "How many RGV businesses could feel the impact?"
+      },
+      "risk": {
+        "label": "Risk",
+        "desc": "Could this hurt unprepared businesses?"
+      }
+    },
+    "tiers": {
+      "critical": "Critical",
+      "high": "High",
+      "moderate": "Moderate",
+      "watch": "Watch"
+    },
+    "tooltip": {
+      "title": "Nolana Relevance Index (NRI)",
+      "body": "Each story is scored 1–10 based on four dimensions. A score of 9–10 means high money + high urgency + wide RGV reach. A score of 3–4 means narrow impact or low urgency. Stories below 3 are excluded from the briefing.",
+      "money": {
+        "label": "Money Impact",
+        "desc": "Revenue, cost, or capital effect"
+      },
+      "urgency": {
+        "label": "Urgency",
+        "desc": "Deadline or time-sensitive window"
+      },
+      "reach": {
+        "label": "Local Reach",
+        "desc": "How many Valley operators affected"
+      },
+      "risk": { "label": "Risk", "desc": "Downside exposure if you miss it" },
+      "actNow": "Act now",
+      "monitor": "Monitor",
+      "aware": "Aware"
+    },
+    "heatmap": {
+      "howScored": "How this week's stories scored on the Nolana Relevance Index",
+      "story": "story",
+      "stories": "stories",
+      "scored": "scored"
+    }
+  },
+  "readersPick": {
+    "title": "Reader's Pick",
+    "question": "Which story mattered most to you this week?",
+    "vote": "vote",
+    "votes": "votes",
+    "pick": "Pick",
+    "moreStories": "{count} more stories in the full briefing"
+  },
+  "breather": {
+    "thisTimeLastYear": "This Time Last Year",
+    "valleyVsNational": "Valley vs. National",
+    "unlockPro": "Unlock Pro →",
+    "readProgress": "You've read {read} of {free} free stories.",
+    "moreInBriefing": "{remaining} more in the full briefing →"
+  },
+  "whoShouldRead": {
+    "title": "Who Should Read This Issue?",
+    "sectionAudiences": {
+      "new_business_pulse_1": "Small business owners watching new competitors and market shifts",
+      "new_business_pulse_2": "Commercial real estate operators tracking new leases and permits",
+      "gov_economic_watch_1": "Government contractors and grant-seekers monitoring public opportunities",
+      "gov_economic_watch_2": "Nonprofit leaders and community developers tracking policy changes",
+      "cross_border_trade_1": "Logistics operators moving goods through Brownsville and Laredo",
+      "cross_border_trade_2": "Import/export brokers navigating cross-border trade flows",
+      "community_buzz_1": "Retail and food-service operators reading local demand signals",
+      "community_buzz_2": "Event planners and hospitality managers tracking community trends",
+      "industrial_investment_1": "Industrial developers and warehouse operators in the Valley",
+      "industrial_investment_2": "Investors evaluating RGV real estate and infrastructure projects"
+    },
+    "keywordAudiences": {
+      "produce": "Avocado brokers and haulers in the McAllen supply chain",
+      "port": "Port operators and maritime logistics teams in Brownsville",
+      "weather": "Facility managers and insurers preparing for hurricane season",
+      "childcare": "Child care and health facility operators ahead of new regulations",
+      "health": "Healthcare providers and medical practice administrators",
+      "construction": "General contractors and construction firms tracking permits",
+      "food": "Restaurant owners and food-service operators watching trends",
+      "tech": "Tech startup founders and IT service providers in the Valley"
+    },
+    "fallback1": "Valley operators making decisions with real-time business intelligence",
+    "fallback2": "Anyone tracking where money is moving in the Rio Grande Valley",
+    "fallback3": "Business owners who want to know before their competitors do"
   }
 }

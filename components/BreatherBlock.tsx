@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export interface BreatherData {
   type: string;
@@ -38,11 +41,17 @@ function QuickMath({ data }: { data: BreatherData }) {
   );
 }
 
-function ThisTimeLastYear({ data }: { data: BreatherData }) {
+function ThisTimeLastYear({
+  data,
+  label,
+}: {
+  data: BreatherData;
+  label: string;
+}) {
   return (
     <div className="py-8 text-center max-w-lg mx-auto">
       <p className="font-body text-[11px] text-slate-light dark:text-dark-dim uppercase tracking-[2px] font-semibold mb-3">
-        ↩ This Time Last Year
+        ↩ {label}
       </p>
       <p className="font-editorial text-[15px] text-slate dark:text-dark-muted leading-[1.7] italic">
         {data.text}
@@ -51,11 +60,17 @@ function ThisTimeLastYear({ data }: { data: BreatherData }) {
   );
 }
 
-function ValleyVsNational({ data }: { data: BreatherData }) {
+function ValleyVsNational({
+  data,
+  label,
+}: {
+  data: BreatherData;
+  label: string;
+}) {
   return (
     <div className="py-8 text-center max-w-lg mx-auto">
       <p className="font-body text-[11px] text-slate-light dark:text-dark-dim uppercase tracking-[2px] font-semibold mb-3">
-        📍 Valley vs. National
+        📍 {label}
       </p>
       <p className="font-body text-[15px] text-charcoal dark:text-dark-text leading-[1.7]">
         {data.text}
@@ -89,7 +104,13 @@ function PullQuote({ data }: { data: BreatherData }) {
   );
 }
 
-function Nudge({ data }: { data: BreatherData }) {
+function Nudge({
+  data,
+  fallbackCta,
+}: {
+  data: BreatherData;
+  fallbackCta: string;
+}) {
   return (
     <div className="py-6 text-center">
       <p className="font-body text-[14px] text-slate-light dark:text-dark-dim leading-relaxed">
@@ -98,14 +119,22 @@ function Nudge({ data }: { data: BreatherData }) {
           href="/subscribe"
           className="text-teal dark:text-teal-light font-medium hover:underline"
         >
-          {data.text.match(/→\s*(.+)$/)?.[1] || "Unlock Pro →"}
+          {data.text.match(/→\s*(.+)$/)?.[1] || fallbackCta}
         </Link>
       </p>
     </div>
   );
 }
 
-function ProgressBar({ data }: { data: BreatherData }) {
+function ProgressBar({
+  data,
+  readLabel,
+  moreLabel,
+}: {
+  data: BreatherData;
+  readLabel: string;
+  moreLabel: string;
+}) {
   const read = data.readCount ?? 0;
   const free = data.freeCount ?? 0;
   const total = data.totalCount ?? 0;
@@ -121,13 +150,13 @@ function ProgressBar({ data }: { data: BreatherData }) {
         />
       </div>
       <p className="font-body text-[13px] text-slate-light dark:text-dark-dim text-center">
-        You&apos;ve read {read} of {free} free stories.{" "}
+        {readLabel}{" "}
         {remaining > 0 && (
           <Link
             href="/subscribe"
             className="text-teal dark:text-teal-light font-medium hover:underline"
           >
-            {remaining} more in the full briefing →
+            {moreLabel}
           </Link>
         )}
       </p>
@@ -135,19 +164,38 @@ function ProgressBar({ data }: { data: BreatherData }) {
   );
 }
 
-const RENDERERS: Record<string, React.FC<{ data: BreatherData }>> = {
-  stat_callout: StatCallout,
-  quick_math: QuickMath,
-  this_time_last_year: ThisTimeLastYear,
-  valley_vs_national: ValleyVsNational,
-  forward_this: ForwardThis,
-  pull_quote: PullQuote,
-  nudge: Nudge,
-  progress_bar: ProgressBar,
-};
-
 export default function BreatherBlock({ data }: { data: BreatherData }) {
-  const Renderer = RENDERERS[data.type];
-  if (!Renderer) return null;
-  return <Renderer data={data} />;
+  const t = useTranslations("breather");
+
+  switch (data.type) {
+    case "stat_callout":
+      return <StatCallout data={data} />;
+    case "quick_math":
+      return <QuickMath data={data} />;
+    case "this_time_last_year":
+      return <ThisTimeLastYear data={data} label={t("thisTimeLastYear")} />;
+    case "valley_vs_national":
+      return <ValleyVsNational data={data} label={t("valleyVsNational")} />;
+    case "forward_this":
+      return <ForwardThis data={data} />;
+    case "pull_quote":
+      return <PullQuote data={data} />;
+    case "nudge":
+      return <Nudge data={data} fallbackCta={t("unlockPro")} />;
+    case "progress_bar":
+      return (
+        <ProgressBar
+          data={data}
+          readLabel={t("readProgress", {
+            read: data.readCount ?? 0,
+            free: data.freeCount ?? 0,
+          })}
+          moreLabel={t("moreInBriefing", {
+            remaining: (data.totalCount ?? 0) - (data.freeCount ?? 0),
+          })}
+        />
+      );
+    default:
+      return null;
+  }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { trackEvent } from "@/lib/analytics";
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 
 export function UpgradeBanner({ remaining, total }: Props) {
   const [loading, setLoading] = useState(false);
+  const t = useTranslations("issue");
 
   const handleUpgrade = async () => {
     setLoading(true);
@@ -39,34 +41,31 @@ export function UpgradeBanner({ remaining, total }: Props) {
       }}
     >
       <h3 className="font-display font-bold text-warm-white text-2xl mb-2">
-        The Full Briefing Is Where the Moves Are
+        {t("upgradeBanner.heading")}
       </h3>
       <p className="font-body text-slate-light mb-5">
-        You&rsquo;re reading {total - remaining} of {total} scored stories.
+        {t("upgradeBanner.reading", { shown: total - remaining, total })}
       </p>
       <p className="font-body text-sm text-gold font-semibold mb-3">
-        Pro members get:
+        {t("upgradeBanner.proGets")}
       </p>
       <ul className="font-body text-sm text-slate-light mb-6 space-y-1.5 max-w-sm mx-auto text-left list-disc pl-5">
-        <li>The full weekly RGV business briefing</li>
-        <li>The Valley Money Map — where money is moving and who wins</li>
-        <li>
-          &ldquo;3 Moves This Week&rdquo; — cross-story actions tagged by
-          industry
-        </li>
-        <li>Opportunity and risk breakdowns on every story</li>
-        <li>&ldquo;Who should act&rdquo; notes by operator type</li>
-        <li>Early signals most owners notice too late</li>
+        <li>{t("upgradeBanner.feature1")}</li>
+        <li>{t("upgradeBanner.feature2")}</li>
+        <li>{t("upgradeBanner.feature3")}</li>
+        <li>{t("upgradeBanner.feature4")}</li>
+        <li>{t("upgradeBanner.feature5")}</li>
+        <li>{t("upgradeBanner.feature6")}</li>
       </ul>
       <button
         onClick={handleUpgrade}
         disabled={loading}
         className="bg-teal hover:bg-teal-light text-white font-body font-bold px-8 py-4 rounded-xl text-base transition-colors duration-200 min-h-[52px] disabled:opacity-60 disabled:cursor-wait"
       >
-        {loading ? "Loading…" : "Unlock Pro — $7/mo founding rate"}
+        {loading ? t("upgradeBanner.loading") : t("upgradeBanner.cta")}
       </button>
       <p className="font-body text-slate-light text-xs mt-4">
-        Founding members lock in $7/mo forever · Cancel anytime
+        {t("upgradeBanner.fineprint")}
       </p>
     </div>
   );

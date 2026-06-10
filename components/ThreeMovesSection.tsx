@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface Props {
   moves: string[];
@@ -38,7 +39,6 @@ function MoveItem({ move, index }: { move: string; index: number }) {
 }
 
 function LockedMoveItem({ move, index }: { move: string; index: number }) {
-  // Strip bold markers to get plain text for truncation
   const plainText = move.replace(/\*\*/g, "");
   const truncated = truncateWords(plainText, 15);
 
@@ -48,7 +48,6 @@ function LockedMoveItem({ move, index }: { move: string; index: number }) {
         {index + 1}.
       </span>
       {truncated}
-      {/* Gradient overlay fades text to card background */}
       <div
         className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-r from-transparent to-warm-white dark:to-dark-card pointer-events-none"
         aria-hidden="true"
@@ -57,24 +56,19 @@ function LockedMoveItem({ move, index }: { move: string; index: number }) {
   );
 }
 
-export function ThreeMovesSection({
-  moves,
-  canSeePro,
-  title = "3 Moves This Week",
-}: Props) {
+export function ThreeMovesSection({ moves, canSeePro, title }: Props) {
+  const t = useTranslations("issue");
   if (!moves || moves.length === 0) return null;
 
   return (
     <div className="mb-8 bg-warm-white dark:bg-dark-card border border-cream-dark dark:border-dark-border rounded-xl p-7">
       <h2 className="font-display font-bold text-navy dark:text-dark-text text-xl mb-5">
-        {title}
+        {title || t("threeMoves")}
       </h2>
       <ol className="space-y-4">
         {canSeePro ? (
-          // Pro view — all moves rendered in full
           moves.map((move, i) => <MoveItem key={i} move={move} index={i} />)
         ) : (
-          // Free teaser — move #1 full, moves #2+ blurred with gradient
           <>
             <MoveItem move={moves[0]} index={0} />
             {moves.slice(1).map((move, i) => (
@@ -90,7 +84,7 @@ export function ThreeMovesSection({
             href="/subscribe"
             className="font-body text-sm text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal font-semibold transition-colors"
           >
-            See all {moves.length} moves → Unlock Pro
+            {t("threeMovesCta", { count: moves.length })}
           </Link>
         </p>
       )}
