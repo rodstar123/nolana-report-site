@@ -199,6 +199,8 @@ export default async function IssuePage({
         why_it_matters: s.why_it_matters_es ?? s.why_it_matters,
         smart_move: s.smart_move_es ?? s.smart_move,
         nolana_take: s.nolana_take_es ?? s.nolana_take,
+        summary: s.summary_es ?? s.summary,
+        who_should_act: s.who_should_act_es ?? s.who_should_act,
       }))
     : rawStories;
   /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -260,13 +262,19 @@ export default async function IssuePage({
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const iss = issue as any;
-  const tempData = iss.business_temperature
-    ? parseTemperature(iss.business_temperature)
-    : null;
-  const moneyMapData = iss.valley_money_map
-    ? parseMoneyMap(iss.valley_money_map)
-    : null;
-  const movesData = iss.three_moves ? parseMoves(iss.three_moves) : null;
+  const tempRaw =
+    isEs && iss.business_temperature_es
+      ? iss.business_temperature_es
+      : iss.business_temperature;
+  const tempData = tempRaw ? parseTemperature(tempRaw) : null;
+  const moneyMapRaw =
+    isEs && iss.valley_money_map_es
+      ? iss.valley_money_map_es
+      : iss.valley_money_map;
+  const moneyMapData = moneyMapRaw ? parseMoneyMap(moneyMapRaw) : null;
+  const movesRaw =
+    isEs && iss.three_moves_es ? iss.three_moves_es : iss.three_moves;
+  const movesData = movesRaw ? parseMoves(movesRaw) : null;
   const clientMoves =
     movesData && !canSeePro
       ? movesData.map((m, i) => {
@@ -278,7 +286,9 @@ export default async function IssuePage({
             : words.slice(0, 15).join(" ") + "…";
         })
       : movesData;
-  const quietSignalRaw = iss.quiet_signal as string | null;
+  const quietSignalRaw = (
+    isEs && iss.quiet_signal_es ? iss.quiet_signal_es : iss.quiet_signal
+  ) as string | null;
   const quietSignalText = quietSignalRaw
     ? quietSignalRaw.replace(/^##\s*.+\n?/, "").trim() || null
     : null;
@@ -294,9 +304,18 @@ export default async function IssuePage({
     (isEs && iss.before_you_go_es ? iss.before_you_go_es : iss.before_you_go) ??
     null;
 
-  const rawBreathers: BreatherData[] = Array.isArray(iss.breathers)
-    ? (iss.breathers as BreatherData[]).filter((b) => b && b.type && b.text)
-    : [];
+  const esBreathers: BreatherData[] =
+    isEs && Array.isArray(iss.breathers_es)
+      ? (iss.breathers_es as BreatherData[]).filter(
+          (b) => b && b.type && b.text,
+        )
+      : [];
+  const rawBreathers: BreatherData[] =
+    esBreathers.length > 0
+      ? esBreathers
+      : Array.isArray(iss.breathers)
+        ? (iss.breathers as BreatherData[]).filter((b) => b && b.type && b.text)
+        : [];
 
   const nudgeTemplates = [
     `Seeing something that affects your business? Pro members get the full ${allStories.length}-story breakdown → Unlock Pro`,

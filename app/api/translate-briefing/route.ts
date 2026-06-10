@@ -11,13 +11,22 @@ Your job: take the completed English briefing and rewrite it in natural RGV Span
 Voice rules:
 - Write in natural RGV Spanish — the way Valley business owners talk. Not textbook Castilian. Not Mexico City formal. Valle del Río Grande.
 - "Negocio" over "empresa" for small businesses. "Checar" is fine. "Platicar" over "conversar."
-- Terms that stay in English because that's how they're used locally: payroll, bookkeeping, LLC, SmartBook, NRI score, strip mall, franchise, drive-thru, retail, wholesale, bid, permit, zoning.
+- Terms that stay in English because that's how they're used locally: payroll, bookkeeping, LLC, SmartBook, NRI score, strip mall, franchise, drive-thru, retail, wholesale, bid, permit, zoning, freight brokers, customs broker, capability statement, grants, import/export brokers, warehouse, child care, startups, tech, IT, event planners.
 - Tone: direct, personal, Morning Brew style. Not corporate. Not academic. Like a sharp friend who knows business — but in Spanish.
 - Headlines should punch. Short. Active verbs.
 - "Nolana Take" sections should feel opinionated and conversational.
 - Adapt, don't translate. If a phrase doesn't land in Spanish, rewrite it so it does.
 
-You will receive the full English briefing as JSON. Return the same JSON structure with all text fields translated to RGV Spanish. Preserve all field names exactly. Do not modify any numeric fields, arrays (who_should_act), or structural data.
+Field-specific rules:
+- business_temperature: Translate the full markdown body. Keep the label (e.g. "Warming") in English if no natural Spanish equivalent; otherwise translate.
+- valley_money_map: This is a markdown table. Translate headers and cell text. Keep dollar amounts, entity names, and program names as-is.
+- three_moves: Translate each move. Keep **bold** markdown formatting. Industry terms stay in English per the rule above.
+- quiet_signal: Translate the narrative text. Keep entity/company names as-is.
+- breathers: This is a JSON array of objects with "type" and "text" fields. Translate the "text" values. Keep the "type" values exactly as-is. Preserve all other fields (numeric, structural) unchanged.
+- summary: Short story blurb. Translate naturally.
+- who_should_act: This is an array of audience tags (e.g. "Retail operators", "Freight brokers"). Translate each tag using RGV Spanglish — keep industry terms in English where Valley operators actually use the English term.
+
+You will receive the full English briefing as JSON. Return the same JSON structure with all text fields translated to RGV Spanish. Preserve all field names exactly. Do not modify any numeric fields or structural data.
 
 Return ONLY valid JSON. No markdown fences. No preamble.`;
 
@@ -28,6 +37,8 @@ interface StoryInput {
   why_it_matters: string | null;
   smart_move: string | null;
   nolana_take: string | null;
+  summary: string | null;
+  who_should_act: string[] | null;
 }
 
 interface TranslatedIssue {
@@ -38,6 +49,11 @@ interface TranslatedIssue {
   risk_radar: string;
   thinking_question: string;
   before_you_go: string;
+  business_temperature: string;
+  valley_money_map: string;
+  three_moves: string;
+  quiet_signal: string;
+  breathers: Array<{ type: string; text: string; [key: string]: unknown }>;
 }
 
 interface TranslatedStory {
@@ -47,6 +63,8 @@ interface TranslatedStory {
   why_it_matters: string;
   smart_move: string;
   nolana_take: string;
+  summary: string;
+  who_should_act: string[];
 }
 
 export async function GET(req: NextRequest) {
@@ -78,7 +96,7 @@ export async function GET(req: NextRequest) {
   const { data: issue } = await supabase
     .from("issues")
     .select(
-      "title, headline, title_es, headline_es, opening_es, owners_move_es, risk_radar_es, thinking_question_es, before_you_go_es",
+      "title, headline, title_es, headline_es, opening_es, owners_move_es, risk_radar_es, thinking_question_es, before_you_go_es, business_temperature_es, valley_money_map_es, three_moves_es, quiet_signal_es, breathers_es",
     )
     .eq("slug", slug)
     .single();
@@ -90,7 +108,7 @@ export async function GET(req: NextRequest) {
   const { data: stories } = await supabase
     .from("stories")
     .select(
-      "position, headline, headline_es, signal_es, why_it_matters_es, smart_move_es, nolana_take_es",
+      "position, headline, headline_es, signal_es, why_it_matters_es, smart_move_es, nolana_take_es, summary_es, who_should_act_es",
     )
     .eq(
       "issue_id",
@@ -141,7 +159,7 @@ export async function POST(req: NextRequest) {
     const { data: issue, error: issueErr } = await supabase
       .from("issues")
       .select(
-        "id, title, headline, opening, owners_move, risk_radar, thinking_question, before_you_go",
+        "id, title, headline, opening, owners_move, risk_radar, thinking_question, before_you_go, business_temperature, valley_money_map, three_moves, quiet_signal, breathers",
       )
       .eq("slug", slug)
       .single();
@@ -155,7 +173,9 @@ export async function POST(req: NextRequest) {
 
     const { data: stories, error: storiesErr } = await supabase
       .from("stories")
-      .select("id, headline, signal, why_it_matters, smart_move, nolana_take")
+      .select(
+        "id, headline, signal, why_it_matters, smart_move, nolana_take, summary, who_should_act",
+      )
       .eq("issue_id", issue.id)
       .order("position", { ascending: true });
 
@@ -175,6 +195,11 @@ export async function POST(req: NextRequest) {
         risk_radar: issue.risk_radar ?? "",
         thinking_question: issue.thinking_question ?? "",
         before_you_go: issue.before_you_go ?? "",
+        business_temperature: issue.business_temperature ?? "",
+        valley_money_map: issue.valley_money_map ?? "",
+        three_moves: issue.three_moves ?? "",
+        quiet_signal: issue.quiet_signal ?? "",
+        breathers: issue.breathers ?? [],
       },
       stories: (stories ?? []).map((s: StoryInput) => ({
         id: s.id,
@@ -183,6 +208,8 @@ export async function POST(req: NextRequest) {
         why_it_matters: s.why_it_matters ?? "",
         smart_move: s.smart_move ?? "",
         nolana_take: s.nolana_take ?? "",
+        summary: s.summary ?? "",
+        who_should_act: s.who_should_act ?? [],
       })),
     };
 
@@ -247,6 +274,13 @@ export async function POST(req: NextRequest) {
         risk_radar_es: translated.issue.risk_radar || null,
         thinking_question_es: translated.issue.thinking_question || null,
         before_you_go_es: translated.issue.before_you_go || null,
+        business_temperature_es: translated.issue.business_temperature || null,
+        valley_money_map_es: translated.issue.valley_money_map || null,
+        three_moves_es: translated.issue.three_moves || null,
+        quiet_signal_es: translated.issue.quiet_signal || null,
+        breathers_es: translated.issue.breathers?.length
+          ? translated.issue.breathers
+          : null,
       })
       .eq("id", issue.id);
 
@@ -268,6 +302,10 @@ export async function POST(req: NextRequest) {
           why_it_matters_es: ts.why_it_matters || null,
           smart_move_es: ts.smart_move || null,
           nolana_take_es: ts.nolana_take || null,
+          summary_es: ts.summary || null,
+          who_should_act_es: ts.who_should_act?.length
+            ? ts.who_should_act
+            : null,
         })
         .eq("id", ts.id);
       if (!storyErr) storiesUpdated++;
