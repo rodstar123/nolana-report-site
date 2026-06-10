@@ -110,20 +110,26 @@ export async function generateMetadata({
 }) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return {};
   const supabase = getSupabase();
+  const isEs = params.locale === "es";
   const { data: issue } = await supabase
     .from("issues")
-    .select("title, published_at, opening")
+    .select("title, headline, headline_es, published_at, opening")
     .eq("slug", params.slug)
     .single();
 
   if (!issue) return {};
 
-  const dateLabel = new Date(issue.published_at).toLocaleDateString("en-US", {
+  const dateLang = isEs ? "es-MX" : "en-US";
+  const dateLabel = new Date(issue.published_at).toLocaleDateString(dateLang, {
     month: "long",
     day: "numeric",
     year: "numeric",
   });
-  const title = `Week of ${dateLabel} — The Nolana Report | RGV Business Intelligence`;
+  const headline =
+    isEs && issue.headline_es ? issue.headline_es : issue.headline;
+  const title = headline
+    ? `${headline} — The Nolana Report`
+    : `Week of ${dateLabel} — The Nolana Report | RGV Business Intelligence`;
   const rawDesc = issue.opening
     ? stripMarkdown(issue.opening).slice(0, 155).replace(/\n/g, " ").trim() +
       (issue.opening.length > 155 ? "..." : "")
@@ -145,7 +151,7 @@ export async function generateMetadata({
           url: "https://nolanareport.com/images/og-social-card.png",
           width: 1200,
           height: 630,
-          alt: `The Nolana Report — ${issue.title}`,
+          alt: headline || `The Nolana Report — ${issue.title}`,
         },
       ],
     },
@@ -373,8 +379,8 @@ export default async function IssuePage({
   ].filter((s) => s.value !== null && s.value !== undefined);
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
-  const issueTitle = isEs && iss.title_es ? iss.title_es : issue.title;
-  const issueOpening = isEs && iss.opening_es ? iss.opening_es : issue.opening;
+  const issueHeadline =
+    isEs && iss.headline_es ? iss.headline_es : iss.headline;
   const dateLang = isEs ? "es-MX" : "en-US";
 
   const dateLabel = new Date(issue.published_at).toLocaleDateString(dateLang, {
@@ -383,6 +389,13 @@ export default async function IssuePage({
     year: "numeric",
   });
 
+  const fallbackTitle =
+    isEs && iss.title_es
+      ? iss.title_es
+      : `The Nolana Report — Week of ${dateLabel}`;
+  const issueTitle = issueHeadline || fallbackTitle;
+  const issueOpening = isEs && iss.opening_es ? iss.opening_es : issue.opening;
+
   const articleDescription = issueOpening
     ? stripMarkdown(issueOpening).slice(0, 155).replace(/\n/g, " ").trim()
     : t("stories", { count: issue.stories_count ?? 0 });
@@ -390,7 +403,7 @@ export default async function IssuePage({
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
-    headline: `Week of ${dateLabel} — The Nolana Report`,
+    headline: issueHeadline || `Week of ${dateLabel} — The Nolana Report`,
     datePublished: issue.published_at,
     dateModified: issue.updated_at ?? issue.published_at,
     author: {

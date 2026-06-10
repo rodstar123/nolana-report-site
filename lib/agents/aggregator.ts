@@ -374,6 +374,20 @@ Write the full briefing in this exact order. Each major section is separated by 
 
 ---
 
+### 0. HEADLINE
+
+Write one hero headline for the issue page, max 14 words. It must lead with the single most concrete number, dollar amount, or deadline in this week's stories. Conversational Morning Brew voice. Never use generic phrases like 'stay informed', 'what you need to know', or 'this week's news'.
+
+Format:
+## Headline
+[Your headline here]
+
+Example:
+## Headline
+A $3.2 Billion Bet Is Stalled in Brownsville — and $600K in McAllen Grant Money Just Went Live
+
+---
+
 ### 1. OPENING
 
 ## Opening
@@ -571,7 +585,7 @@ This section is shown FREE to all readers. It replaces the old "That's this week
 3. Sub-score variance: The four sub-scores vary meaningfully across stories. If they all read the same pattern, rescore.
 4. Dedup: No two stories describe the same event.
 5. Content originality: No 3+ consecutive words copied from any source headline or snippet.
-6. Section order: Opening → Business Temperature → 5 Story Sections → Valley Money Map (PRO) → 3 Moves (PRO) → The Quiet Signal → Owner's Move of the Week → Risk Radar → The Thinking Question → Before You Go.`;
+6. Section order: Headline → Opening → Business Temperature → 5 Story Sections → Valley Money Map (PRO) → 3 Moves (PRO) → The Quiet Signal → Owner's Move of the Week → Risk Radar → The Thinking Question → Before You Go.`;
 
 const SECTION_HEADERS = [
   "New Business Pulse",
@@ -700,6 +714,7 @@ function extractBreathers(markdown: string): BreatherItem[] | null {
 export function parseOpusOutput(markdown: string): {
   opening: string;
   stories: ParsedStory[];
+  headline: string | null;
   businessTemperature: string | null;
   valleyMoneyMap: string | null;
   threeMoves: string | null;
@@ -711,6 +726,11 @@ export function parseOpusOutput(markdown: string): {
   breathers: BreatherItem[] | null;
 } {
   const bom = markdown.replace(/^﻿/, "");
+
+  const headlineBlock = extractSectionBlock(bom, "## Headline");
+  const headline = headlineBlock
+    ? headlineBlock.replace(/^## Headline\s*\n?/, "").trim() || null
+    : null;
 
   const openingMatch = bom.match(/## Opening\s*\n([\s\S]*?)(?=\n## )/);
   const opening = openingMatch ? openingMatch[1].trim() : "";
@@ -857,6 +877,7 @@ export function parseOpusOutput(markdown: string): {
   return {
     opening,
     stories: stories.slice(0, 30),
+    headline,
     businessTemperature,
     valleyMoneyMap,
     threeMoves,
@@ -955,6 +976,7 @@ export async function writeBriefing(
   stories: ParsedStory[],
   rawItems: RawItemRow[],
   sections: {
+    headline: string | null;
     businessTemperature: string | null;
     valleyMoneyMap: string | null;
     threeMoves: string | null;
@@ -990,6 +1012,7 @@ export async function writeBriefing(
     .insert({
       slug,
       title,
+      headline: sections.headline,
       opening,
       is_published: true,
       published_at: new Date().toISOString(),

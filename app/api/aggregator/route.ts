@@ -104,6 +104,7 @@ export async function GET(req: NextRequest) {
     const {
       opening,
       stories,
+      headline,
       businessTemperature,
       valleyMoneyMap,
       threeMoves,
@@ -120,6 +121,7 @@ export async function GET(req: NextRequest) {
       stories,
       poolItems,
       {
+        headline,
         businessTemperature,
         valleyMoneyMap,
         threeMoves,

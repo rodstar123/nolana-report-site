@@ -32,6 +32,7 @@ interface StoryInput {
 
 interface TranslatedIssue {
   title: string;
+  headline: string;
   opening: string;
   owners_move: string;
   risk_radar: string;
@@ -77,7 +78,7 @@ export async function GET(req: NextRequest) {
   const { data: issue } = await supabase
     .from("issues")
     .select(
-      "title, title_es, opening_es, owners_move_es, risk_radar_es, thinking_question_es, before_you_go_es",
+      "title, headline, title_es, headline_es, opening_es, owners_move_es, risk_radar_es, thinking_question_es, before_you_go_es",
     )
     .eq("slug", slug)
     .single();
@@ -140,7 +141,7 @@ export async function POST(req: NextRequest) {
     const { data: issue, error: issueErr } = await supabase
       .from("issues")
       .select(
-        "id, title, opening, owners_move, risk_radar, thinking_question, before_you_go",
+        "id, title, headline, opening, owners_move, risk_radar, thinking_question, before_you_go",
       )
       .eq("slug", slug)
       .single();
@@ -168,6 +169,7 @@ export async function POST(req: NextRequest) {
     const payload = {
       issue: {
         title: issue.title ?? "",
+        headline: issue.headline ?? "",
         opening: issue.opening ?? "",
         owners_move: issue.owners_move ?? "",
         risk_radar: issue.risk_radar ?? "",
@@ -239,6 +241,7 @@ export async function POST(req: NextRequest) {
       .from("issues")
       .update({
         title_es: translated.issue.title || null,
+        headline_es: translated.issue.headline || null,
         opening_es: translated.issue.opening || null,
         owners_move_es: translated.issue.owners_move || null,
         risk_radar_es: translated.issue.risk_radar || null,
