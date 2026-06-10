@@ -134,9 +134,11 @@ export async function POST(req: NextRequest) {
   }
 
   let slug: string;
+  let backfill = false;
   try {
     const body = await req.json();
     slug = body.slug || cdtSlug();
+    backfill = body.backfill === true;
   } catch {
     slug = cdtSlug();
   }
@@ -158,9 +160,7 @@ export async function POST(req: NextRequest) {
     );
     const { data: issue, error: issueErr } = await supabase
       .from("issues")
-      .select(
-        "id, title, headline, opening, owners_move, risk_radar, thinking_question, before_you_go, business_temperature, valley_money_map, three_moves, quiet_signal, breathers",
-      )
+      .select("*")
       .eq("slug", slug)
       .single();
 
@@ -173,9 +173,7 @@ export async function POST(req: NextRequest) {
 
     const { data: stories, error: storiesErr } = await supabase
       .from("stories")
-      .select(
-        "id, headline, signal, why_it_matters, smart_move, nolana_take, summary, who_should_act",
-      )
+      .select("*")
       .eq("issue_id", issue.id)
       .order("position", { ascending: true });
 
@@ -264,25 +262,37 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { error: issueUpdateErr } = await supabase
-      .from("issues")
-      .update({
-        title_es: translated.issue.title || null,
-        headline_es: translated.issue.headline || null,
-        opening_es: translated.issue.opening || null,
-        owners_move_es: translated.issue.owners_move || null,
-        risk_radar_es: translated.issue.risk_radar || null,
-        thinking_question_es: translated.issue.thinking_question || null,
-        before_you_go_es: translated.issue.before_you_go || null,
-        business_temperature_es: translated.issue.business_temperature || null,
-        valley_money_map_es: translated.issue.valley_money_map || null,
-        three_moves_es: translated.issue.three_moves || null,
-        quiet_signal_es: translated.issue.quiet_signal || null,
-        breathers_es: translated.issue.breathers?.length
-          ? translated.issue.breathers
-          : null,
-      })
-      .eq("id", issue.id);
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    const issueUpdate: Record<string, any> = {};
+    const iss = issue as any;
+    const setIf = (col: string, val: unknown) => {
+      if (backfill && iss[col] != null) return;
+      issueUpdate[col] = val ?? null;
+    };
+    setIf("title_es", translated.issue.title || null);
+    setIf("headline_es", translated.issue.headline || null);
+    setIf("opening_es", translated.issue.opening || null);
+    setIf("owners_move_es", translated.issue.owners_move || null);
+    setIf("risk_radar_es", translated.issue.risk_radar || null);
+    setIf("thinking_question_es", translated.issue.thinking_question || null);
+    setIf("before_you_go_es", translated.issue.before_you_go || null);
+    setIf(
+      "business_temperature_es",
+      translated.issue.business_temperature || null,
+    );
+    setIf("valley_money_map_es", translated.issue.valley_money_map || null);
+    setIf("three_moves_es", translated.issue.three_moves || null);
+    setIf("quiet_signal_es", translated.issue.quiet_signal || null);
+    setIf(
+      "breathers_es",
+      translated.issue.breathers?.length ? translated.issue.breathers : null,
+    );
+    /* eslint-enable @typescript-eslint/no-explicit-any */
+
+    const { error: issueUpdateErr } =
+      Object.keys(issueUpdate).length > 0
+        ? await supabase.from("issues").update(issueUpdate).eq("id", issue.id)
+        : { error: null };
 
     if (issueUpdateErr) {
       return NextResponse.json(
@@ -292,21 +302,42 @@ export async function POST(req: NextRequest) {
     }
 
     let storiesUpdated = 0;
+    const storyLookup = new Map(
+      (stories ?? []).map((s: { id: string } & Record<string, unknown>) => [
+        s.id,
+        s,
+      ]),
+    );
     for (const ts of translated.stories) {
       if (!ts.id) continue;
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      const existing = storyLookup.get(ts.id) as
+        | Record<string, any>
+        | undefined;
+      const storyUpdate: Record<string, any> = {};
+      const setStoryIf = (col: string, val: unknown) => {
+        if (backfill && existing?.[col] != null) return;
+        storyUpdate[col] = val ?? null;
+      };
+      setStoryIf("headline_es", ts.headline || null);
+      setStoryIf("signal_es", ts.signal || null);
+      setStoryIf("why_it_matters_es", ts.why_it_matters || null);
+      setStoryIf("smart_move_es", ts.smart_move || null);
+      setStoryIf("nolana_take_es", ts.nolana_take || null);
+      setStoryIf("summary_es", ts.summary || null);
+      setStoryIf(
+        "who_should_act_es",
+        ts.who_should_act?.length ? ts.who_should_act : null,
+      );
+      /* eslint-enable @typescript-eslint/no-explicit-any */
+
+      if (Object.keys(storyUpdate).length === 0) {
+        storiesUpdated++;
+        continue;
+      }
       const { error: storyErr } = await supabase
         .from("stories")
-        .update({
-          headline_es: ts.headline || null,
-          signal_es: ts.signal || null,
-          why_it_matters_es: ts.why_it_matters || null,
-          smart_move_es: ts.smart_move || null,
-          nolana_take_es: ts.nolana_take || null,
-          summary_es: ts.summary || null,
-          who_should_act_es: ts.who_should_act?.length
-            ? ts.who_should_act
-            : null,
-        })
+        .update(storyUpdate)
         .eq("id", ts.id);
       if (!storyErr) storiesUpdated++;
     }
