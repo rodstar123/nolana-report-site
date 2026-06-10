@@ -220,7 +220,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 16000,
+        max_tokens: 32000,
         system: TRANSLATION_SYSTEM_PROMPT,
         messages: [
           {
