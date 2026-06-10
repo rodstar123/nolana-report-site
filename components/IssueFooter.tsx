@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import SignupForm from "./SignupForm";
 
 interface FreeFooterProps {
   variant: "free";
   freeCount: number;
   totalCount: number;
+  freeCtaPrompt?: string;
+  freeCtaLabel?: string;
 }
 
 interface ProFooterProps {
@@ -24,6 +27,8 @@ export function IssueFooter(props: Props) {
 function FreeConversion({
   freeCount,
   totalCount,
+  freeCtaPrompt,
+  freeCtaLabel,
 }: Omit<FreeFooterProps, "variant">) {
   const [loading, setLoading] = useState(false);
 
@@ -64,6 +69,17 @@ function FreeConversion({
         $7/mo founding rate &middot; locked forever for the first 100
         subscribers
       </p>
+
+      {freeCtaPrompt && (
+        <div className="mt-8 pt-8 border-t border-teal/15">
+          <p className="font-body text-slate dark:text-dark-muted text-sm mb-4">
+            {freeCtaPrompt}
+          </p>
+          <div className="max-w-sm mx-auto">
+            <SignupForm variant="light" ctaLabel={freeCtaLabel} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

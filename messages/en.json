@@ -458,6 +458,16 @@
       "cross_border_trade": "Cross-Border & Trade",
       "community_buzz": "Community Buzz",
       "industrial_investment": "Industrial & Investment Watch"
+    },
+    "inlineCapture": {
+      "heading": "Get next Monday's briefing free.",
+      "body": "5 scored stories, the Business Temperature, and the Quiet Signal — in your inbox before 7 AM.",
+      "cta": "Send Me Monday's Brief",
+      "microcopy": "Free forever · English o Español"
+    },
+    "footerFreeCta": {
+      "prompt": "Not ready for Pro? Get the free Monday brief.",
+      "cta": "Subscribe Free"
     }
   },
   "moneyMap": {

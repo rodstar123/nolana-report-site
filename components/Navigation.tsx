@@ -14,6 +14,13 @@ export default function Navigation() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
   const isHomepage = pathname === "/";
+  const isIssuePage =
+    pathname.startsWith("/issues/") && pathname.length > "/issues/".length;
+  const subscribeHref = isHomepage
+    ? "#pricing"
+    : isIssuePage
+      ? "#subscribe-free"
+      : "/#pricing";
   const menuRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("nav");
 
@@ -105,38 +112,35 @@ export default function Navigation() {
           >
             {t("moneyMap")}
           </Link>
-          {isHomepage && (
-            <>
-              <Link
-                href={isLoggedIn ? "/account" : "/login"}
-                className="font-body text-sm font-semibold text-slate-light hover:text-warm-white transition-colors duration-200 min-h-[44px] flex items-center"
-              >
-                {isLoggedIn ? t("myAccount") : t("login")}
-              </Link>
-              <a
-                href="#pricing"
-                className="font-body text-sm font-bold text-warm-white bg-teal hover:bg-teal-light px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
-              >
-                {t("subscribe")}
-              </a>
-            </>
+          {isLoggedIn ? (
+            <Link
+              href="/account"
+              className={`font-body text-sm font-semibold transition-colors duration-200 min-h-[44px] flex items-center ${
+                isHomepage
+                  ? "text-slate-light hover:text-warm-white"
+                  : "text-teal-light hover:text-warm-white border border-teal/30 hover:border-teal/60 px-5 py-2 rounded-lg"
+              }`}
+            >
+              {t("myAccount")}
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className={`font-body text-sm font-semibold transition-colors duration-200 min-h-[44px] flex items-center ${
+                isHomepage
+                  ? "text-slate-light hover:text-warm-white"
+                  : "text-teal-light hover:text-warm-white border border-teal/30 hover:border-teal/60 px-5 py-2 rounded-lg"
+              }`}
+            >
+              {t("login")}
+            </Link>
           )}
-          {!isHomepage &&
-            (isLoggedIn ? (
-              <Link
-                href="/account"
-                className="font-body text-sm font-semibold text-teal-light hover:text-warm-white border border-teal/30 hover:border-teal/60 px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
-              >
-                {t("myAccount")}
-              </Link>
-            ) : (
-              <Link
-                href="/login"
-                className="font-body text-sm font-semibold text-teal-light hover:text-warm-white border border-teal/30 hover:border-teal/60 px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
-              >
-                {t("login")}
-              </Link>
-            ))}
+          <a
+            href={subscribeHref}
+            className="font-body text-sm font-bold text-warm-white bg-teal hover:bg-teal-light px-5 py-2 rounded-lg transition-colors duration-200 min-h-[44px] flex items-center"
+          >
+            {t("subscribe")}
+          </a>
         </div>
 
         {/* Mobile: language + theme toggle + hamburger */}
@@ -186,15 +190,13 @@ export default function Navigation() {
           >
             {isLoggedIn ? t("myAccount") : t("login")}
           </Link>
-          {isHomepage && (
-            <a
-              href="#pricing"
-              onClick={closeMenu}
-              className="font-body text-base font-bold text-warm-white bg-teal hover:bg-teal-light px-5 py-3 rounded-lg transition-colors mt-2 min-h-[48px] flex items-center justify-center w-full"
-            >
-              {t("subscribe")}
-            </a>
-          )}
+          <a
+            href={subscribeHref}
+            onClick={closeMenu}
+            className="font-body text-base font-bold text-warm-white bg-teal hover:bg-teal-light px-5 py-3 rounded-lg transition-colors mt-2 min-h-[48px] flex items-center justify-center w-full"
+          >
+            {t("subscribe")}
+          </a>
         </div>
       </div>
     </nav>

@@ -458,6 +458,16 @@
       "cross_border_trade": "Comercio Transfronterizo",
       "community_buzz": "Pulso Comunitario",
       "industrial_investment": "Inversión Industrial"
+    },
+    "inlineCapture": {
+      "heading": "Recibe el reporte del lunes gratis.",
+      "body": "5 historias con puntaje, la Temperatura de Negocios y La Señal Silenciosa — en tu bandeja antes de las 7 AM.",
+      "cta": "Envíame el Reporte del Lunes",
+      "microcopy": "Gratis para siempre · English o Español"
+    },
+    "footerFreeCta": {
+      "prompt": "¿No estás listo para Pro? Recibe el reporte gratis del lunes.",
+      "cta": "Suscríbete Gratis"
     }
   },
   "moneyMap": {

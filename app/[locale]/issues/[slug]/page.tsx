@@ -18,6 +18,7 @@ import { BeforeYouGo } from "@/components/BeforeYouGo";
 import { ThreeMovesSection } from "@/components/ThreeMovesSection";
 import NRILegend from "@/components/NRILegend";
 import BreatherBlock, { type BreatherData } from "@/components/BreatherBlock";
+import { IssueSignupCard } from "@/components/IssueSignupCard";
 
 export const revalidate = 3600;
 
@@ -633,6 +634,7 @@ export default async function IssuePage({
                   <BreatherBlock data={freeBreathers.get(idx + 1)!} />
                 </div>
               )}
+              {idx === 1 && !canSeePro && <IssueSignupCard />}
             </div>
           ))}
         </div>
@@ -820,6 +822,8 @@ export default async function IssuePage({
             variant="free"
             freeCount={freeStories.length}
             totalCount={allStories.length}
+            freeCtaPrompt={t("footerFreeCta.prompt")}
+            freeCtaLabel={t("footerFreeCta.cta")}
           />
         )}
       </div>

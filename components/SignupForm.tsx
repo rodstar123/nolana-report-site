@@ -8,6 +8,7 @@ const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 interface Props {
   variant?: "dark" | "light";
+  ctaLabel?: string;
 }
 
 type FormStatus =
@@ -242,7 +243,7 @@ function LangPills({
   );
 }
 
-export default function SignupForm({ variant = "dark" }: Props) {
+export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
   const locale = useLocale() as "en" | "es";
   const [email, setEmail] = useState("");
   const [honeypot, setHoneypot] = useState("");
@@ -439,7 +440,7 @@ export default function SignupForm({ variant = "dark" }: Props) {
           },
         })}
       >
-        {status === "loading" ? t.submitLoading : t.submitIdle}
+        {status === "loading" ? t.submitLoading : ctaLabel || t.submitIdle}
       </button>
 
       {status === "error" && (
