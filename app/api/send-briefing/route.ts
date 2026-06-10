@@ -139,8 +139,12 @@ export async function GET(req: NextRequest) {
 
   function buildSubject(): string {
     if (sendLocale === "es") {
+      const esHeadline = iss.headline_es as string | null;
+      if (esHeadline) return esHeadline;
       return `Reporte Nolana — ${dateLabel} — ${localizedStories.length} historias del Valle`;
     }
+    const enHeadline = iss.headline as string | null;
+    if (enHeadline) return enHeadline;
     const tempLabel = iss.business_temperature
       ? extractTemperatureLabel(iss.business_temperature as string)
       : null;

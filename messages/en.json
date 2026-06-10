@@ -94,12 +94,12 @@
       "free": {
         "name": "Free",
         "priceLabel": "Free",
-        "tagline": "Stay Aware — 5 top stories every Monday.",
+        "tagline": "Stay Aware — 6 scored stories every Monday.",
         "description": "Weekly summary email + data bar access",
         "cta": "Subscribe Free",
         "features": [
           "Business Temperature reading",
-          "5 scored stories every Monday",
+          "6 scored stories every Monday — including the week's #1 story in full",
           "The Quiet Signal (closing insight)",
           "Live data bar (USD/MXN, bridge wait)",
           "Telegram alerts — t.me/NolanaReport"
@@ -342,7 +342,7 @@
     "tiers": {
       "free": {
         "label": "Free",
-        "tagline": "You're getting 5 stories every Monday.",
+        "tagline": "You're getting 6 stories every Monday.",
         "price": "Free"
       },
       "pro": {
@@ -461,7 +461,7 @@
     },
     "inlineCapture": {
       "heading": "Get next Monday's briefing free.",
-      "body": "5 scored stories, the Business Temperature, and the Quiet Signal — in your inbox before 7 AM.",
+      "body": "6 scored stories, the Business Temperature, and the Quiet Signal — in your inbox before 7 AM.",
       "cta": "Send Me Monday's Brief",
       "microcopy": "Free forever · English o Español"
     },

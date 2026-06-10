@@ -9,7 +9,7 @@ interface Props {
   email?: string;
 }
 
-export function UpgradeBanner({ total }: Props) {
+export function UpgradeBanner({ remaining, total }: Props) {
   const [loading, setLoading] = useState(false);
 
   const handleUpgrade = async () => {
@@ -42,7 +42,7 @@ export function UpgradeBanner({ total }: Props) {
         The Full Briefing Is Where the Moves Are
       </h3>
       <p className="font-body text-slate-light mb-5">
-        You&rsquo;re reading 5 of {total} scored stories.
+        You&rsquo;re reading {total - remaining} of {total} scored stories.
       </p>
       <p className="font-body text-sm text-gold font-semibold mb-3">
         Pro members get:

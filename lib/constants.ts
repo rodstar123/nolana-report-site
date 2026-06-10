@@ -10,11 +10,11 @@ export const TIERS = [
     name: "Free",
     price: 0,
     priceLabel: "Free",
-    tagline: "Stay Aware — 5 top stories every Monday.",
+    tagline: "Stay Aware — 6 scored stories every Monday.",
     description: "Weekly summary email + data bar access",
     features: [
       "Business Temperature reading",
-      "5 scored stories every Monday",
+      "6 scored stories every Monday — including the week's #1 story in full",
       "The Quiet Signal (closing insight)",
       "Live data bar (USD/MXN, bridge wait)",
       "Telegram alerts — t.me/NolanaReport",

@@ -25,7 +25,10 @@ const TIERS: TierCard[] = [
     borderColor: "rgba(13,115,119,0.2)",
     items: [
       { label: "Business Temperature reading" },
-      { label: "5 scored stories every Monday" },
+      {
+        label:
+          "6 scored stories every Monday — including the week's #1 story in full",
+      },
       { label: "The Quiet Signal (closing insight)" },
       { label: "Live data bar (USD/MXN, bridge wait)" },
       { label: "Telegram breaking alerts" },
