@@ -16,6 +16,7 @@ Voice rules:
 - Headlines should punch. Short. Active verbs.
 - "Nolana Take" sections should feel opinionated and conversational.
 - Adapt, don't translate. If a phrase doesn't land in Spanish, rewrite it so it does.
+- Wordplay and pun-based headings must be adapted to natural Spanish that carries the same meaning — never translated word-for-word. If no natural adaptation exists, write a plain heading instead.
 
 Field-specific rules:
 - business_temperature: Translate the full markdown body. Keep the label (e.g. "Warming") in English if no natural Spanish equivalent; otherwise translate.
@@ -29,17 +30,6 @@ Field-specific rules:
 You will receive the full English briefing as JSON. Return the same JSON structure with all text fields translated to RGV Spanish. Preserve all field names exactly. Do not modify any numeric fields or structural data.
 
 Return ONLY valid JSON. No markdown fences. No preamble.`;
-
-interface StoryInput {
-  id: string;
-  headline: string;
-  signal: string | null;
-  why_it_matters: string | null;
-  smart_move: string | null;
-  nolana_take: string | null;
-  summary: string | null;
-  who_should_act: string[] | null;
-}
 
 interface TranslatedIssue {
   title: string;
@@ -184,31 +174,70 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const skippedFields: string[] = [];
+    const hasContent = (v: unknown): boolean => {
+      if (v == null) return false;
+      if (typeof v === "string") return v.trim().length > 0;
+      if (Array.isArray(v)) return v.length > 0;
+      return true;
+    };
+
+    const issuePayload: Record<string, unknown> = {};
+    for (const key of [
+      "title",
+      "headline",
+      "opening",
+      "owners_move",
+      "risk_radar",
+      "thinking_question",
+      "before_you_go",
+      "business_temperature",
+      "valley_money_map",
+      "three_moves",
+      "quiet_signal",
+    ]) {
+      if (hasContent(issue[key])) {
+        issuePayload[key] = issue[key];
+      } else {
+        skippedFields.push(`issue.${key}`);
+      }
+    }
+    if (hasContent(issue.breathers)) {
+      issuePayload.breathers = issue.breathers;
+    } else {
+      skippedFields.push("issue.breathers");
+    }
+
+    const storyTextFields = [
+      "headline",
+      "signal",
+      "why_it_matters",
+      "smart_move",
+      "nolana_take",
+      "summary",
+    ];
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    const storiesPayload = (stories ?? []).map((s: any) => {
+      const entry: Record<string, unknown> = { id: s.id };
+      for (const key of storyTextFields) {
+        if (hasContent(s[key])) {
+          entry[key] = s[key];
+        } else {
+          skippedFields.push(`story[${s.id?.slice(0, 8)}].${key}`);
+        }
+      }
+      if (hasContent(s.who_should_act)) {
+        entry.who_should_act = s.who_should_act;
+      } else {
+        skippedFields.push(`story[${s.id?.slice(0, 8)}].who_should_act`);
+      }
+      return entry;
+    });
+    /* eslint-enable @typescript-eslint/no-explicit-any */
+
     const payload = {
-      issue: {
-        title: issue.title ?? "",
-        headline: issue.headline ?? "",
-        opening: issue.opening ?? "",
-        owners_move: issue.owners_move ?? "",
-        risk_radar: issue.risk_radar ?? "",
-        thinking_question: issue.thinking_question ?? "",
-        before_you_go: issue.before_you_go ?? "",
-        business_temperature: issue.business_temperature ?? "",
-        valley_money_map: issue.valley_money_map ?? "",
-        three_moves: issue.three_moves ?? "",
-        quiet_signal: issue.quiet_signal ?? "",
-        breathers: issue.breathers ?? [],
-      },
-      stories: (stories ?? []).map((s: StoryInput) => ({
-        id: s.id,
-        headline: s.headline ?? "",
-        signal: s.signal ?? "",
-        why_it_matters: s.why_it_matters ?? "",
-        smart_move: s.smart_move ?? "",
-        nolana_take: s.nolana_take ?? "",
-        summary: s.summary ?? "",
-        who_should_act: s.who_should_act ?? [],
-      })),
+      issue: issuePayload,
+      stories: storiesPayload,
     };
 
     const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
@@ -366,6 +395,7 @@ export async function POST(req: NextRequest) {
       totalStories: (stories ?? []).length,
       spanishCharacters: charCount,
       tokensUsed: tokens,
+      skippedFields,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
