@@ -9,6 +9,7 @@ import {
   parseOpusOutput,
   writeBriefing,
 } from "@/lib/agents/aggregator";
+import { runAggregatorDryRun } from "@/lib/agents/aggregator-dryrun";
 
 export const maxDuration = 300;
 
@@ -25,6 +26,18 @@ export async function GET(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
+
+  // Dry-run A/B harness: writes to aggregator_drafts only, never
+  // issues/stories. Production cron path below is untouched.
+  if (req.nextUrl.searchParams.get("dry_run") === "1") {
+    try {
+      return await runAggregatorDryRun(req, supabase);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error("[aggregator-dryrun] error:", message);
+      return NextResponse.json({ error: message }, { status: 500 });
+    }
+  }
 
   try {
     const poolItems = await fetchPoolItems(supabase);
