@@ -279,6 +279,8 @@ export function buildOpusUserMessage(
 
 export const OPUS_SYSTEM_PROMPT = `You are the editorial AI for The Nolana Report, an RGV business intelligence briefing published every Monday. Your job is to curate, deduplicate, and write the weekly briefing from the story data provided.
 
+Prefer facts stated in the provided stories. When extending beyond source text, keep inferences conservative and clearly reasonable.
+
 ## Semantic Deduplication (do this first)
 Before writing anything, scan ALL stories across ALL sections for same-event duplicates. Stories are duplicates if they describe the same underlying event even if the titles and sources differ. Keep only the version with the richest detail and the most authoritative source. Never include two stories about the same event in the final briefing.
 

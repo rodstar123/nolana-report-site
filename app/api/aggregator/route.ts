@@ -5,11 +5,10 @@ import {
   fetchPoolItems,
   dedup,
   buildOpusUserMessage,
-  OPUS_SYSTEM_PROMPT,
-  parseOpusOutput,
   writeBriefing,
 } from "@/lib/agents/aggregator";
 import { runAggregatorDryRun } from "@/lib/agents/aggregator-dryrun";
+import { runAggregatorWithFallback } from "@/lib/agents/aggregator-llm";
 
 export const maxDuration = 300;
 
@@ -67,52 +66,14 @@ export async function GET(req: NextRequest) {
       downNames,
     );
 
-    const opusRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": process.env.ANTHROPIC_API_KEY!,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-opus-4-8",
-        max_tokens: 40000,
-        thinking: { type: "adaptive" },
-        output_config: { effort: "high" },
-        system: [
-          {
-            type: "text",
-            text: OPUS_SYSTEM_PROMPT,
-            cache_control: { type: "ephemeral" },
-          },
-        ],
-        messages: [{ role: "user", content: userMessage }],
-      }),
-    });
-
-    if (!opusRes.ok) {
-      const errText = await opusRes.text();
-      return NextResponse.json(
-        { error: `Opus ${opusRes.status}: ${errText.slice(0, 300)}` },
-        { status: 502 },
-      );
-    }
-
-    const opusJson = (await opusRes.json()) as {
-      content?: Array<{ type?: string; text?: string }>;
-      usage?: { input_tokens?: number; output_tokens?: number };
-      stop_reason?: string;
-    };
-    if (opusJson.stop_reason === "max_tokens") {
-      console.warn(
-        `[aggregator] Opus response truncated (hit max_tokens). Output tokens: ${opusJson.usage?.output_tokens}`,
-      );
-    }
-    const textBlock = (opusJson.content ?? []).find((b) => b.type === "text");
-    const briefingMarkdown = textBlock?.text ?? "";
+    // Fable 5 primary, single Opus retry on refusal or required-section
+    // parse failure. Raw outputs from every attempt land in aggregator_drafts.
+    const { chosen, fallbackFired } = await runAggregatorWithFallback(
+      userMessage,
+      supabase,
+    );
     const tokens =
-      (opusJson.usage?.input_tokens ?? 0) +
-      (opusJson.usage?.output_tokens ?? 0);
+      (chosen.usage?.input_tokens ?? 0) + (chosen.usage?.output_tokens ?? 0);
 
     const {
       opening,
@@ -127,7 +88,7 @@ export async function GET(req: NextRequest) {
       thinkingQuestion,
       beforeYouGo,
       breathers,
-    } = parseOpusOutput(briefingMarkdown);
+    } = chosen.parsed!;
     const { issueId, storiesWritten } = await writeBriefing(
       supabase,
       opening,
@@ -260,6 +221,8 @@ Rules: Be specific (real numbers, cities, industries from the stories above). 1-
       reroutedCount,
       storiesWritten,
       issueId,
+      model: chosen.model,
+      fallbackFired,
       opusTokens: tokens,
     });
   } catch (err: unknown) {
