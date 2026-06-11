@@ -39,11 +39,6 @@ const schema = z.object({
   FIRECRAWL_API_KEY: z.string().optional(),
   BRIGHT_DATA_API_KEY: z.string().optional(),
 
-  // --- Optional: legacy Notion (removed after Phase 7 cutover) ---
-  NOTION_RGV_RAW_DB_ID: z.string().optional(),
-  NOTION_RGV_HEALTH_DB_ID: z.string().optional(),
-  NOTION_RGV_BRIEFINGS_PARENT_ID: z.string().optional(),
-
   // --- Optional: billing (Stripe) ---
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
