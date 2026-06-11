@@ -32,6 +32,11 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
       url: "https://texasborderbusiness.com/feed/",
       type: "rss",
     },
+    {
+      name: "Edinburg EDC",
+      url: "https://edinburgedc.com/feed/",
+      type: "rss",
+    },
   ],
 
   "Agent 2": [
@@ -121,6 +126,11 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
     {
       name: "GN RGV Trade",
       url: "https://news.google.com/rss/search?q=%22Rio+Grande+Valley%22+OR+%22McAllen%22+OR+%22RGV%22+investment+OR+%22trade+zone%22+OR+nearshoring+OR+manufacturing&hl=en-US&gl=US&ceid=US:en",
+      type: "rss",
+    },
+    {
+      name: "Hora Cero",
+      url: "https://horacero.com.mx/feed/",
       type: "rss",
     },
   ],
