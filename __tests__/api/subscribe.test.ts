@@ -1,11 +1,35 @@
 import { POST } from "@/app/api/subscribe/route";
 import { NextRequest } from "next/server";
 
-jest.mock("@/lib/notion", () => ({
-  writeSubscriber: jest.fn().mockResolvedValue({ token: "test-uuid" }),
-}));
-jest.mock("@/lib/resend", () => ({
-  sendConfirmationEmail: jest.fn().mockResolvedValue(undefined),
+// Chainable Supabase stub: every query resolves to "no existing row",
+// every write succeeds.
+const mockSupabase = {
+  from: jest.fn(() => ({
+    select: jest.fn(() => ({
+      eq: jest.fn(() => ({
+        single: jest.fn().mockResolvedValue({ data: null }),
+      })),
+    })),
+    upsert: jest.fn().mockResolvedValue({ error: null }),
+    update: jest.fn(() => ({
+      eq: jest.fn().mockResolvedValue({ error: null }),
+    })),
+  })),
+};
+
+jest.mock("@/lib/signup-guards", () => {
+  const actual = jest.requireActual("@/lib/signup-guards");
+  return {
+    ...actual,
+    getAdminClient: jest.fn(() => mockSupabase),
+    checkRateLimit: jest.fn().mockResolvedValue(false),
+    isBlockedDomain: jest.fn().mockResolvedValue(false),
+    isDomainBurst: jest.fn().mockResolvedValue(false),
+    logBlockedSignup: jest.fn().mockResolvedValue(undefined),
+  };
+});
+jest.mock("@/lib/email/verification", () => ({
+  sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
 }));
 
 describe("POST /api/subscribe", () => {
@@ -18,7 +42,8 @@ describe("POST /api/subscribe", () => {
     const res = await POST(req);
     const json = await res.json();
     expect(res.status).toBe(200);
-    expect(json.success).toBe(true);
+    expect(json.ok).toBe(true);
+    expect(json.reason).toBe("pending_confirmation");
   });
 
   it("returns 400 for missing email", async () => {
