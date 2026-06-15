@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { OPUS_SYSTEM_PROMPT, parseOpusOutput } from "./aggregator";
 import { sendTelegram } from "./alerter";
 
-export const PRIMARY_MODEL = "claude-fable-5";
+export const PRIMARY_MODEL = "claude-opus-4-8";
 export const FALLBACK_MODEL = "claude-opus-4-8";
 
 type Parsed = ReturnType<typeof parseOpusOutput>;
