@@ -43,15 +43,23 @@ export async function GET(req: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
+  // Scanner / hosting domains that signed up but aren't real leads. Excluded
+  // from the nudge so we never email infrastructure addresses.
+  const EXCLUDED_DOMAINS = ["serverius.net"];
+
   // Eligibility: unconfirmed, not unsubscribed, signed up within 45 days,
   // and never nudged before (idempotency guard).
-  const { data: rows, error: selErr } = await supabase
+  let query = supabase
     .from("subscribers")
     .select("id, email, name, language_preference, verification_token")
     .eq("email_verified", false)
     .eq("unsubscribed", false)
     .gt("created_at", new Date(Date.now() - 45 * 86400_000).toISOString())
     .is("reconfirm_nudge_sent_at", null);
+  for (const domain of EXCLUDED_DOMAINS) {
+    query = query.not("email", "ilike", `%@${domain}`);
+  }
+  const { data: rows, error: selErr } = await query;
 
   if (selErr) {
     return NextResponse.json({ error: selErr.message }, { status: 500 });
