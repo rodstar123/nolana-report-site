@@ -2,8 +2,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { OPUS_SYSTEM_PROMPT, parseOpusOutput } from "./aggregator";
 import { sendTelegram } from "./alerter";
 
+// Was claude-fable-5; Anthropic disabled Fable 5 2026-06-12 (export control).
+// Reverting to fable-5 when restored is a cost/quality decision — see commit 43a922b.
 export const PRIMARY_MODEL = "claude-opus-4-8";
 export const FALLBACK_MODEL = "claude-opus-4-8";
+
+// trigger prefix marking a thrown HTTP/transport failure (4xx/5xx, 404
+// not_found, model-unavailable) — distinct from a refusal or parse failure.
+const API_ERROR_PREFIX = "api error:";
 
 type Parsed = ReturnType<typeof parseOpusOutput>;
 
@@ -138,45 +144,108 @@ async function recordDraft(
 }
 
 /**
- * Primary call on PRIMARY_MODEL. If it refuses or fails a required-section
- * parse, retry exactly once on FALLBACK_MODEL and continue with whichever
- * succeeded. Every attempt's raw output lands in aggregator_drafts.
+ * Wraps attemptModel so a THROWN HTTP error (4xx/5xx, 404 not_found,
+ * model-unavailable) becomes an ok:false result instead of an uncaught
+ * crash. This routes API failures to the same fallback decision as
+ * refusals and parse failures. The thrown class is tagged with
+ * API_ERROR_PREFIX so callers can tell it apart.
+ */
+async function safeAttempt(
+  model: string,
+  userMessage: string,
+): Promise<AggregatorAttempt> {
+  try {
+    return await attemptModel(model, userMessage);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return {
+      model,
+      ok: false,
+      trigger: `${API_ERROR_PREFIX} ${msg}`,
+      rawMarkdown: "",
+      parsed: null,
+      usage: null,
+      stopReason: null,
+    };
+  }
+}
+
+/**
+ * Primary call on PRIMARY_MODEL. ANY primary failure routes to the fallback
+ * decision — refusal, parse failure, OR a thrown API error
+ * (HTTP/404/model-unavailable), which previously escaped and crashed the run.
+ *
+ * Fallback decision:
+ *  - Different FALLBACK_MODEL → retry once on it.
+ *  - Identical FALLBACK_MODEL + deterministic API error → skip the redundant
+ *    retry (it would 404 the same way) and fail loudly.
+ *  - Identical FALLBACK_MODEL + refusal/parse failure → still retry once;
+ *    these are non-deterministic and a retry can recover (this is the live
+ *    config's existing resilience — do not remove it).
+ *
+ * Total failure throws a structured error AND fires the supervisor alert so
+ * the run never dies silently. Every attempt's raw output lands in
+ * aggregator_drafts.
  */
 export async function runAggregatorWithFallback(
   userMessage: string,
   supabase: SupabaseClient,
 ): Promise<{ chosen: AggregatorAttempt; fallbackFired: boolean }> {
-  const first = await attemptModel(PRIMARY_MODEL, userMessage);
+  const first = await safeAttempt(PRIMARY_MODEL, userMessage);
   if (first.ok) {
     await recordDraft(supabase, first, "accepted");
+    console.log(`[aggregator] primary ok (${PRIMARY_MODEL})`);
     return { chosen: first, fallbackFired: false };
   }
 
   await recordDraft(supabase, first, `rejected: ${first.trigger}`);
+
+  const firstIsApiError = first.trigger?.startsWith(API_ERROR_PREFIX) ?? false;
+
+  // Identical-model guard: retrying the same model after a deterministic API
+  // error (404/model-unavailable) would fail identically. Skip and fail loudly.
+  if (FALLBACK_MODEL === PRIMARY_MODEL && firstIsApiError) {
+    const errMsg = `Aggregator failed — ${PRIMARY_MODEL}: ${first.trigger}. Fallback model is identical (${FALLBACK_MODEL}); skipped redundant retry.`;
+    await sendTelegram(
+      `⚠️ Aggregator FAILED — <b>${PRIMARY_MODEL}</b>: ${first.trigger}. Fallback model is identical; no retry possible. Briefing NOT generated.`,
+    );
+    console.error(
+      `[aggregator] FAILED (both) — identical-model skip: ${first.trigger}`,
+    );
+    throw new Error(errMsg);
+  }
+
   await sendTelegram(
     `⚠️ Aggregator fallback fired — <b>${PRIMARY_MODEL}</b>: ${first.trigger}. Retrying once with ${FALLBACK_MODEL}.`,
   );
 
-  const second = await attemptModel(FALLBACK_MODEL, userMessage);
+  const second = await safeAttempt(FALLBACK_MODEL, userMessage);
   if (second.ok) {
     await recordDraft(supabase, second, "fallback_accepted");
+    console.log(`[aggregator] fell back to ${FALLBACK_MODEL}`);
     return { chosen: second, fallbackFired: true };
   }
 
+  // Both failed and the fallback produced nothing usable (refusal, API error,
+  // or no parse): structured failure + supervisor alert.
   if (second.trigger === "refusal" || !second.parsed) {
     await recordDraft(supabase, second, `fallback_rejected: ${second.trigger}`);
-    throw new Error(
-      `Both models failed — ${PRIMARY_MODEL}: ${first.trigger}; ${FALLBACK_MODEL}: ${second.trigger}`,
+    const errMsg = `Both models failed — ${PRIMARY_MODEL}: ${first.trigger}; ${FALLBACK_MODEL}: ${second.trigger}`;
+    await sendTelegram(
+      `⚠️ Aggregator FAILED (both) — <b>${PRIMARY_MODEL}</b>: ${first.trigger}; <b>${FALLBACK_MODEL}</b>: ${second.trigger}. Briefing NOT generated.`,
     );
+    console.error(`[aggregator] FAILED (both) — ${errMsg}`);
+    throw new Error(errMsg);
   }
 
-  // Opus parsed but with required gaps: pre-Fable production had no parse
+  // Fallback parsed but with required gaps: pre-Fable production had no parse
   // gate at all, so shipping its partial output is not a regression.
   await recordDraft(
     supabase,
     second,
     `fallback_partial_used: ${second.trigger}`,
   );
+  console.log(`[aggregator] fell back to ${FALLBACK_MODEL} (partial)`);
   await sendTelegram(
     `⚠️ Aggregator fallback partial — <b>${FALLBACK_MODEL}</b> also hit ${second.trigger}; continuing with its output (pre-fallback behavior).`,
   );
