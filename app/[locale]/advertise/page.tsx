@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   title: "Advertise — The Nolana Report",
   description:
     "Reach Rio Grande Valley business owners every Monday. Sponsorship opportunities with The Nolana Report.",
-  robots: { index: false, follow: false },
 };
 
 export default async function AdvertisePage() {

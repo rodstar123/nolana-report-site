@@ -22,8 +22,9 @@ export async function generateMetadata({
   const isEs = params.locale === "es";
 
   return {
-    title:
-      "The Nolana Report | RGV Business Intelligence & Weekly Business News",
+    title: isEs
+      ? "The Nolana Report | Inteligencia de Negocios del RGV y Noticias Semanales"
+      : "The Nolana Report | RGV Business Intelligence & Weekly Business News",
     description: isEs
       ? "Recibe el reporte semanal de inteligencia de negocios del Valle del Río Grande. Nuevos negocios, comercio transfronterizo, permisos e inversión industrial en McAllen y el RGV."
       : "Get the weekly Rio Grande Valley business intelligence briefing covering new businesses, permits, trade, bridge waits, government moves, and industrial investment across McAllen and the RGV.",
