@@ -4,8 +4,12 @@ import { sendTelegram } from "./alerter";
 
 // Was claude-fable-5; Anthropic disabled Fable 5 2026-06-12 (export control).
 // Reverting to fable-5 when restored is a cost/quality decision — see commit 43a922b.
-export const PRIMARY_MODEL = "claude-opus-4-8";
-export const FALLBACK_MODEL = "claude-opus-4-8";
+// Typed as string (not the literal) so PRIMARY/FALLBACK can be swapped without
+// tripping TS's no-overlap check on the identical-model guard below.
+export const PRIMARY_MODEL: string = "claude-opus-4-8";
+// Cross-family fallback (Sonnet 4.6 — already proven in the translation layer)
+// so a true Opus outage has a real failover, not a same-model retry.
+export const FALLBACK_MODEL: string = "claude-sonnet-4-6";
 
 // trigger prefix marking a thrown HTTP/transport failure (4xx/5xx, 404
 // not_found, model-unavailable) — distinct from a refusal or parse failure.
