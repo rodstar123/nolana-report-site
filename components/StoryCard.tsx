@@ -325,7 +325,7 @@ export function StoryCard({
                   {t("movesLocked.body")}
                 </p>
                 <Link
-                  href="/subscribe"
+                  href="/#pricing"
                   className="inline-block font-body text-sm font-bold text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal transition-colors"
                 >
                   {t("movesLocked.cta")} →
@@ -414,7 +414,7 @@ export function StoryCard({
                 {t("movesLocked.body")}
               </p>
               <Link
-                href="/subscribe"
+                href="/#pricing"
                 className="inline-block font-body text-sm font-bold text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal transition-colors"
               >
                 {t("movesLocked.cta")} →

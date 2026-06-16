@@ -116,7 +116,7 @@ function Nudge({
       <p className="font-body text-[14px] text-slate-light dark:text-dark-dim leading-relaxed">
         {data.text.replace(/→.*$/, "").trim()}{" "}
         <Link
-          href="/subscribe"
+          href="/#pricing"
           className="text-teal dark:text-teal-light font-medium hover:underline"
         >
           {data.text.match(/→\s*(.+)$/)?.[1] || fallbackCta}
@@ -153,7 +153,7 @@ function ProgressBar({
         {readLabel}{" "}
         {remaining > 0 && (
           <Link
-            href="/subscribe"
+            href="/#pricing"
             className="text-teal dark:text-teal-light font-medium hover:underline"
           >
             {moreLabel}

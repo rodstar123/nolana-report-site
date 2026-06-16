@@ -81,7 +81,7 @@ export function ThreeMovesSection({ moves, canSeePro, title }: Props) {
       {!canSeePro && (
         <p className="mt-5 pt-4 border-t border-cream-dark dark:border-dark-border">
           <Link
-            href="/subscribe"
+            href="/#pricing"
             className="font-body text-sm text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal font-semibold transition-colors"
           >
             {t("threeMovesCta", { count: moves.length })}
