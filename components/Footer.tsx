@@ -10,6 +10,7 @@ export default async function Footer() {
   const tAd = await getTranslations("adSlot");
 
   const footerLinks = [
+    { label: t("pastIssues"), href: "/issues" },
     { label: t("privacy"), href: "/privacy" },
     { label: t("terms"), href: "/terms" },
     { label: t("contact"), href: "mailto:info@nationalboco.com" },

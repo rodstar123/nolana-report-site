@@ -107,17 +107,19 @@ export default function Navigation() {
           <LanguageToggle />
           <ThemeToggle />
           <Link
-            href="/issues"
-            className="font-body text-sm font-semibold text-slate-light hover:text-warm-white transition-colors duration-200 min-h-[44px] flex items-center"
-          >
-            {t("issues")}
-          </Link>
-          <Link
             href="/money-map"
             className="font-body text-sm font-semibold text-slate-light hover:text-warm-white transition-colors duration-200 min-h-[44px] flex items-center"
           >
             {t("moneyMap")}
           </Link>
+          {isLoggedIn && (
+            <Link
+              href="/issues"
+              className="font-body text-sm font-semibold text-slate-light hover:text-warm-white transition-colors duration-200 min-h-[44px] flex items-center"
+            >
+              {t("issues")}
+            </Link>
+          )}
           {isLoggedIn ? (
             <Link
               href="/account"
@@ -183,19 +185,21 @@ export default function Navigation() {
       >
         <div className="px-6 pb-6 pt-2 flex flex-col gap-1 border-t border-white/5">
           <Link
-            href="/issues"
-            onClick={closeMenu}
-            className="font-body text-base font-semibold text-slate-light hover:text-warm-white transition-colors py-3 min-h-[48px] flex items-center"
-          >
-            {t("issues")}
-          </Link>
-          <Link
             href="/money-map"
             onClick={closeMenu}
             className="font-body text-base font-semibold text-slate-light hover:text-warm-white transition-colors py-3 min-h-[48px] flex items-center"
           >
             {t("moneyMap")}
           </Link>
+          {isLoggedIn && (
+            <Link
+              href="/issues"
+              onClick={closeMenu}
+              className="font-body text-base font-semibold text-slate-light hover:text-warm-white transition-colors py-3 min-h-[48px] flex items-center"
+            >
+              {t("issues")}
+            </Link>
+          )}
           <Link
             href={isLoggedIn ? "/account" : "/login"}
             onClick={closeMenu}
