@@ -103,53 +103,6 @@ export const AGENT_CARDS = [
   },
 ];
 
-export const MOCK_STORIES = [
-  {
-    score: 91,
-    headline:
-      "New Manufacturing Facility to Open in Edinburg FTZ — 200 Jobs Expected",
-    source: "Monitor / Edinburg Economic Development",
-    summary:
-      "A Monterrey-based auto parts supplier announced a $14M facility inside the Edinburg Foreign Trade Zone, expected to break ground Q3 2026. First Valley FTZ commitment of the year.",
-    tag: "Industrial Watch",
-    whyItMatters:
-      "200 expected jobs may increase demand for payroll, staffing, lunch traffic, industrial services, and nearby commercial activity.",
-  },
-  {
-    score: 84,
-    headline:
-      "USD/MXN Hits 19.85 — Cross-Border Shoppers Surge at McAllen Retailers",
-    source: "Reuters FX / Local Retail Monitor",
-    summary:
-      "Peso weakness pushed the rate to near 20, driving noticeable foot traffic increases at La Plaza Mall and Palms Crossing. Laredo and McAllen retailers both reported weekend surges.",
-    tag: "Cross-Border",
-    whyItMatters:
-      "Retailers, restaurants, and service businesses near the bridge corridors can expect higher foot traffic and cross-border spending until the rate reverses.",
-  },
-  {
-    score: 78,
-    headline:
-      "City of McAllen Approves $2.3M Grant for Downtown Streetscape Project",
-    source: "McAllen City Council / TxDOT",
-    summary:
-      "The council unanimously approved matching funds for a Main Street redevelopment phase covering three blocks. Construction expected to begin November 2026.",
-    tag: "Gov Watch",
-    whyItMatters:
-      "Streetscape investment tends to raise nearby property values and attract new retail — contractors, architects, and adjacent commercial landlords should track the timeline.",
-  },
-  {
-    score: 72,
-    headline:
-      "HEB Breaks Ground on New Mission Location — Third Valley Store This Year",
-    source: "H-E-B Corporate / Mission City Hall",
-    summary:
-      "The 87,000 sq ft store on Shary Road will add 400 jobs. Mission's third HEB; the chain continues aggressive Valley expansion as competitor Walmart remodels two locations.",
-    tag: "Business Pulse",
-    whyItMatters:
-      "Grocery anchors drive surrounding strip center traffic. Suppliers, food vendors, and nearby commercial landlords should watch leasing activity around this corridor.",
-  },
-];
-
 // DATA_BAR_METRICS removed May 2026 — the homepage snapshot bar now sources
 // live values from Supabase + public FX/CBP APIs via lib/snapshot.ts. Do not
 // reintroduce hardcoded metrics here (they caused stale "this week" data).
