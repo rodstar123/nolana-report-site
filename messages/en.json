@@ -6,6 +6,10 @@
     "myAccount": "My Account",
     "subscribe": "Subscribe"
   },
+  "moneySignals": {
+    "label": "This Week's Money Signals",
+    "viewIssue": "View this week's issue →"
+  },
   "hero": {
     "brand": "The Nolana Report",
     "readTime": "~7 min read every Monday",

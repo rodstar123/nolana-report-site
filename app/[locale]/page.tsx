@@ -1,4 +1,5 @@
 import Hero from "@/components/Hero";
+import WeekSignals from "@/components/WeekSignals";
 import SocialProof from "@/components/SocialProof";
 import DataBar from "@/components/DataBar";
 import SampleBriefing from "@/components/SampleBriefing";
@@ -96,6 +97,7 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       <Hero />
+      <WeekSignals />
       <SocialProof />
       <SectionReveal>
         <DataBar metrics={snapshot.metrics} updatedLabel={updatedLabel} />
