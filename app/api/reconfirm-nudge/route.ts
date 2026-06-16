@@ -43,6 +43,37 @@ export async function GET(req: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
+  // Test mode: send exactly ONE real nudge to the given address so the email
+  // can be eyeballed before the real cohort sees it. Stamps NOTHING and never
+  // touches the eligible rows. Token is a throwaway (render check only).
+  const testEmail = req.nextUrl.searchParams.get("test_email");
+  if (testEmail) {
+    const lang = req.nextUrl.searchParams.get("lang") === "es" ? "es" : "en";
+    try {
+      const token = randomBytes(32).toString("hex");
+      const resendId = await sendReconfirmNudge(
+        testEmail.toLowerCase().trim(),
+        token,
+        lang,
+        null,
+      );
+      return NextResponse.json({
+        test_email: testEmail,
+        language: lang,
+        sent: true,
+        resend_id: resendId,
+        stamped: false,
+        rows_touched: 0,
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "unknown error";
+      return NextResponse.json(
+        { test_email: testEmail, sent: false, error: msg },
+        { status: 500 },
+      );
+    }
+  }
+
   // Scanner / hosting domains that signed up but aren't real leads. Excluded
   // from the nudge so we never email infrastructure addresses.
   const EXCLUDED_DOMAINS = ["serverius.net"];

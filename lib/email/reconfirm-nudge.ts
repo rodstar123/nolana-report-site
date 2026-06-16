@@ -25,13 +25,13 @@ export async function sendReconfirmNudge(
   token: string,
   language: "en" | "es",
   firstName: string | null,
-): Promise<void> {
+): Promise<string | null> {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const link = confirmLink(email, token);
 
   if (language === "es") {
     const greeting = firstName ? `Hola ${firstName}:` : "Hola:";
-    await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: "The Nolana Report <briefing@mail.nationalboco.com>",
       to: email,
       subject: "Te falta un clic para recibir The Nolana Report",
@@ -49,11 +49,12 @@ export async function sendReconfirmNudge(
         </div>
       `,
     });
-    return;
+    if (error) throw new Error(error.message);
+    return data?.id ?? null;
   }
 
   const greeting = `Hi ${firstName || "there"},`;
-  await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from: "The Nolana Report <briefing@mail.nationalboco.com>",
     to: email,
     subject: "One click left to get The Nolana Report",
@@ -71,4 +72,6 @@ export async function sendReconfirmNudge(
       </div>
     `,
   });
+  if (error) throw new Error(error.message);
+  return data?.id ?? null;
 }

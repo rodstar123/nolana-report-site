@@ -10,7 +10,8 @@
     { "path": "/api/supervisor", "schedule": "0 14 * * 1" },
     { "path": "/api/supervisor", "schedule": "0 16 * * 1" },
     { "path": "/api/watchdog", "schedule": "0 1 * * 0" },
-    { "path": "/api/send-briefing", "schedule": "0 15 * * 1" }
+    { "path": "/api/send-briefing", "schedule": "0 15 * * 1" },
+    { "path": "/api/reconfirm-nudge", "schedule": "0 13 * * 2" }
   ],
   "functions": {
     "app/api/agents/*/route.ts": { "maxDuration": 120 },
