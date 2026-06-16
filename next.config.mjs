@@ -8,7 +8,7 @@ const nextConfig = {
     formats: ["image/webp"],
   },
   env: {
-    BUILD_TIMESTAMP: new Date().toISOString().slice(0, 16).replace("T", " "),
+    BUILD_TIMESTAMP: new Date().toISOString().slice(0, 10),
   },
 };
 

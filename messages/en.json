@@ -426,6 +426,9 @@
   },
   "issue": {
     "allIssues": "← All Issues",
+    "prevIssue": "← Previous issue",
+    "nextIssue": "Next issue →",
+    "issueNavLabel": "Issue navigation",
     "weekOf": "Week of",
     "minRead": "~{minutes} min read",
     "stories": "{count} stories",

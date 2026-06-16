@@ -426,6 +426,9 @@
   },
   "issue": {
     "allIssues": "← Todas las Ediciones",
+    "prevIssue": "← Edición anterior",
+    "nextIssue": "Edición siguiente →",
+    "issueNavLabel": "Navegación de ediciones",
     "weekOf": "Semana del",
     "minRead": "~{minutes} min de lectura",
     "stories": "{count} historias",

@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getSubscriber } from "@/lib/get-subscriber";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Link as LocaleLink } from "@/i18n/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { StoryCard, type StoryData } from "@/components/StoryCard";
 import { UpgradeBanner } from "@/components/UpgradeBanner";
@@ -182,6 +183,26 @@ export default async function IssuePage({
     .single();
 
   if (!issue) notFound();
+
+  // Chronological prev (older) / next (newer) published-issue neighbors
+  const [{ data: prevIssue }, { data: nextIssue }] = await Promise.all([
+    supabase
+      .from("issues")
+      .select("slug")
+      .eq("is_published", true)
+      .lt("published_at", issue.published_at)
+      .order("published_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("issues")
+      .select("slug")
+      .eq("is_published", true)
+      .gt("published_at", issue.published_at)
+      .order("published_at", { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+  ]);
 
   const { data: stories } = await supabase
     .from("stories")
@@ -934,6 +955,35 @@ export default async function IssuePage({
             freeCtaPrompt={t("footerFreeCta.prompt")}
             freeCtaLabel={t("footerFreeCta.cta")}
           />
+        )}
+
+        {/* Prev / next issue navigation */}
+        {(prevIssue || nextIssue) && (
+          <nav
+            aria-label={t("issueNavLabel")}
+            className="mt-10 pt-6 border-t border-cream-dark dark:border-dark-border flex items-center justify-between gap-4"
+          >
+            {prevIssue ? (
+              <LocaleLink
+                href={`/issues/${prevIssue.slug}`}
+                className="font-body text-sm font-semibold text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal transition-colors"
+              >
+                {t("prevIssue")}
+              </LocaleLink>
+            ) : (
+              <span />
+            )}
+            {nextIssue ? (
+              <LocaleLink
+                href={`/issues/${nextIssue.slug}`}
+                className="font-body text-sm font-semibold text-teal dark:text-teal-light hover:text-teal-light dark:hover:text-teal transition-colors text-right"
+              >
+                {t("nextIssue")}
+              </LocaleLink>
+            ) : (
+              <span />
+            )}
+          </nav>
         )}
       </div>
     </main>
