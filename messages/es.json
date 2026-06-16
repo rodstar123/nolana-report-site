@@ -29,11 +29,11 @@
     "title": "Datos de inteligencia de esta semana"
   },
   "sampleBriefing": {
-    "label": "Edición de Ejemplo",
+    "label": "La Edición de Esta Semana",
     "headline": "Esta semana en el Valle",
     "minRead": "~{minutes} min de lectura",
-    "intro": "Cada lunes, evaluamos más de 30 noticias de negocios del RGV con el <nri>Índice de Relevancia Nolana</nri>. Aquí van las historias más importantes — los suscriptores Pro reciben el reporte completo.",
-    "disclaimer": "Formato de ejemplo para demostración. Las ediciones reales incluyen enlaces directos a registros públicos, agendas municipales, permisos y medios locales."
+    "intro": "Cada lunes, evaluamos más de 30 noticias de negocios del RGV con el <nri>Índice de Relevancia Nolana</nri>. Aquí van las historias más importantes de esta semana — los suscriptores Pro reciben el reporte completo.",
+    "disclaimer": "Los suscriptores Pro reciben cada historia con enlaces directos a registros públicos, agendas municipales, permisos y medios locales."
   },
   "insideEveryIssue": {
     "label": "En Cada Edición",

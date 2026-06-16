@@ -29,11 +29,11 @@
     "title": "This week's intelligence snapshot"
   },
   "sampleBriefing": {
-    "label": "Sample Issue",
+    "label": "This Week's Issue",
     "headline": "This week in the Valley",
     "minRead": "~{minutes} min read",
-    "intro": "Every Monday, we score 30+ RGV business stories by the <nri>Nolana Relevance Index</nri>. Here are sample top stories — Pro subscribers get the full briefing.",
-    "disclaimer": "Sample format shown for demonstration. Real issues include direct source links to public records, city agendas, filings, and local media."
+    "intro": "Every Monday, we score 30+ RGV business stories by the <nri>Nolana Relevance Index</nri>. Here are this week's top stories — Pro subscribers get the full briefing.",
+    "disclaimer": "Pro subscribers get every story with direct source links to public records, city agendas, filings, and local media."
   },
   "insideEveryIssue": {
     "label": "Inside Every Issue",

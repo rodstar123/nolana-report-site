@@ -1,13 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import ScoreBadge from "./ScoreBadge";
-
-interface SignalRow {
-  headline: string;
-  headline_es: string | null;
-  nolana_score: number | null;
-}
+import { getLatestIssue } from "@/lib/latest-issue";
 
 /**
  * "This Week's Money Signals" — compact proof strip directly below the hero CTA.
@@ -16,34 +10,10 @@ interface SignalRow {
  * the email form: muted, no competing CTA. Renders nothing if no published issue.
  */
 export default async function WeekSignals() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return null;
+  const issue = await getLatestIssue();
+  if (!issue || issue.stories.length === 0) return null;
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
-
-  const { data: issue } = await supabase
-    .from("issues")
-    .select("id, slug")
-    .eq("is_published", true)
-    .order("published_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (!issue) return null;
-
-  const { data: stories } = await supabase
-    .from("stories")
-    .select("headline, headline_es, nolana_score")
-    .eq("issue_id", issue.id)
-    .order("nolana_score", { ascending: false, nullsFirst: false })
-    .limit(4);
-
-  const rows = ((stories ?? []) as SignalRow[]).filter(
-    (s) => s.nolana_score != null,
-  );
-  if (rows.length === 0) return null;
+  const rows = issue.stories.slice(0, 4);
 
   const locale = await getLocale();
   const isEs = locale === "es";

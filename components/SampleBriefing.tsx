@@ -1,20 +1,49 @@
-import { getTranslations } from "next-intl/server";
-import { MOCK_STORIES } from "@/lib/constants";
+import { getTranslations, getLocale } from "next-intl/server";
 import BriefingCard from "./BriefingCard";
 import PaywallBlur from "./PaywallBlur";
 import SectionReveal from "./SectionReveal";
-
-function estimateReadingTime(stories: typeof MOCK_STORIES): number {
-  const totalWords = stories.reduce((sum, s) => {
-    const text = `${s.headline} ${s.summary} ${s.whyItMatters ?? ""}`;
-    return sum + text.split(/\s+/).length;
-  }, 0);
-  return Math.max(3, Math.ceil(totalWords / 250));
-}
+import { getLatestIssue } from "@/lib/latest-issue";
 
 export default async function SampleBriefing() {
-  const readingTime = estimateReadingTime(MOCK_STORIES);
+  const issue = await getLatestIssue();
+  // Graceful empty state — render nothing rather than a broken/empty section.
+  if (!issue || issue.stories.length === 0) return null;
+
   const t = await getTranslations("sampleBriefing");
+  const tIssue = await getTranslations("issue");
+  const locale = await getLocale();
+  const isEs = locale === "es";
+
+  // Map real stories → BriefingCard props (locale-aware). BriefingCard renders
+  // ONLY free fields (headline, summary, why-it-matters); it never renders Smart
+  // Move or Nolana Take, so Pro content is structurally never exposed here.
+  const cards = issue.stories.slice(0, 5).map((s) => ({
+    score: s.nolana_score ?? 0,
+    headline: isEs && s.headline_es ? s.headline_es : s.headline,
+    summary: isEs && s.summary_es ? s.summary_es : s.summary,
+    whyItMatters:
+      (isEs && s.why_it_matters_es ? s.why_it_matters_es : s.why_it_matters) ??
+      undefined,
+    source: s.source_name ?? "",
+    tag: tIssue.has(`sectionLabels.${s.section}`)
+      ? tIssue(`sectionLabels.${s.section}`)
+      : s.section,
+    section: s.section,
+  }));
+
+  // Rank-gated like issue pages: rank 1 free; lower ranks blurred teaser.
+  const freeCards = cards.slice(0, 2);
+  const lockedCards = cards.slice(2);
+
+  const readingTime = Math.max(
+    3,
+    Math.ceil(
+      issue.stories.reduce((sum, s) => {
+        const text = `${s.headline} ${s.summary} ${s.why_it_matters ?? ""}`;
+        return sum + text.split(/\s+/).length;
+      }, 0) / 250,
+    ),
+  );
 
   return (
     <section
@@ -63,25 +92,27 @@ export default async function SampleBriefing() {
         </SectionReveal>
 
         <div className="space-y-5">
-          {MOCK_STORIES.slice(0, 2).map((story, i) => (
-            <SectionReveal key={story.headline} delay={i * 0.1}>
-              <BriefingCard {...story} showReactions />
+          {freeCards.map((card, i) => (
+            <SectionReveal key={card.headline} delay={i * 0.1}>
+              <BriefingCard {...card} showReactions />
             </SectionReveal>
           ))}
 
-          <div
-            className="paywall-blur-mask relative pointer-events-none select-none"
-            aria-hidden="true"
-          >
-            {MOCK_STORIES.slice(2).map((story) => (
-              <div key={story.headline} className="mt-5">
-                <BriefingCard {...story} showReactions={false} />
-              </div>
-            ))}
-          </div>
+          {lockedCards.length > 0 && (
+            <div
+              className="paywall-blur-mask relative pointer-events-none select-none"
+              aria-hidden="true"
+            >
+              {lockedCards.map((card) => (
+                <div key={card.headline} className="mt-5">
+                  <BriefingCard {...card} showReactions={false} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        <PaywallBlur />
+        {lockedCards.length > 0 && <PaywallBlur />}
       </div>
     </section>
   );
