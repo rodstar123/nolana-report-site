@@ -2,8 +2,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { OPUS_SYSTEM_PROMPT, parseOpusOutput } from "./aggregator";
 import { sendTelegram } from "./alerter";
 
-// Was claude-fable-5; Anthropic disabled Fable 5 2026-06-12 (export control).
-// Reverting to fable-5 when restored is a cost/quality decision — see commit 43a922b.
+// PRIMARY was claude-fable-5 (set 2026-06-10, commit 3569880).
+// Anthropic disabled Fable 5 on 2026-06-12 (export-control directive) — claude-fable-5 now 404s.
+// Hotfixed PRIMARY → claude-opus-4-8 on 2026-06-14 (commit 43a922b).
+// FALLBACK set to claude-sonnet-4-6 (cross-family) on 2026-06-15.
+// WHEN FABLE 5 IS RESTORED: promoting it back to PRIMARY (opus-4-8 as fallback) is a deliberate
+// cost/quality call — A/B via the dry-run harness first, do not auto-revert.
 // Typed as string (not the literal) so PRIMARY/FALLBACK can be swapped without
 // tripping TS's no-overlap check on the identical-model guard below.
 export const PRIMARY_MODEL: string = "claude-opus-4-8";
