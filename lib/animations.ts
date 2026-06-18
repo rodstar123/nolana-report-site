@@ -1,69 +1,10 @@
 "use client";
 
-export function heroEntrance() {
-  if (typeof window === "undefined") return;
-  import("animejs").then(({ default: anime }) => {
-    anime
-      .timeline({ easing: "easeOutExpo" })
-      .add({
-        targets: ".hero-label",
-        opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 500,
-      })
-      .add(
-        {
-          targets: ".hero-title",
-          opacity: [0, 1],
-          translateY: [50, 0],
-          duration: 900,
-        },
-        "-=300",
-      )
-      .add(
-        {
-          targets: ".hero-tagline",
-          opacity: [0, 1],
-          translateY: [20, 0],
-          duration: 600,
-        },
-        "-=500",
-      )
-      .add(
-        {
-          targets: ".hero-form",
-          opacity: [0, 1],
-          translateY: [30, 0],
-          duration: 700,
-        },
-        "-=200",
-      )
-      .add(
-        { targets: ".hero-social-proof", opacity: [0, 1], duration: 400 },
-        "-=300",
-      )
-      .add(
-        {
-          // LCP image: transform-only flourish. NEVER animate opacity here —
-          // opacity:0 would un-count the hero image until JS hydrates and crater LCP.
-          targets: ".hero-mockup",
-          scale: [1.05, 1],
-          duration: 1200,
-          easing: "easeOutCubic",
-        },
-        "-=1200",
-      )
-      .add(
-        {
-          targets: ".hero-arc",
-          opacity: [0, 0.08],
-          duration: 1200,
-          easing: "easeOutCubic",
-        },
-        "-=800",
-      );
-  });
-}
+// heroEntrance() was removed in Phase 1b: its anime.js timeline ran on the
+// homepage during the LCP window (non-composited JS animation + forced reflow
+// from reading layout on mount), cratering mobile LCP on throttled CPUs. The
+// hero now paints statically with no JS animation. Any future hero flourish
+// must be CSS transform-only and never target the LCP image.
 
 export function countUpNumbers(containerEl: HTMLElement) {
   if (typeof window === "undefined") return;

@@ -1,17 +1,11 @@
 "use client";
-import { useEffect } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { heroEntrance } from "@/lib/animations";
 
 import SignupForm from "./SignupForm";
 
 export default function Hero() {
   const t = useTranslations("hero");
-
-  useEffect(() => {
-    heroEntrance();
-  }, []);
 
   return (
     <section id="signup" className="relative overflow-hidden pt-16">
@@ -130,9 +124,7 @@ function HeroContent({
 }) {
   return (
     <>
-      <div
-        className={`hero-label opacity-0 ${isMobile ? "mb-3" : "mb-4 lg:mb-6"}`}
-      >
+      <div className={`hero-label ${isMobile ? "mb-3" : "mb-4 lg:mb-6"}`}>
         <span
           className="inline-flex items-center gap-2 rounded-full px-3 py-1"
           style={{
@@ -166,7 +158,7 @@ function HeroContent({
       </div>
 
       <h1
-        className={`hero-title font-display font-extrabold opacity-0 ${isMobile ? "mb-4" : "mb-5 lg:mb-6"}`}
+        className={`hero-title font-display font-extrabold ${isMobile ? "mb-4" : "mb-5 lg:mb-6"}`}
         style={{
           fontSize: isMobile ? "28px" : "clamp(1.75rem, 4.5vw, 3.25rem)",
           lineHeight: isMobile ? 1.2 : 1.08,
@@ -182,7 +174,7 @@ function HeroContent({
       </h1>
 
       <p
-        className={`hero-tagline font-body opacity-0 leading-relaxed ${isMobile ? "mb-5" : "mb-7 lg:mb-8"}`}
+        className={`hero-tagline font-body leading-relaxed ${isMobile ? "mb-5" : "mb-7 lg:mb-8"}`}
         style={{
           fontSize: isMobile ? "15px" : "clamp(0.9rem, 1.5vw, 1.05rem)",
           lineHeight: isMobile ? 1.5 : undefined,
@@ -194,7 +186,7 @@ function HeroContent({
       </p>
 
       <div
-        className="hero-form opacity-0 max-w-md"
+        className="hero-form max-w-md"
         style={{
           marginTop: isMobile ? "20px" : "28px",
           marginBottom: isMobile ? "20px" : "24px",
@@ -204,7 +196,7 @@ function HeroContent({
       </div>
 
       <div
-        className={`hero-social-proof opacity-0 ${isMobile ? "mb-2" : "mb-3 lg:mb-4"}`}
+        className={`hero-social-proof ${isMobile ? "mb-2" : "mb-3 lg:mb-4"}`}
         style={{ marginTop: isMobile ? "20px" : "24px" }}
       >
         <p
@@ -221,7 +213,7 @@ function HeroContent({
         </p>
       </div>
 
-      <div className="hero-social-proof opacity-0 flex items-center gap-3 flex-wrap">
+      <div className="hero-social-proof flex items-center gap-3 flex-wrap">
         <span className="font-body text-sm" style={{ color: "#8A96AD" }}>
           {t("freeForever")}
         </span>

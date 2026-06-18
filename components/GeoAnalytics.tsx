@@ -5,7 +5,7 @@ import { GA_ID } from "@/lib/analytics";
 
 export default function GeoAnalytics() {
   return (
-    <Script id="geo-gtag" strategy="afterInteractive">
+    <Script id="geo-gtag" strategy="lazyOnload">
       {`
         (function() {
           var geo = document.cookie.match(/(?:^|; )_geo_ok=([^;]*)/);
