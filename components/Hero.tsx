@@ -18,7 +18,7 @@ export default function Hero() {
       {/* ===== DESKTOP (md+): full-width bg image + gradient overlay ===== */}
       <div className="hidden md:block" style={{ minHeight: "600px" }}>
         <div className="absolute inset-0">
-          <div className="hero-mockup opacity-0 absolute inset-0">
+          <div className="hero-mockup absolute inset-0">
             <Image
               src="/images/nolana-website-cover.png"
               alt="Business professional reading The Nolana Report"
@@ -65,7 +65,7 @@ export default function Hero() {
       <div className="md:hidden flex flex-col">
         {/* Image section */}
         <div className="relative" style={{ height: "300px" }}>
-          <div className="hero-mockup opacity-0 absolute inset-0">
+          <div className="hero-mockup absolute inset-0">
             <Image
               src="/images/nolana-website-cover.png"
               alt="Business professional reading The Nolana Report"

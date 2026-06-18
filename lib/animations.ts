@@ -44,8 +44,9 @@ export function heroEntrance() {
       )
       .add(
         {
+          // LCP image: transform-only flourish. NEVER animate opacity here —
+          // opacity:0 would un-count the hero image until JS hydrates and crater LCP.
           targets: ".hero-mockup",
-          opacity: [0, 1],
           scale: [1.05, 1],
           duration: 1200,
           easing: "easeOutCubic",

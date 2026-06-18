@@ -216,7 +216,6 @@ export default async function LocaleLayout({
           // @ts-expect-error onLoad not typed on link
           onLoad="this.media='all'"
         />
-        <link rel="preload" as="image" href="/images/hero-nolana-mockup.webp" />
         <link
           rel="alternate"
           type="application/rss+xml"

@@ -5,7 +5,7 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    formats: ["image/webp"],
+    formats: ["image/avif", "image/webp"],
   },
   env: {
     BUILD_TIMESTAMP: new Date().toISOString().slice(0, 10),
