@@ -2,31 +2,44 @@ import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Nolana Report Archive — RGV Business Intelligence",
-  description:
-    "Every weekly RGV business intelligence briefing — scored, sourced, and searchable. The Nolana Report archives by National Bookkeeping Company.",
-  openGraph: {
-    title: "Nolana Report Archive — RGV Business Intelligence",
-    description:
-      "Every weekly RGV business intelligence briefing — scored, sourced, and searchable.",
-    url: "https://nolanareport.com/issues",
-    siteName: "The Nolana Report",
-    images: [
-      {
-        url: "https://nolanareport.com/images/og-social-card.png",
-        width: 1200,
-        height: 630,
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Nolana Report Archive — RGV Business Intelligence",
-    description:
-      "Every weekly RGV business intelligence briefing — scored, sourced, and searchable.",
-  },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const isEs = params.locale === "es";
+  const title = isEs
+    ? "Archivo del Nolana Report — Inteligencia de Negocios del RGV"
+    : "Nolana Report Archive — RGV Business Intelligence";
+  const description = isEs
+    ? "Cada reporte semanal de inteligencia de negocios del Valle del Río Grande — con puntaje, fuentes y búsqueda. El archivo del Nolana Report, de National Bookkeeping Company."
+    : "Every weekly RGV business intelligence briefing — scored, sourced, and searchable. The Nolana Report archives by National Bookkeeping Company.";
+  const ogDescription = isEs
+    ? "Cada reporte semanal de inteligencia de negocios del Valle del Río Grande — con puntaje, fuentes y búsqueda."
+    : "Every weekly RGV business intelligence briefing — scored, sourced, and searchable.";
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description: ogDescription,
+      url: "https://nolanareport.com/issues",
+      siteName: "The Nolana Report",
+      images: [
+        {
+          url: "https://nolanareport.com/images/og-social-card.png",
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: ogDescription,
+    },
+  };
+}
 
 export const revalidate = 3600;
 

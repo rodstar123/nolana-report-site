@@ -2,11 +2,22 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
-export const metadata: Metadata = {
-  title: "Terms of Service — The Nolana Report",
-  description: "Terms of service for The Nolana Report newsletter.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const isEs = params.locale === "es";
+  return {
+    title: isEs
+      ? "Términos del Servicio — The Nolana Report"
+      : "Terms of Service — The Nolana Report",
+    description: isEs
+      ? "Términos del servicio del boletín The Nolana Report."
+      : "Terms of service for The Nolana Report newsletter.",
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function TermsPage() {
   const t = await getTranslations("terms");

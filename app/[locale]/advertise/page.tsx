@@ -3,11 +3,21 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import AdvertiseForm from "@/components/AdvertiseForm";
 
-export const metadata: Metadata = {
-  title: "Advertise — The Nolana Report",
-  description:
-    "Reach Rio Grande Valley business owners every Monday. Sponsorship opportunities with The Nolana Report.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const isEs = params.locale === "es";
+  return {
+    title: isEs
+      ? "Anúnciese — The Nolana Report"
+      : "Advertise — The Nolana Report",
+    description: isEs
+      ? "Llegue a los dueños de negocios del Valle del Río Grande cada lunes. Oportunidades de patrocinio con The Nolana Report."
+      : "Reach Rio Grande Valley business owners every Monday. Sponsorship opportunities with The Nolana Report.",
+  };
+}
 
 export default async function AdvertisePage() {
   const t = await getTranslations("advertise");

@@ -4,25 +4,38 @@ import { Link } from "@/i18n/navigation";
 import type { Metadata } from "next";
 import MoneyMapTable from "@/components/MoneyMapTable";
 
-export const metadata: Metadata = {
-  title: "Valley Money Map — The Nolana Report",
-  description:
-    "Interactive map of where money is moving in the Rio Grande Valley. Signals, sectors, and who wins — updated every Monday.",
-  openGraph: {
-    title: "Valley Money Map — The Nolana Report",
-    description:
-      "Interactive map of where money is moving in the Rio Grande Valley.",
-    url: "https://nolanareport.com/money-map",
-    siteName: "The Nolana Report",
-    images: [
-      {
-        url: "https://nolanareport.com/images/og-social-card.png",
-        width: 1200,
-        height: 630,
-      },
-    ],
-  },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const isEs = params.locale === "es";
+  const title = isEs
+    ? "Mapa del Dinero del Valle — The Nolana Report"
+    : "Valley Money Map — The Nolana Report";
+  const description = isEs
+    ? "Mapa interactivo de hacia dónde se mueve el dinero en el Valle del Río Grande. Señales, sectores y quién gana — actualizado cada lunes."
+    : "Interactive map of where money is moving in the Rio Grande Valley. Signals, sectors, and who wins — updated every Monday.";
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description: isEs
+        ? "Mapa interactivo de hacia dónde se mueve el dinero en el Valle del Río Grande."
+        : "Interactive map of where money is moving in the Rio Grande Valley.",
+      url: "https://nolanareport.com/money-map",
+      siteName: "The Nolana Report",
+      images: [
+        {
+          url: "https://nolanareport.com/images/og-social-card.png",
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
+  };
+}
 
 export const revalidate = 3600;
 

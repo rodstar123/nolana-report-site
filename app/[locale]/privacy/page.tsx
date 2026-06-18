@@ -2,11 +2,22 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy — The Nolana Report",
-  description: "Privacy policy for The Nolana Report newsletter.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const isEs = params.locale === "es";
+  return {
+    title: isEs
+      ? "Política de Privacidad — The Nolana Report"
+      : "Privacy Policy — The Nolana Report",
+    description: isEs
+      ? "Política de privacidad del boletín The Nolana Report."
+      : "Privacy policy for The Nolana Report newsletter.",
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function PrivacyPage() {
   const t = await getTranslations("privacy");

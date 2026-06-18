@@ -1,13 +1,24 @@
+import type { Metadata } from "next";
 import { getSubscriber } from "@/lib/get-subscriber";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { SignalForm } from "@/components/SignalForm";
 
-export const metadata = {
-  title: "Send a Business Tip | The Nolana Report",
-  description:
-    "Know something we should cover? Send us a tip and help sharpen next Monday's briefing.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const isEs = params.locale === "es";
+  return {
+    title: isEs
+      ? "Mándenos un Dato de Negocios | The Nolana Report"
+      : "Send a Business Tip | The Nolana Report",
+    description: isEs
+      ? "¿Sabe de algo que deberíamos cubrir? Mándenos un dato y ayúdenos a afinar el reporte del próximo lunes."
+      : "Know something we should cover? Send us a tip and help sharpen next Monday's briefing.",
+  };
+}
 
 export default async function SignalsPage() {
   const subscriber = await getSubscriber();

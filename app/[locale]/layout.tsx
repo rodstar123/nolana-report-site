@@ -42,7 +42,9 @@ export async function generateMetadata({
       alternateLocale: [isEs ? "en_US" : "es_MX"],
       url: "/",
       siteName: "The Nolana Report",
-      title: "The Nolana Report — Lo que se mueve en el Valle",
+      title: isEs
+        ? "The Nolana Report — Lo que se mueve en el Valle"
+        : "The Nolana Report — What's Moving in the Valley",
       description: isEs
         ? "Reporte semanal de inteligencia de negocios para el Valle del Río Grande. 30 historias con puntaje y resumen cada lunes."
         : "Weekly business intelligence briefing for the Rio Grande Valley. 30 stories scored and summarized every Monday.",
