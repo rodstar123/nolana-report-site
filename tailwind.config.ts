@@ -30,10 +30,10 @@ const config: Config = {
         "dark-dim": "#5c6878",
       },
       fontFamily: {
-        display: ['"Playfair Display"', "Georgia", "serif"],
-        body: ['"DM Sans"', "sans-serif"],
-        editorial: ['"Source Serif 4"', "Georgia", "serif"],
-        mono: ['"JetBrains Mono"', "monospace"],
+        display: ["var(--font-playfair)", "Georgia", "serif"],
+        body: ["var(--font-dm-sans)", "sans-serif"],
+        editorial: ["var(--font-source-serif)", "Georgia", "serif"],
+        mono: ["var(--font-jetbrains)", "monospace"],
       },
       backgroundImage: {
         "gradient-navy":

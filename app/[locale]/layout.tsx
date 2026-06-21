@@ -9,6 +9,47 @@ import { HreflangLinks } from "@/components/HreflangLinks";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 import LenisProvider from "@/components/LenisProvider";
 import GeoAnalytics from "@/components/GeoAnalytics";
+import {
+  Playfair_Display,
+  DM_Sans,
+  Source_Serif_4,
+  JetBrains_Mono,
+} from "next/font/google";
+
+// Self-hosted via next/font (build-time woff2 on our own origin, auto preload +
+// font-display: swap + fallback metrics for zero CLS). subsets:["latin"] covers
+// EN + ES. Only the weights actually used in the styles are loaded.
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "700", "800"],
+  display: "swap",
+  variable: "--font-playfair",
+  preload: true, // headline (brand-critical, near LCP)
+});
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+  variable: "--font-dm-sans",
+  preload: true, // body (above the fold)
+});
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  style: ["normal", "italic"], // italic used by .font-editorial pull-quotes
+  display: "swap",
+  variable: "--font-source-serif",
+  preload: false, // editorial body, below the fold
+});
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  display: "swap",
+  variable: "--font-jetbrains",
+  preload: false, // occasional data/score display
+});
+
+const fontVariables = `${playfair.variable} ${dmSans.variable} ${sourceSerif.variable} ${jetbrainsMono.variable}`;
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -192,31 +233,13 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} className={fontVariables} suppressHydrationWarning>
       <head>
         <HreflangLinks />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var s=localStorage.getItem('nolana-theme');if(s==='dark'||(s===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()`,
           }}
-        />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          as="style"
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;1,400;1,700&family=DM+Sans:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
-        />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;1,400;1,700&family=DM+Sans:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
-          media="print"
-          // @ts-expect-error onLoad not typed on link
-          onLoad="this.media='all'"
         />
         <link
           rel="alternate"
