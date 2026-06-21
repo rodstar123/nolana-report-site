@@ -521,18 +521,19 @@ label[for] {
   z-index: 1;
   pointer-events: none;
   background:
-    /* dense blob anchored on the headline zone (top-center) */
+    /* tight dense core over the label + headline (top-center) — keeps the
+       teal label + navy headline WCAG AA without darkening the open areas */
     radial-gradient(
-      ellipse 72% 60% at 50% 24%,
-      rgba(244, 241, 236, 0.97) 0%,
-      rgba(244, 241, 236, 0.9) 40%,
-      rgba(244, 241, 236, 0.42) 72%,
+      ellipse 70% 60% at 50% 8%,
+      rgba(244, 241, 236, 0.99) 0%,
+      rgba(244, 241, 236, 0.96) 42%,
+      rgba(244, 241, 236, 0.58) 76%,
       rgba(244, 241, 236, 0) 100%
     ),
     /* gentle base wash — keeps the photo treated, denser toward the cards */
     linear-gradient(
         to bottom,
-        rgba(244, 241, 236, 0.22) 0%,
+        rgba(244, 241, 236, 0.28) 0%,
         rgba(240, 236, 228, 0.34) 52%,
         rgba(232, 227, 219, 0.56) 100%
       );
