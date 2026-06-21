@@ -484,25 +484,6 @@ label[for] {
   opacity: 0.08;
 }
 
-.hero-mockup {
-  opacity: 0;
-  will-change: transform, opacity;
-}
-
-.hero-arc {
-  opacity: 0;
-  will-change: opacity;
-}
-
-/* ─── Reduced motion: hero split elements ────────────── */
-@media (prefers-reduced-motion: reduce) {
-  .hero-mockup,
-  .hero-arc {
-    opacity: 1;
-    transform: none;
-  }
-}
-
 /* ─── Hero split responsive ──────────────────────────── */
 @media (max-width: 1023px) {
   .hero-split-right {
