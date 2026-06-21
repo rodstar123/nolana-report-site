@@ -491,6 +491,65 @@ label[for] {
   }
 }
 
+/* ─── Who It's For: treated photo bg + CSS-only parallax ─── */
+.who-bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -10%;
+  height: 120%;
+  z-index: 0;
+  pointer-events: none;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  /* webp fallback first, then AVIF-preferred image-set for capable browsers */
+  background-image: url("/images/who-its-for-bg.webp");
+  background-image: image-set(
+    url("/images/who-its-for-bg.avif") type("image/avif"),
+    url("/images/who-its-for-bg.webp") type("image/webp")
+  );
+  transform: translate3d(0, 0, 0);
+}
+
+/* Heavy cream scrim — keeps the photo as texture and protects text contrast.
+   Densest at the top where the teal label + navy headline sit. */
+.who-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(244, 241, 236, 0.96) 0%,
+    rgba(244, 241, 236, 0.94) 30%,
+    rgba(240, 236, 228, 0.88) 58%,
+    rgba(232, 227, 219, 0.92) 100%
+  );
+}
+
+/* GPU-only scroll parallax. Reduced-motion users and browsers without
+   scroll-timeline support get a static, correctly-positioned background. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .who-bg {
+      will-change: transform;
+      animation: who-parallax linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
+@keyframes who-parallax {
+  from {
+    transform: translate3d(0, -5%, 0);
+  }
+  to {
+    transform: translate3d(0, 5%, 0);
+  }
+}
+
 /* ─── NBC Publisher Banner ──────────────────────────── */
 .nbc-banner {
   max-width: 900px;

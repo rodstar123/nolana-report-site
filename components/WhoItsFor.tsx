@@ -80,6 +80,11 @@ export default async function WhoItsFor() {
         background: "linear-gradient(to bottom, #f4f1ec 0%, #e8e3db 100%)",
       }}
     >
+      {/* Treated RGV photo background (decorative) + CSS-only parallax.
+          Falls back to the section's cream gradient if the image fails. */}
+      <div className="who-bg" aria-hidden="true" />
+      <div className="who-scrim" aria-hidden="true" />
+
       <div
         className="ambient-orb"
         style={
