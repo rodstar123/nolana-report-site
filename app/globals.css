@@ -512,20 +512,30 @@ label[for] {
   transform: translate3d(0, 0, 0);
 }
 
-/* Heavy cream scrim — keeps the photo as texture and protects text contrast.
-   Densest at the top where the teal label + navy headline sit. */
+/* Directional scrim — dense cream over the centered label + headline (so text
+   stays WCAG AA), fading to light at the top corners, side edges, and lower
+   gaps so the photo reads boldly there. Tuned by eye against who-its-for-bg. */
 .who-scrim {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    rgba(244, 241, 236, 0.96) 0%,
-    rgba(244, 241, 236, 0.94) 30%,
-    rgba(240, 236, 228, 0.88) 58%,
-    rgba(232, 227, 219, 0.92) 100%
-  );
+  background:
+    /* dense blob anchored on the headline zone (top-center) */
+    radial-gradient(
+      ellipse 72% 60% at 50% 24%,
+      rgba(244, 241, 236, 0.97) 0%,
+      rgba(244, 241, 236, 0.9) 40%,
+      rgba(244, 241, 236, 0.42) 72%,
+      rgba(244, 241, 236, 0) 100%
+    ),
+    /* gentle base wash — keeps the photo treated, denser toward the cards */
+    linear-gradient(
+        to bottom,
+        rgba(244, 241, 236, 0.22) 0%,
+        rgba(240, 236, 228, 0.34) 52%,
+        rgba(232, 227, 219, 0.56) 100%
+      );
 }
 
 /* GPU-only scroll parallax. Reduced-motion users and browsers without
