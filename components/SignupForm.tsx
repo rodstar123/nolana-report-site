@@ -278,32 +278,6 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
   const widgetContainerRef = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
 
-  // --- TEMPORARY Turnstile debug readout (?debug=1) — remove once diagnosed ---
-  const [debug, setDebug] = useState(false);
-  const [dbg, setDbg] = useState({
-    scriptLoaded: false,
-    rendered: false,
-    widgetIdStr: "",
-    lastCallback: "none",
-    errorCode: "",
-    tokenState: "empty",
-  });
-  const updateDbg = (patch: Partial<typeof dbg>) =>
-    setDbg((prev) => ({ ...prev, ...patch }));
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setDebug(
-        new URLSearchParams(window.location.search).get("debug") === "1",
-      );
-    }
-  }, []);
-
-  useEffect(() => {
-    if (debug) console.log("[turnstile-debug]", dbg);
-  }, [debug, dbg]);
-  // --- END TEMPORARY ---
-
   useEffect(() => {
     if (!TURNSTILE_SITE_KEY || !widgetContainerRef.current || widgetId.current)
       return;
@@ -311,28 +285,19 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
     const init = () => {
       if (!widgetContainerRef.current || widgetId.current) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const turnstile = (window as any).turnstile;
-      updateDbg({ scriptLoaded: !!turnstile });
-      const id = turnstile?.render(widgetContainerRef.current, {
-        sitekey: TURNSTILE_SITE_KEY,
-        size: "flexible",
-        callback: (token: string) => {
-          turnstileToken.current = token;
-          updateDbg({
-            lastCallback: "success",
-            tokenState: token ? "has value" : "empty",
-          });
+      widgetId.current = (window as any).turnstile?.render(
+        widgetContainerRef.current,
+        {
+          sitekey: TURNSTILE_SITE_KEY,
+          size: "flexible",
+          callback: (token: string) => {
+            turnstileToken.current = token;
+          },
+          "expired-callback": () => {
+            turnstileToken.current = "";
+          },
         },
-        "expired-callback": () => {
-          turnstileToken.current = "";
-          updateDbg({ lastCallback: "expired", tokenState: "empty" });
-        },
-        "error-callback": (code?: string) => {
-          updateDbg({ lastCallback: "error", errorCode: code ?? "(none)" });
-        },
-      });
-      widgetId.current = id ?? null;
-      updateDbg({ rendered: !!id, widgetIdStr: id ?? "" });
+      );
     };
     if (existing) {
       init();
@@ -477,16 +442,6 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
         id="cf-turnstile-signup"
         className="min-h-[65px]"
       />
-
-      {/* TEMPORARY Turnstile debug readout (?debug=1) — remove once diagnosed */}
-      {debug && (
-        <pre className="text-[11px] leading-tight font-mono text-amber-300 whitespace-pre-wrap bg-black/40 rounded p-2 border border-amber-400/30">
-          {`turnstile global: ${dbg.scriptLoaded ? "yes" : "no"}
-render ran: ${dbg.rendered ? "yes" : "no"}${dbg.widgetIdStr ? ` (id ${dbg.widgetIdStr})` : ""}
-last callback: ${dbg.lastCallback}${dbg.errorCode ? ` (code ${dbg.errorCode})` : ""}
-token: ${dbg.tokenState}`}
-        </pre>
-      )}
 
       <button
         type="submit"
