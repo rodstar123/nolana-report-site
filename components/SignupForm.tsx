@@ -281,35 +281,49 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
   useEffect(() => {
     if (!TURNSTILE_SITE_KEY || !widgetContainerRef.current || widgetId.current)
       return;
-    const existing = document.getElementById("cf-turnstile-script");
-    const init = () => {
-      if (!widgetContainerRef.current || widgetId.current) return;
+    // Poll for the Turnstile global before rendering: the shared script may
+    // still be loading when this effect fires, so retry until it's ready
+    // instead of silently no-opping (mirrors StickyMobileCTA's retry pattern).
+    const renderWidget = () => {
+      if (widgetId.current || !widgetContainerRef.current) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      widgetId.current = (window as any).turnstile?.render(
-        widgetContainerRef.current,
-        {
-          sitekey: TURNSTILE_SITE_KEY,
-          size: "flexible",
-          callback: (token: string) => {
-            turnstileToken.current = token;
-          },
-          "expired-callback": () => {
-            turnstileToken.current = "";
-          },
+      const ts = (window as any).turnstile;
+      if (!ts) {
+        setTimeout(renderWidget, 100);
+        return;
+      }
+      widgetId.current = ts.render(widgetContainerRef.current, {
+        sitekey: TURNSTILE_SITE_KEY,
+        size: "flexible",
+        callback: (token: string) => {
+          turnstileToken.current = token;
         },
-      );
+        "expired-callback": () => {
+          turnstileToken.current = "";
+        },
+      });
     };
-    if (existing) {
-      init();
-    } else {
+    if (!document.getElementById("cf-turnstile-script")) {
       const script = document.createElement("script");
       script.id = "cf-turnstile-script";
       script.src =
         "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
       script.async = true;
-      script.onload = init;
+      script.onload = renderWidget;
       document.head.appendChild(script);
     }
+    renderWidget();
+    return () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ts = (window as any).turnstile;
+      if (ts && widgetId.current) {
+        try {
+          ts.remove(widgetId.current);
+        } catch {}
+      }
+      widgetId.current = null;
+      turnstileToken.current = "";
+    };
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
