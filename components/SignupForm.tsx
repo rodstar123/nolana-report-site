@@ -292,7 +292,7 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
         widgetContainerRef.current,
         {
           sitekey: TURNSTILE_SITE_KEY,
-          size: "managed",
+          size: "invisible",
           callback: (token: string) => {
             turnstileToken.current = token;
           },
@@ -339,10 +339,18 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
     if (status === "verifying" || status === "loading") return;
     const normalized = email.toLowerCase().trim();
 
-    // Guard: do not POST until Turnstile has produced a token.
+    // Guard: do not POST until Turnstile has produced a token. The invisible
+    // widget auto-runs once on render; if that token is missing/expired,
+    // actively run a fresh challenge before waiting.
     let token = turnstileToken.current;
     if (!token) {
       setStatus("verifying");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const turnstile = (window as any).turnstile;
+      if (turnstile && widgetId.current) {
+        turnstile.reset(widgetId.current);
+        turnstile.execute(widgetId.current);
+      }
       token = await waitForToken();
       if (!token) {
         setErrorMsg(t.verifyTimeout);
