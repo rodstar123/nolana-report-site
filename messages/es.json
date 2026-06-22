@@ -228,8 +228,7 @@
   "stickyMobileCTA": {
     "placeholder": "tu@correo.com",
     "submit": "Suscríbete Gratis",
-    "verifying": "Verificando…",
-    "verifyTimeout": "Intenta de nuevo.",
+    "verifyIncomplete": "Por favor completa la verificación de arriba.",
     "confirmHeading": "¡Casi listo! Confirma tu correo.",
     "confirmBody": "Checa tu bandeja de entrada y la carpeta de spam."
   },

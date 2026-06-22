@@ -13,7 +13,6 @@ interface Props {
 
 type FormStatus =
   | "idle"
-  | "verifying"
   | "loading"
   | "success"
   | "already_subscribed"
@@ -25,8 +24,7 @@ const copy = {
     placeholder: "your@email.com",
     submitIdle: "Get the Free Monday Brief",
     submitLoading: "Subscribing…",
-    submitVerifying: "Verifying…",
-    verifyTimeout: "Verification took too long — please try again.",
+    verifyIncomplete: "Please complete the verification above.",
     checkbox: "I agree to receive The Nolana Report weekly via email",
     confirmHeading: "Almost there! Confirm your email.",
     confirmBody: (email: string) =>
@@ -46,8 +44,7 @@ const copy = {
     placeholder: "tu@correo.com",
     submitIdle: "Suscríbete Gratis",
     submitLoading: "Suscribiendo…",
-    submitVerifying: "Verificando…",
-    verifyTimeout: "La verificación tardó demasiado — intenta de nuevo.",
+    verifyIncomplete: "Por favor completa la verificación de arriba.",
     checkbox:
       "Acepto recibir El Reporte Nolana semanalmente por correo electrónico",
     confirmHeading: "¡Casi listo! Confirma tu correo.",
@@ -292,7 +289,7 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
         widgetContainerRef.current,
         {
           sitekey: TURNSTILE_SITE_KEY,
-          size: "invisible",
+          size: "flexible",
           callback: (token: string) => {
             turnstileToken.current = token;
           },
@@ -315,48 +312,19 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
     }
   }, []);
 
-  // Turnstile solves async (managed mode). Wait for the token to populate
-  // before POSTing so we never submit an empty token. Resolves "" on timeout.
-  function waitForToken(timeoutMs = 8000): Promise<string> {
-    if (turnstileToken.current) return Promise.resolve(turnstileToken.current);
-    return new Promise((resolve) => {
-      const startedAt = Date.now();
-      const interval = setInterval(() => {
-        if (turnstileToken.current) {
-          clearInterval(interval);
-          resolve(turnstileToken.current);
-        } else if (Date.now() - startedAt > timeoutMs) {
-          clearInterval(interval);
-          resolve("");
-        }
-      }, 150);
-    });
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!agreed) return;
-    if (status === "verifying" || status === "loading") return;
+    if (status === "loading") return;
     const normalized = email.toLowerCase().trim();
 
-    // Guard: do not POST until Turnstile has produced a token. The invisible
-    // widget auto-runs once on render; if that token is missing/expired,
-    // actively run a fresh challenge before waiting.
-    let token = turnstileToken.current;
+    // Guard: the visible widget fires its success callback once solved. Do not
+    // POST until the token ref is populated.
+    const token = turnstileToken.current;
     if (!token) {
-      setStatus("verifying");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const turnstile = (window as any).turnstile;
-      if (turnstile && widgetId.current) {
-        turnstile.reset(widgetId.current);
-        turnstile.execute(widgetId.current);
-      }
-      token = await waitForToken();
-      if (!token) {
-        setErrorMsg(t.verifyTimeout);
-        setStatus("error");
-        return;
-      }
+      setErrorMsg(t.verifyIncomplete);
+      setStatus("error");
+      return;
     }
 
     setStatus("loading");
@@ -431,7 +399,6 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full">
-      <div ref={widgetContainerRef} aria-hidden="true" />
       <input
         name="website"
         type="text"
@@ -470,9 +437,15 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
         <span className={styles.checkbox}>{t.checkbox}</span>
       </label>
 
+      <div
+        ref={widgetContainerRef}
+        id="cf-turnstile-signup"
+        className="min-h-[65px]"
+      />
+
       <button
         type="submit"
-        disabled={status === "loading" || status === "verifying" || !agreed}
+        disabled={status === "loading" || !agreed}
         className={styles.button}
         {...(!isLight && {
           style: {
@@ -485,11 +458,7 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
           },
         })}
       >
-        {status === "verifying"
-          ? t.submitVerifying
-          : status === "loading"
-            ? t.submitLoading
-            : ctaLabel || t.submitIdle}
+        {status === "loading" ? t.submitLoading : ctaLabel || t.submitIdle}
       </button>
 
       {status === "error" && (
