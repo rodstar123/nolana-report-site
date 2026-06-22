@@ -228,6 +228,8 @@
   "stickyMobileCTA": {
     "placeholder": "your@email.com",
     "submit": "Subscribe Free",
+    "verifying": "Verifying…",
+    "verifyTimeout": "Please try again.",
     "confirmHeading": "Almost there! Confirm your email.",
     "confirmBody": "Check your inbox and spam folder."
   },

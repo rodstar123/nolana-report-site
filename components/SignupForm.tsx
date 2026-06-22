@@ -13,6 +13,7 @@ interface Props {
 
 type FormStatus =
   | "idle"
+  | "verifying"
   | "loading"
   | "success"
   | "already_subscribed"
@@ -24,6 +25,8 @@ const copy = {
     placeholder: "your@email.com",
     submitIdle: "Get the Free Monday Brief",
     submitLoading: "Subscribing…",
+    submitVerifying: "Verifying…",
+    verifyTimeout: "Verification took too long — please try again.",
     checkbox: "I agree to receive The Nolana Report weekly via email",
     confirmHeading: "Almost there! Confirm your email.",
     confirmBody: (email: string) =>
@@ -43,6 +46,8 @@ const copy = {
     placeholder: "tu@correo.com",
     submitIdle: "Suscríbete Gratis",
     submitLoading: "Suscribiendo…",
+    submitVerifying: "Verificando…",
+    verifyTimeout: "La verificación tardó demasiado — intenta de nuevo.",
     checkbox:
       "Acepto recibir El Reporte Nolana semanalmente por correo electrónico",
     confirmHeading: "¡Casi listo! Confirma tu correo.",
@@ -287,7 +292,7 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
         widgetContainerRef.current,
         {
           sitekey: TURNSTILE_SITE_KEY,
-          size: "invisible",
+          size: "managed",
           callback: (token: string) => {
             turnstileToken.current = token;
           },
@@ -310,10 +315,42 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
     }
   }, []);
 
+  // Turnstile solves async (managed mode). Wait for the token to populate
+  // before POSTing so we never submit an empty token. Resolves "" on timeout.
+  function waitForToken(timeoutMs = 8000): Promise<string> {
+    if (turnstileToken.current) return Promise.resolve(turnstileToken.current);
+    return new Promise((resolve) => {
+      const startedAt = Date.now();
+      const interval = setInterval(() => {
+        if (turnstileToken.current) {
+          clearInterval(interval);
+          resolve(turnstileToken.current);
+        } else if (Date.now() - startedAt > timeoutMs) {
+          clearInterval(interval);
+          resolve("");
+        }
+      }, 150);
+    });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!agreed) return;
+    if (status === "verifying" || status === "loading") return;
     const normalized = email.toLowerCase().trim();
+
+    // Guard: do not POST until Turnstile has produced a token.
+    let token = turnstileToken.current;
+    if (!token) {
+      setStatus("verifying");
+      token = await waitForToken();
+      if (!token) {
+        setErrorMsg(t.verifyTimeout);
+        setStatus("error");
+        return;
+      }
+    }
+
     setStatus("loading");
     try {
       const res = await fetch("/api/subscribe", {
@@ -321,7 +358,7 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: normalized,
-          turnstileToken: turnstileToken.current,
+          turnstileToken: token,
           website: honeypot,
           language_preference: langPref,
         }),
@@ -427,7 +464,7 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
 
       <button
         type="submit"
-        disabled={status === "loading" || !agreed}
+        disabled={status === "loading" || status === "verifying" || !agreed}
         className={styles.button}
         {...(!isLight && {
           style: {
@@ -440,7 +477,11 @@ export default function SignupForm({ variant = "dark", ctaLabel }: Props) {
           },
         })}
       >
-        {status === "loading" ? t.submitLoading : ctaLabel || t.submitIdle}
+        {status === "verifying"
+          ? t.submitVerifying
+          : status === "loading"
+            ? t.submitLoading
+            : ctaLabel || t.submitIdle}
       </button>
 
       {status === "error" && (

@@ -9,6 +9,8 @@ export default function StickyMobileCTA() {
   const [dismissed, setDismissed] = useState(false);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const [done, setDone] = useState(false);
   const turnstileToken = useRef("");
   const widgetContainerRef = useRef<HTMLDivElement>(null);
@@ -57,7 +59,7 @@ export default function StickyMobileCTA() {
         widgetContainerRef.current,
         {
           sitekey: TURNSTILE_SITE_KEY,
-          size: "invisible",
+          size: "managed",
           callback: (token: string) => {
             turnstileToken.current = token;
           },
@@ -87,9 +89,41 @@ export default function StickyMobileCTA() {
     } catch {}
   };
 
+  // Turnstile solves async (managed mode). Wait for the token before POSTing
+  // so we never submit an empty token. Resolves "" on timeout.
+  const waitForToken = (timeoutMs = 8000): Promise<string> => {
+    if (turnstileToken.current) return Promise.resolve(turnstileToken.current);
+    return new Promise((resolve) => {
+      const startedAt = Date.now();
+      const interval = setInterval(() => {
+        if (turnstileToken.current) {
+          clearInterval(interval);
+          resolve(turnstileToken.current);
+        } else if (Date.now() - startedAt > timeoutMs) {
+          clearInterval(interval);
+          resolve("");
+        }
+      }, 150);
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || loading || verifying) return;
+    setErrorMsg("");
+
+    // Guard: do not POST until Turnstile has produced a token.
+    let token = turnstileToken.current;
+    if (!token) {
+      setVerifying(true);
+      token = await waitForToken();
+      setVerifying(false);
+      if (!token) {
+        setErrorMsg(t("verifyTimeout"));
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/subscribe", {
@@ -97,15 +131,18 @@ export default function StickyMobileCTA() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: email.toLowerCase().trim(),
-          turnstileToken: turnstileToken.current,
+          turnstileToken: token,
           website: "",
         }),
       });
       if (res.ok) {
         setDone(true);
         setTimeout(dismiss, 5000);
+      } else {
+        setErrorMsg(t("verifyTimeout"));
       }
     } catch {
+      setErrorMsg(t("verifyTimeout"));
     } finally {
       setLoading(false);
     }
@@ -147,45 +184,55 @@ export default function StickyMobileCTA() {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex items-center gap-2">
-            <div ref={widgetContainerRef} aria-hidden="true" />
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t("placeholder")}
-              required
-              aria-label="Email for free brief"
-              className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-[#1a2a3d] border border-[#2a3a4d] text-warm-white placeholder-[#6b7a8d] font-body text-base focus:outline-none focus:border-teal min-h-[44px]"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-shrink-0 bg-teal hover:bg-teal-light text-white font-body font-bold text-sm px-4 py-2.5 rounded-lg transition-colors min-h-[44px] disabled:opacity-50"
-            >
-              {loading ? "..." : t("submit")}
-            </button>
-            <button
-              type="button"
-              onClick={dismiss}
-              className="flex-shrink-0 p-2 text-slate-light hover:text-warm-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-              aria-label="Dismiss"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <>
+            <form onSubmit={handleSubmit} className="flex items-center gap-2">
+              <div ref={widgetContainerRef} aria-hidden="true" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t("placeholder")}
+                required
+                aria-label="Email for free brief"
+                className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-[#1a2a3d] border border-[#2a3a4d] text-warm-white placeholder-[#6b7a8d] font-body text-base focus:outline-none focus:border-teal min-h-[44px]"
+              />
+              <button
+                type="submit"
+                disabled={loading || verifying}
+                className="flex-shrink-0 bg-teal hover:bg-teal-light text-white font-body font-bold text-sm px-4 py-2.5 rounded-lg transition-colors min-h-[44px] disabled:opacity-50"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </form>
+                {verifying ? t("verifying") : loading ? "..." : t("submit")}
+              </button>
+              <button
+                type="button"
+                onClick={dismiss}
+                className="flex-shrink-0 p-2 text-slate-light hover:text-warm-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label="Dismiss"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </form>
+            {errorMsg && (
+              <p
+                className="font-body text-amber-300 text-xs mt-1.5 px-1"
+                role="alert"
+              >
+                {errorMsg}
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>
