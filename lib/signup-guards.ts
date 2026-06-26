@@ -140,3 +140,23 @@ export async function logBlockedSignup(
 ) {
   await supabase.from("blocked_signups").insert({ email, ip, reason }).single();
 }
+
+// Funnel observability: record silent-path exits (Turnstile fail, invalid
+// email/payload, honeypot) that write no subscriber row. Never throws — a
+// logging failure must not break a real signup.
+export async function logSignupAttempt(
+  email: string | null,
+  ip: string,
+  reason: string,
+  statusCode: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+) {
+  try {
+    await supabase
+      .from("signup_attempts")
+      .insert({ email, ip, reason, status_code: statusCode });
+  } catch (e) {
+    console.error("[signup] logSignupAttempt failed:", e);
+  }
+}

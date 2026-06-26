@@ -9,13 +9,16 @@ import {
   getClientIp,
   checkRateLimit,
   logBlockedSignup,
+  logSignupAttempt,
 } from "@/lib/signup-guards";
 import { sendVerificationEmail } from "@/lib/email/verification";
 
-async function verifyTurnstile(token: string): Promise<boolean> {
+async function verifyTurnstile(
+  token: string,
+): Promise<{ success: boolean; errorCodes: string[] }> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) return true;
-  if (!token) return false;
+  if (!secret) return { success: true, errorCodes: [] };
+  if (!token) return { success: false, errorCodes: ["missing-input-response"] };
   try {
     const resp = await fetch(
       "https://challenges.cloudflare.com/turnstile/v0/siteverify",
@@ -26,9 +29,13 @@ async function verifyTurnstile(token: string): Promise<boolean> {
       },
     );
     const data = await resp.json();
-    return data.success === true;
+    return {
+      success: data.success === true,
+      errorCodes: Array.isArray(data["error-codes"]) ? data["error-codes"] : [],
+    };
   } catch {
-    return true;
+    // Network/parse failure: fail open (preserve prior behavior).
+    return { success: true, errorCodes: [] };
   }
 }
 
@@ -55,10 +62,12 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
+    await logSignupAttempt(null, ip, "invalid_payload", 400, supabase);
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   if (body.website) {
+    await logSignupAttempt(body.email ?? null, ip, "honeypot", 200, supabase);
     return NextResponse.json({ ok: true });
   }
 
@@ -72,6 +81,7 @@ export async function POST(req: NextRequest) {
     ? (language_preference as "en" | "es" | "both")
     : "en";
   if (!email || !isValidEmail(email)) {
+    await logSignupAttempt(email ?? null, ip, "invalid_email", 400, supabase);
     return NextResponse.json(
       { error: "Valid email required" },
       { status: 400 },
@@ -104,8 +114,13 @@ export async function POST(req: NextRequest) {
     internalKey === process.env.NOLANA_INTERNAL_KEY;
 
   if (!isInternalCaller) {
-    const turnstileOk = await verifyTurnstile(turnstileToken);
+    const { success: turnstileOk, errorCodes } =
+      await verifyTurnstile(turnstileToken);
     if (!turnstileOk) {
+      const reason = errorCodes.length
+        ? `turnstile_failed:${errorCodes.join(",")}`
+        : "turnstile_failed";
+      await logSignupAttempt(normalized, ip, reason, 403, supabase);
       return NextResponse.json(
         { error: "Human verification failed" },
         { status: 403 },
