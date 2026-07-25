@@ -25,6 +25,7 @@ function bilingual(
 // Stable, real last-content-change dates for the genuinely static pages.
 // These do NOT change on every build — only edit when the page content changes.
 const ADVERTISE_LASTMOD = new Date("2026-06-16");
+const ABOUT_LASTMOD = new Date("2026-07-25");
 const LEGAL_LASTMOD = new Date("2026-06-08"); // /privacy + /terms
 // Fallback when the DB is unreachable (env vars missing in a given build).
 const FALLBACK_CONTENT_LASTMOD = new Date("2026-06-15");
@@ -52,6 +53,11 @@ function buildStaticPages(contentLastMod: Date): MetadataRoute.Sitemap {
       lastModified: contentLastMod,
       changeFrequency: "monthly",
       priority: 0.7,
+    }),
+    ...bilingual("/about", {
+      lastModified: ABOUT_LASTMOD,
+      changeFrequency: "monthly",
+      priority: 0.6,
     }),
     ...bilingual("/advertise", {
       lastModified: ADVERTISE_LASTMOD,

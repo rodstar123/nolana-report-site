@@ -187,7 +187,21 @@
       }
     ]
   },
+  "aboutPage": {
+    "back": "← Regresar a The Nolana Report",
+    "title": "Acerca de The Nolana Report",
+    "lead": "The Nolana Report es un reporte semanal de inteligencia de negocios para los dueños de negocios del Valle del Río Grande: las noticias locales que importan, con puntaje y resumidas, en tu correo cada lunes. Gratis para leer.",
+    "whoHeading": "Quién está detrás",
+    "whoBody": "The Nolana Report es publicado por National Bookkeeping Company (NBC), una firma de McAllen que trabaja con dueños de negocios en todo el Valle del Río Grande.",
+    "whatHeading": "Lo que recibes",
+    "whatBody": "Cada lunes, un resumen con puntaje de las noticias de negocios más relevantes del RGV: nuevas aperturas, cierres, permisos, expansiones y movimientos económicos locales, resumidos para que los leas en minutos. Bilingüe (English / Español).",
+    "whyHeading": "Por qué existe",
+    "whyBody": "Los dueños de negocios del RGV no tienen tiempo de seguir cada fuente local. The Nolana Report se encarga del rastreo y la calificación para que ellos no tengan que hacerlo.",
+    "ctaHeading": "Empieza tu lunes adelantado en el Valle.",
+    "ctaBody": "Únete gratis: el reporte semanal en tu correo cada lunes."
+  },
   "footer": {
+    "about": "Acerca de",
     "pastIssues": "Ediciones anteriores",
     "ctaHeadline": "Mantente adelante en el Valle.",
     "ctaBody": "Únete a dueños de negocios, inversionistas y profesionales que empiezan su lunes con 30 historias del RGV con puntaje. Gratis para siempre.",

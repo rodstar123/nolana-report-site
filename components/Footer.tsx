@@ -10,6 +10,7 @@ export default async function Footer() {
   const tAd = await getTranslations("adSlot");
 
   const footerLinks = [
+    { label: t("about"), href: "/about" },
     { label: t("pastIssues"), href: "/issues" },
     { label: t("privacy"), href: "/privacy" },
     { label: t("terms"), href: "/terms" },

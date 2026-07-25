@@ -187,7 +187,21 @@
       }
     ]
   },
+  "aboutPage": {
+    "back": "← Back to The Nolana Report",
+    "title": "About The Nolana Report",
+    "lead": "The Nolana Report is a weekly business intelligence briefing for Rio Grande Valley business owners — the local stories that matter, scored and summarized, in your inbox every Monday. Free to read.",
+    "whoHeading": "Who's behind it",
+    "whoBody": "The Nolana Report is published by National Bookkeeping Company (NBC), a McAllen firm that works with business owners across the Rio Grande Valley.",
+    "whatHeading": "What you get",
+    "whatBody": "Every Monday, a scored roundup of the week's most relevant RGV business news — new openings, closings, permits, expansions, and local economic moves — summarized so you can read it in minutes. Bilingual (English / Español).",
+    "whyHeading": "Why it exists",
+    "whyBody": "RGV business owners don't have time to track every local source. The Nolana Report does the scanning and scoring so they don't have to.",
+    "ctaHeading": "Start your Monday ahead of the Valley.",
+    "ctaBody": "Join free — the weekly briefing in your inbox every Monday."
+  },
   "footer": {
+    "about": "About",
     "pastIssues": "Past issues",
     "ctaHeadline": "Stay ahead of the Valley.",
     "ctaBody": "Join business owners, investors, and professionals who start their Monday with 30 scored RGV stories. Free forever.",
