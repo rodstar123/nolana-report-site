@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { PUBLISHER, PUBLISHER_URL } from "@/lib/constants";
 import SignupForm from "./SignupForm";
 import NBCBanner from "./NBCBanner";
@@ -89,7 +90,7 @@ export default async function Footer() {
             >
               {tAd("subtitle")}
             </p>
-            <a
+            <Link
               href="/advertise"
               className="hover:underline"
               style={{
@@ -101,7 +102,7 @@ export default async function Footer() {
               }}
             >
               {tAd("cta")}
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -163,12 +164,21 @@ export default async function Footer() {
             <ul className="space-y-2.5 font-body text-sm">
               {footerLinks.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-slate-light hover:text-teal-light transition-colors"
-                  >
-                    {link.label}
-                  </a>
+                  {link.href.startsWith("/") ? (
+                    <Link
+                      href={link.href}
+                      className="text-slate-light hover:text-teal-light transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      className="text-slate-light hover:text-teal-light transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
