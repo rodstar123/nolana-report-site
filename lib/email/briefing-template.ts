@@ -337,7 +337,8 @@ function nriBadgeColors(score: number): { bg: string; color: string } {
   return { bg: "#f1f5f9", color: SLATE };
 }
 
-function subScorePills(story: Story): string {
+/** Retained for the web issue page; no longer called from the email card. */
+export function subScorePills(story: Story): string {
   const items: { label: string; value: string }[] = [];
   if (story.money_impact)
     items.push({ label: "Money", value: story.money_impact });
@@ -422,7 +423,9 @@ function buildStoryRow(story: Story, chrome: EmailChrome): string {
       })()
     : '<td width="70"></td>';
 
-  const scoresRow = subScorePills(story);
+  // Sub-score pills and Why-it-matters are no longer rendered in the email
+  // card; subScorePills is retained for the web issue page.
+  const scoresRow = "";
 
   const dateLang = chrome.lang === "es" ? "es-MX" : "en-US";
   const sourceHtml = story.source_name
@@ -457,14 +460,12 @@ function buildStoryRow(story: Story, chrome: EmailChrome): string {
           (t) =>
             `<span style="display:inline-block;background:#E8E4DC;border-radius:12px;padding:2px 10px;margin:2px 3px;font-family:Arial,sans-serif;font-size:13px;color:#2D2D2D;">${esc(t.replace(/\.$/, ""))}</span>`,
         )
-        .join("");
+        .join(`<span style="color:#9ca3af;">&nbsp;&middot;&nbsp;</span>`);
       sections += `<tr><td colspan="2" style="padding:10px 0 0;"><p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#1D9E75;font-weight:700;">${chrome.whoShouldAct}</p><p style="margin:0;line-height:1.8;">${tags}</p></td></tr>`;
     }
 
-    if (story.why_it_matters) {
-      sections += `<tr><td colspan="2" style="padding:10px 0 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="3" style="background:${TEAL};"></td><td style="padding:10px 14px;background:#f0fdf4;font-family:Georgia,serif;font-size:14px;line-height:1.55;color:#166534;"><strong style="color:${TEAL};">${chrome.whyItMatters}</strong> ${mdBold(story.why_it_matters)}</td></tr></table></td></tr>`;
-    }
-
+    // Why-it-matters is dropped from the email card to keep it light; the
+    // web issue page still renders it.
     if (story.smart_move) {
       sections += `<tr><td colspan="2" style="padding:10px 0 0;"><p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#185FA5;font-weight:700;">${chrome.smartMove}</p><p style="margin:0;font-family:Georgia,serif;font-size:16px;line-height:1.75;color:${CHARCOAL};">${mdBold(story.smart_move)}</p></td></tr>`;
     }
