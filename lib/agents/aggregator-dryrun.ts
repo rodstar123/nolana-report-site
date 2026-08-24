@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { fetch as undiciFetch } from "undici";
 import {
   dedup,
   buildOpusUserMessage,
   OPUS_SYSTEM_PROMPT,
   parseOpusOutput,
 } from "@/lib/agents/aggregator";
+import { anthropicDispatcher } from "@/lib/agents/anthropic-dispatcher";
 import { sendTelegram } from "@/lib/agents/alerter";
 
 // Structural mirror of aggregator.ts's (non-exported) RawItemRow — kept here
@@ -141,8 +143,11 @@ export async function runAggregatorDryRun(
   // Identical call shape to the live run, model swapped in. Compatible with
   // claude-fable-5: adaptive is its only thinking on-mode, effort is
   // supported, and no sampling params are sent (they 400 on Fable/4.7+).
-  const llmRes = await fetch("https://api.anthropic.com/v1/messages", {
+  // undici's fetch (not the global) so the dispatcher is guaranteed to be
+  // honoured — Next patches global fetch and can drop unknown init options.
+  const llmRes = await undiciFetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
+    dispatcher: anthropicDispatcher,
     headers: {
       "x-api-key": process.env.ANTHROPIC_API_KEY!,
       "anthropic-version": "2023-06-01",
