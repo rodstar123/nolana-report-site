@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { fetchBridgeReading } from "./cbp";
+import { fetchBridgeReading, type BridgeReading } from "./cbp";
 import { cdtDay } from "./cdt";
 
 /**
@@ -60,6 +60,73 @@ async function getUsdMxn(): Promise<number | null> {
   } catch {
     return null;
   }
+}
+
+/**
+ * Passenger standard-lane delay for the Pharr–Reynosa crossing, or null when
+ * the feed doesn't carry it this cycle.
+ *
+ * Matching is deliberately NOT a substring test on the whole label. CBP names
+ * the port "Hidalgo/Pharr", so /pharr/i against `crossing` matches BOTH
+ * "Hidalgo/Pharr – Hidalgo" and "Hidalgo/Pharr – Pharr" — it would have
+ * silently reported Hidalgo's wait as Pharr's. We match the crossing_name
+ * segment after the en-dash instead.
+ *
+ * Every lane in BridgeReading.lanes is already the passenger standard lane
+ * (lib/cbp.ts laneDelay reads passenger_vehicle_lanes.standard_lanes only), so
+ * there is no passenger-vs-commercial choice to make here.
+ */
+export function pharrLaneDelay(reading: BridgeReading | null): number | null {
+  for (const lane of reading?.lanes ?? []) {
+    const parts = lane.crossing.split(" – ");
+    const crossingName = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+    if (/\bpharr\b/i.test(crossingName)) return lane.delayMinutes;
+  }
+  return null;
+}
+
+/**
+ * Tiles for the Monday email's header strip: USD/MXN, Pharr–Reynosa wait, RGV
+ * average wait. Separate from getSnapshot() so the homepage DataBar is
+ * untouched. `updatedAtISO` is the read time, because these are fetched live.
+ */
+export async function getEmailStripMetrics(): Promise<Snapshot> {
+  const [usdMxn, bridge] = await Promise.all([
+    getUsdMxn(),
+    fetchBridgeReading(),
+  ]);
+  const pharr = pharrLaneDelay(bridge);
+  const avg = bridge?.avgDelayMinutes ?? null;
+
+  const metrics: SnapshotMetric[] = [
+    {
+      label: "USD/MXN",
+      value: usdMxn ?? 0,
+      decimals: 2,
+      prefix: "$",
+      suffix: "",
+      live: usdMxn !== null,
+    },
+    {
+      label: "Pharr–Reynosa",
+      value: pharr ?? 0,
+      decimals: 0,
+      prefix: "",
+      suffix: " min",
+      // 0 is a real reading (no delay) — test for null, never truthiness.
+      live: pharr !== null,
+    },
+    {
+      label: "RGV Avg Wait",
+      value: avg ?? 0,
+      decimals: 0,
+      prefix: "",
+      suffix: " min",
+      live: avg !== null,
+    },
+  ];
+
+  return { metrics, updatedAtISO: new Date().toISOString() };
 }
 
 export async function getSnapshot(): Promise<Snapshot> {

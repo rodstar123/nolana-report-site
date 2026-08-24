@@ -6,7 +6,7 @@ import {
   extractTemperatureLabel,
   type Story,
 } from "@/lib/email/briefing-template";
-import { getSnapshot } from "@/lib/snapshot";
+import { getEmailStripMetrics } from "@/lib/snapshot";
 import { sendTelegram } from "@/lib/agents/alerter";
 
 export const dynamic = "force-dynamic";
@@ -114,11 +114,11 @@ export async function GET(req: NextRequest) {
   // Live numbers strip. Reuses the homepage DataBar snapshot. A snapshot
   // failure must never block the send -- the strip is simply omitted.
   let snapshotMetrics:
-    | Awaited<ReturnType<typeof getSnapshot>>["metrics"]
+    | Awaited<ReturnType<typeof getEmailStripMetrics>>["metrics"]
     | null = null;
   let snapshotUpdatedAt: string | null = null;
   try {
-    const snap = await getSnapshot();
+    const snap = await getEmailStripMetrics();
     snapshotMetrics = snap.metrics;
     snapshotUpdatedAt = snap.updatedAtISO;
   } catch (err) {
