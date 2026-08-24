@@ -1,5 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { fetch as undiciFetch } from "undici";
 import { OPUS_SYSTEM_PROMPT, parseOpusOutput } from "./aggregator";
+import { anthropicDispatcher } from "./anthropic-dispatcher";
 import { sendTelegram } from "./alerter";
 
 // PRIMARY was claude-fable-5 (set 2026-06-10, commit 3569880).
@@ -59,8 +61,11 @@ async function attemptModel(
   model: string,
   userMessage: string,
 ): Promise<AggregatorAttempt> {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  // undici's fetch (not the global) so the dispatcher is guaranteed to be
+  // honoured — Next patches global fetch and can drop unknown init options.
+  const res = await undiciFetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
+    dispatcher: anthropicDispatcher,
     headers: {
       "x-api-key": process.env.ANTHROPIC_API_KEY!,
       "anthropic-version": "2023-06-01",
