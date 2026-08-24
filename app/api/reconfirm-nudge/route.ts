@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { sendReconfirmNudge } from "@/lib/email/reconfirm-nudge";
+import { isCronAuthorized } from "@/lib/cron-auth";
 
 export const maxDuration = 120;
 
@@ -28,11 +29,7 @@ function maskEmail(email: string): string {
 
 export async function GET(req: NextRequest) {
   // Cron-protected — same pattern as /api/aggregator.
-  const authHeader = req.headers.get("authorization");
-  const cronHeader = req.headers.get("x-vercel-cron");
-  const isAuthorized =
-    authHeader === `Bearer ${process.env.CRON_SECRET}` || cronHeader === "1";
-  if (!isAuthorized) {
+  if (!isCronAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

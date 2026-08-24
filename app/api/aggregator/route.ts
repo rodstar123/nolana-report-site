@@ -9,15 +9,12 @@ import {
 } from "@/lib/agents/aggregator";
 import { runAggregatorDryRun } from "@/lib/agents/aggregator-dryrun";
 import { runAggregatorWithFallback } from "@/lib/agents/aggregator-llm";
+import { isCronAuthorized, cronAuthHeaders } from "@/lib/cron-auth";
 
 export const maxDuration = 800;
 
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  const cronHeader = req.headers.get("x-vercel-cron");
-  const isAuthorized =
-    authHeader === `Bearer ${process.env.CRON_SECRET}` || cronHeader === "1";
-  if (!isAuthorized) {
+  if (!isCronAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -201,7 +198,7 @@ Rules: Be specific (real numbers, cities, industries from the stories above). 1-
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-vercel-cron": "1",
+          ...cronAuthHeaders(),
         },
         body: JSON.stringify({ slug }),
       });

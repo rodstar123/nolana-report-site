@@ -8,6 +8,7 @@ import {
 } from "@/lib/email/briefing-template";
 import { getEmailStripMetrics } from "@/lib/snapshot";
 import { sendTelegram } from "@/lib/agents/alerter";
+import { isCronAuthorized, cronAuthHeaders } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -18,13 +19,8 @@ export async function GET(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
-  // Auth: accept CRON_SECRET header or Vercel Cron header
-  const authHeader = req.headers.get("authorization");
-  const cronHeader = req.headers.get("x-vercel-cron");
-  const isAuthorized =
-    authHeader === `Bearer ${process.env.CRON_SECRET}` || cronHeader === "1";
-
-  if (!isAuthorized) {
+  // Auth: Bearer CRON_SECRET only — see lib/cron-auth.ts
+  if (!isCronAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -373,7 +369,7 @@ export async function GET(req: NextRequest) {
       await fetch(esUrl, {
         headers: {
           "Content-Type": "application/json",
-          "x-vercel-cron": "1",
+          ...cronAuthHeaders(),
         },
       });
     } catch (err) {
