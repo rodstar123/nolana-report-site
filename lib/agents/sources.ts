@@ -194,16 +194,6 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
       url: "https://spaceflightnow.com/feed/",
       type: "rss",
     },
-    {
-      name: "Valley Business Report",
-      url: "https://valleybusinessreport.com/feed/",
-      type: "rss",
-    },
-    {
-      name: "Texas Border Business",
-      url: "https://texasborderbusiness.com/feed/",
-      type: "rss",
-    },
   ],
 };
 
