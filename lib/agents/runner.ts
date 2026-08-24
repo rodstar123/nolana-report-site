@@ -65,13 +65,21 @@ export async function runAgent(
     const health =
       healthChecks[i].status === "fulfilled"
         ? healthChecks[i].value
-        : { consecutiveFailures: 0 };
-    if (health.consecutiveFailures >= 3) {
+        : { consecutiveFailures: 0, lastCheckedAt: null };
+    // Half-open breaker: a source tripped by 3+ failures stays skipped for 24h,
+    // then gets one probe so a recovered source can reset itself (the skip path
+    // never touches last_checked_at, so the window actually elapses).
+    const trippedWithinCooldown =
+      health.consecutiveFailures >= 3 &&
+      health.lastCheckedAt !== null &&
+      Date.now() - new Date(health.lastCheckedAt).getTime() <
+        24 * 60 * 60 * 1000;
+    if (trippedWithinCooldown) {
       return {
         source,
         ok: false,
         items: [] as RawItem[],
-        error: "auto-skipped (3+ consecutive failures)",
+        error: "auto-skipped (3+ consecutive failures, within 24h cooldown)",
         responseMs: 0,
         skipped: true,
       } as FetchResult & { skipped: boolean };

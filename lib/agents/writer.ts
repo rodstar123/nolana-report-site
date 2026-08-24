@@ -97,14 +97,17 @@ export async function checkSourceHealth(
   supabase: SupabaseClient,
   agent: AgentName,
   sourceUrl: string,
-): Promise<{ consecutiveFailures: number }> {
+): Promise<{ consecutiveFailures: number; lastCheckedAt: string | null }> {
   const { data } = await supabase
     .from("source_health")
-    .select("consecutive_failures")
+    .select("consecutive_failures, last_checked_at")
     .eq("agent", agent)
     .eq("source_url", sourceUrl)
     .maybeSingle();
-  return { consecutiveFailures: data?.consecutive_failures ?? 0 };
+  return {
+    consecutiveFailures: data?.consecutive_failures ?? 0,
+    lastCheckedAt: data?.last_checked_at ?? null,
+  };
 }
 
 export async function writeAgentLog(
