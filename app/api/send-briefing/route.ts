@@ -6,6 +6,7 @@ import {
   extractTemperatureLabel,
   type Story,
 } from "@/lib/email/briefing-template";
+import { getSnapshot } from "@/lib/snapshot";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -109,9 +110,26 @@ export async function GET(req: NextRequest) {
       ? iss.before_you_go_es
       : iss.before_you_go;
 
+  // Live numbers strip. Reuses the homepage DataBar snapshot. A snapshot
+  // failure must never block the send -- the strip is simply omitted.
+  let snapshotMetrics:
+    | Awaited<ReturnType<typeof getSnapshot>>["metrics"]
+    | null = null;
+  let snapshotUpdatedAt: string | null = null;
+  try {
+    const snap = await getSnapshot();
+    snapshotMetrics = snap.metrics;
+    snapshotUpdatedAt = snap.updatedAtISO;
+  } catch (err) {
+    console.warn("[send-briefing] snapshot unavailable, omitting strip:", err);
+  }
+
   // Build email options for this locale
-  function buildEmailOpts(tier: "free" | "pro" | "intel") {
+  function buildEmailOpts(tier: "free" | "pro" | "intel", cardLimit?: number) {
     return {
+      metrics: snapshotMetrics,
+      metricsUpdatedAtISO: snapshotUpdatedAt,
+      cardLimit,
       issueTitle: localizedTitle,
       issueSlug: issue.slug,
       stories: localizedStories,

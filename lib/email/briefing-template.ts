@@ -43,6 +43,8 @@ export interface BriefingEmailOptions {
   locale?: "en" | "es";
   /** Live homepage snapshot metrics for the header numbers strip. */
   metrics?: SnapshotMetricLike[] | null;
+  /** Timestamp of the snapshot behind `metrics`, for the strip caption. */
+  metricsUpdatedAtISO?: string | null;
   /** Clip-guard override; defaults to 5 cards. */
   cardLimit?: number;
 }
@@ -91,6 +93,7 @@ interface EmailChrome {
   beforeYouGo: string;
   whoShouldRead: string;
   closingLine: (total: number) => string;
+  asOf: (time: string) => string;
   viewOnWeb: string;
   footerPublisher: string;
   footerAddress: string;
@@ -145,6 +148,7 @@ const CHROME_EN: EmailChrome = {
   whoShouldRead: "Who Should Read This Issue?",
   closingLine: (total) =>
     `That&rsquo;s this week&rsquo;s read. The full ${total}-story briefing, every sub-score, and the archive are on the web.`,
+  asOf: (time) => `as of ${time}`,
   viewOnWeb: "View this issue on the web →",
   footerPublisher:
     "The Nolana Report is published every Monday by National Bookkeeping Company&reg;",
@@ -207,6 +211,7 @@ const CHROME_ES: EmailChrome = {
   whoShouldRead: "¿Quién Debe Leer Esta Edición?",
   closingLine: (total) =>
     `Eso es todo por esta semana. El reporte completo de ${total} historias, todos los sub-puntajes, y el archivo están en la web.`,
+  asOf: (time) => `al ${time}`,
   viewOnWeb: "Leer en la web →",
   footerPublisher:
     "The Nolana Report se publica cada lunes por National Bookkeeping Company&reg;",
@@ -368,17 +373,44 @@ function mdBold(text: string): string {
 }
 
 /**
- * Header numbers strip. Renders live snapshot tiles; implemented in the
- * follow-up commit. Returns "" until metrics are supplied by the send route.
+ * Header numbers strip — up to three live tiles from the same snapshot the
+ * homepage DataBar uses. Only metrics flagged live render: snapshot.ts falls
+ * back to a hardcoded 18.5 USD/MXN when the FX call fails, and that tile must
+ * never reach a reader. If nothing is live the strip is omitted entirely.
  */
 function buildNumbersStrip(
   metrics: SnapshotMetricLike[] | null,
   chrome: EmailChrome,
+  updatedAtISO?: string | null,
 ): string {
-  void chrome;
-  const live = (metrics ?? []).filter((m) => m.live);
+  const live = (metrics ?? []).filter((m) => m.live).slice(0, 3);
   if (live.length === 0) return "";
-  return "";
+
+  const width = Math.floor(100 / live.length);
+  const cells = live
+    .map((m) => {
+      const value = `${m.prefix}${m.value.toFixed(m.decimals)}${m.suffix}`;
+      return `<td width="${width}%" align="center" style="padding:10px 6px;"><p style="margin:0 0 3px;font-family:Arial,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:${SLATE};">${esc(m.label)}</p><p style="margin:0;font-family:'Courier New',monospace;font-size:17px;font-weight:bold;color:${NAVY};">${esc(value)}</p></td>`;
+    })
+    .join("");
+
+  const caption = updatedAtISO
+    ? `<p style="margin:6px 0 0;text-align:center;font-family:Arial,sans-serif;font-size:10px;color:${SLATE};">${esc(
+        chrome.asOf(formatCdtTime(updatedAtISO)),
+      )}</p>`
+    : "";
+
+  return `<tr><td style="padding:16px 32px 0;"><!-- nolana-numbers-strip --><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-radius:8px;"><tr>${cells}</tr></table>${caption}</td></tr>`;
+}
+
+/** "4:37 PM CDT" — CDT/CST resolved automatically. */
+function formatCdtTime(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(new Date(iso));
 }
 
 /** Retained for the web issue page; no longer called from the email path. */
@@ -600,7 +632,11 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
   html += `<tr><td style="background:${NAVY};padding:28px 32px;text-align:center;"><h1 style="margin:0;font-family:Georgia,serif;font-size:26px;color:#ffffff;font-weight:bold;letter-spacing:0.5px;">The Nolana Report</h1><p style="margin:6px 0 0;font-family:Arial,sans-serif;font-size:13px;color:rgba(255,255,255,0.7);">${chrome.subtitle}</p></td></tr>`;
 
   // NUMBERS STRIP — live snapshot tiles (implemented in buildNumbersStrip).
-  html += buildNumbersStrip(opts.metrics ?? null, chrome);
+  html += buildNumbersStrip(
+    opts.metrics ?? null,
+    chrome,
+    opts.metricsUpdatedAtISO ?? null,
+  );
 
   // DATE + READ TIME
   html += `<tr><td style="padding:20px 32px 0;text-align:center;"><p style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:${SLATE};text-transform:uppercase;letter-spacing:1px;">${issueTitle}</p><p style="margin:8px 0 0;font-family:Arial,sans-serif;font-size:12px;color:${SLATE};">${chrome.minRead(readingTime)} &middot; ${chrome.storiesScored(stories.length)}</p></td></tr>`;
