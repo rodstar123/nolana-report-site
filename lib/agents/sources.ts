@@ -165,7 +165,7 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
 
   "Agent 5": [
     {
-      name: "Edinburg EDC",
+      name: "GN Edinburg EDC",
       url: "https://news.google.com/rss/search?q=%22Edinburg+EDC%22+OR+%22Edinburg+Economic+Development%22+Texas&hl=en-US&gl=US&ceid=US:en",
       type: "rss",
     },
@@ -185,7 +185,7 @@ export const SOURCES: Record<AgentName, SourceConfig[]> = {
       type: "rss",
     },
     {
-      name: "Port of Brownsville",
+      name: "GN Port of Brownsville",
       url: "https://news.google.com/rss/search?q=%22Port+of+Brownsville%22+OR+%22Brownsville+port%22&hl=en-US&gl=US&ceid=US:en",
       type: "rss",
     },
