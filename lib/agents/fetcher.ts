@@ -304,14 +304,22 @@ async function fetchJson(
     }
 
     let url = source.url;
-    if (source.name === "Federal Register API") {
+    if (source.name === "Federal Register") {
       const gte = new Date(Date.now() - 7 * 86_400_000)
         .toISOString()
         .slice(0, 10);
-      url = url.replace(
-        /conditions%5Bpublication_date%5D%5Bgte%5D=[^&]*/,
-        `conditions%5Bpublication_date%5D%5Bgte%5D=${gte}`,
-      );
+      // Replace the date window if present, otherwise append it — the configured
+      // URL carries no gte param, so a replace-only pass silently left the query
+      // unfiltered and the API returned relevance-ranked results back to 2014.
+      const gtePattern = /conditions%5Bpublication_date%5D%5Bgte%5D=[^&]*/;
+      url = gtePattern.test(url)
+        ? url.replace(
+            gtePattern,
+            `conditions%5Bpublication_date%5D%5Bgte%5D=${gte}`,
+          )
+        : `${url}&conditions%5Bpublication_date%5D%5Bgte%5D=${gte}`;
+      // Relevance ordering surfaces decade-old notices; force newest-first.
+      if (!/[?&]order=/.test(url)) url = `${url}&order=newest`;
     }
     const headers: Record<string, string> = {};
     if (source.name.includes("Reddit")) {
@@ -322,7 +330,7 @@ async function fetchJson(
     let items: RawItem[];
     if (source.name.includes("Reddit")) {
       items = parseRedditJson(json, source, agent);
-    } else if (source.name === "Federal Register API") {
+    } else if (source.name === "Federal Register") {
       items = parseFederalRegister(json, source, agent);
     } else if (source.name === "CBP Bridge Waits") {
       items = parseCbpBridgeWaits(json, source, agent);
