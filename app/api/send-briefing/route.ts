@@ -7,6 +7,7 @@ import {
   type Story,
 } from "@/lib/email/briefing-template";
 import { getSnapshot } from "@/lib/snapshot";
+import { sendTelegram } from "@/lib/agents/alerter";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -148,6 +149,51 @@ export async function GET(req: NextRequest) {
     };
   }
 
+  // Gmail clips messages around 102 KB. Build at 5 cards, and if the result is
+  // too large step down to 4 then 3. If it is still oversized at 3, send anyway
+  // but alert -- a clipped briefing is better than no briefing, as long as it
+  // is visible that it happened.
+  const CLIP_LIMIT_KB = 95;
+  type GuardedBuild = {
+    html: string;
+    sizeKB: number;
+    cards: number;
+    clipped: boolean;
+  };
+  // Memoized per tier: the body is identical for every recipient of a tier, so
+  // build it once rather than up to three times per subscriber.
+  const guardCache = new Map<string, GuardedBuild>();
+  function buildWithClipGuard(tier: "free" | "pro" | "intel"): GuardedBuild {
+    const cached = guardCache.get(tier);
+    if (cached) return cached;
+    const built = computeGuardedBuild(tier);
+    guardCache.set(tier, built);
+    return built;
+  }
+  function computeGuardedBuild(tier: "free" | "pro" | "intel"): GuardedBuild {
+    let html = "";
+    let sizeKB = 0;
+    for (const cards of [5, 4, 3]) {
+      html = buildBriefingEmail(buildEmailOpts(tier, cards));
+      sizeKB = Math.round(Buffer.byteLength(html, "utf-8") / 1024);
+      if (sizeKB <= CLIP_LIMIT_KB) {
+        if (cards < 5) {
+          console.warn(
+            `[send-briefing] clip guard: ${tier} reduced to ${cards} cards (${sizeKB} KB)`,
+          );
+        }
+        return { html, sizeKB, cards, clipped: false };
+      }
+      console.warn(
+        `[send-briefing] clip guard: ${tier} at ${cards} cards is ${sizeKB} KB (> ${CLIP_LIMIT_KB} KB), stepping down`,
+      );
+    }
+    console.error(
+      `[send-briefing] clip guard EXHAUSTED: ${tier} still ${sizeKB} KB at 3 cards -- sending anyway`,
+    );
+    return { html, sizeKB, cards: 3, clipped: true };
+  }
+
   // Subject line
   const dateLang = sendLocale === "es" ? "es-MX" : "en-US";
   const dateLabel = new Date(issue.published_at).toLocaleDateString(dateLang, {
@@ -249,6 +295,12 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  const sizeByTier: Record<
+    string,
+    { sizeKB: number; cards: number; clipped: boolean }
+  > = {};
+  let clipAlerted = false;
+
   const results = {
     sent: 0,
     failed: 0,
@@ -260,7 +312,19 @@ export async function GET(req: NextRequest) {
   // Send sequentially — Resend free tier is 5 req/sec; 250ms gap is safe
   for (const sub of pending) {
     try {
-      const html = buildBriefingEmail(buildEmailOpts(sub.tier));
+      const guarded = buildWithClipGuard(sub.tier);
+      const html = guarded.html;
+      sizeByTier[sub.tier] = {
+        sizeKB: guarded.sizeKB,
+        cards: guarded.cards,
+        clipped: guarded.clipped,
+      };
+      if (guarded.clipped && !clipAlerted) {
+        clipAlerted = true;
+        await sendTelegram(
+          `⚠️ Nolana briefing ${issue.slug} (${sub.tier}) is ${guarded.sizeKB} KB at 3 cards — over the ${CLIP_LIMIT_KB} KB Gmail clip guard. Sent anyway; it will be clipped.`,
+        );
+      }
 
       const { data, error } = await resend.emails.send({
         from: "The Nolana Report <briefing@mail.nationalboco.com>",
@@ -317,5 +381,9 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json(results);
+  console.log(
+    `[send-briefing] ${issue.slug} ${sendLocale} sent=${results.sent} failed=${results.failed} sizes=` +
+      JSON.stringify(sizeByTier),
+  );
+  return NextResponse.json({ ...results, sizeByTier });
 }
