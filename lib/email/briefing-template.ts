@@ -90,7 +90,7 @@ interface EmailChrome {
   thinkingQuestion: string;
   beforeYouGo: string;
   whoShouldRead: string;
-  closingLine: string;
+  closingLine: (total: number) => string;
   viewOnWeb: string;
   footerPublisher: string;
   footerAddress: string;
@@ -143,8 +143,8 @@ const CHROME_EN: EmailChrome = {
   thinkingQuestion: "The Thinking Question",
   beforeYouGo: "Before You Go",
   whoShouldRead: "Who Should Read This Issue?",
-  closingLine:
-    "That&rsquo;s this week&rsquo;s read. The Nolana Report publishes every Monday.",
+  closingLine: (total) =>
+    `That&rsquo;s this week&rsquo;s read. The full ${total}-story briefing, every sub-score, and the archive are on the web.`,
   viewOnWeb: "View this issue on the web →",
   footerPublisher:
     "The Nolana Report is published every Monday by National Bookkeeping Company&reg;",
@@ -205,8 +205,8 @@ const CHROME_ES: EmailChrome = {
   thinkingQuestion: "La Pregunta de la Semana",
   beforeYouGo: "Antes de Irte",
   whoShouldRead: "¿Quién Debe Leer Esta Edición?",
-  closingLine:
-    "Eso es todo por esta semana. The Nolana Report se publica cada lunes.",
+  closingLine: (total) =>
+    `Eso es todo por esta semana. El reporte completo de ${total} historias, todos los sub-puntajes, y el archivo están en la web.`,
   viewOnWeb: "Leer en la web →",
   footerPublisher:
     "The Nolana Report se publica cada lunes por National Bookkeeping Company&reg;",
@@ -366,7 +366,25 @@ function mdBold(text: string): string {
   return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 }
 
-function buildBreatherBlock(b: BreatherData, chrome: EmailChrome): string {
+/**
+ * Header numbers strip. Renders live snapshot tiles; implemented in the
+ * follow-up commit. Returns "" until metrics are supplied by the send route.
+ */
+function buildNumbersStrip(
+  metrics: SnapshotMetricLike[] | null,
+  chrome: EmailChrome,
+): string {
+  void chrome;
+  const live = (metrics ?? []).filter((m) => m.live);
+  if (live.length === 0) return "";
+  return "";
+}
+
+/** Retained for the web issue page; no longer called from the email path. */
+export function buildBreatherBlock(
+  b: BreatherData,
+  chrome: EmailChrome,
+): string {
   if (b.type === "stat_callout" && b.number) {
     return `<tr><td style="padding:12px 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARM_WHITE};border-radius:8px;"><tr><td style="padding:20px;text-align:center;"><p style="margin:0 0 4px;font-family:Georgia,serif;font-size:32px;font-weight:bold;color:${TEAL};">${esc(b.number)}</p><p style="margin:0;font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:${CHARCOAL};">${esc(b.text)}</p></td></tr></table></td></tr>`;
   }
@@ -478,7 +496,8 @@ const SECTION_AUDIENCES: Record<string, string> = {
     "Industrial developers and warehouse operators in the Valley",
 };
 
-function buildWhoShouldRead(stories: Story[]): string {
+/** Retained for the web issue page; no longer called from the email path. */
+export function buildWhoShouldRead(stories: Story[]): string {
   const audiences = new Set<string>();
   const sections = new Set(stories.map((s) => s.section));
   sections.forEach((section) => {
@@ -570,14 +589,17 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
   const issueUrl = `https://nolanareport.com${localePrefix}/issues/${issueSlug}`;
   const accountUrl = `https://nolanareport.com${localePrefix}/account`;
 
-  const allBreathers = (breathers ?? []).filter((b) => b && b.type && b.text);
-  const validBreathers = allBreathers.slice(0, 2);
-  const breatherInterval = 2;
+  // Breathers are no longer rendered in the email; the option and the
+  // issues.breathers column remain for the web issue page.
+  void breathers;
 
   let html = `<!DOCTYPE html><html lang="${chrome.lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${esc(issueTitle)}</title><!-- nolana-email-v4a --><!--[if mso]><style>table{border-collapse:collapse;}td{font-family:Arial,sans-serif;}</style><![endif]--></head><body style="margin:0;padding:0;background-color:${PAGE_BG};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${PAGE_BG};"><tr><td align="center" style="padding:20px 12px;"><table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background-color:${CARD_BG};border-radius:8px;overflow:hidden;">`;
 
   // HEADER
   html += `<tr><td style="background:${NAVY};padding:28px 32px;text-align:center;"><h1 style="margin:0;font-family:Georgia,serif;font-size:26px;color:#ffffff;font-weight:bold;letter-spacing:0.5px;">The Nolana Report</h1><p style="margin:6px 0 0;font-family:Arial,sans-serif;font-size:13px;color:rgba(255,255,255,0.7);">${chrome.subtitle}</p></td></tr>`;
+
+  // NUMBERS STRIP — live snapshot tiles (implemented in buildNumbersStrip).
+  html += buildNumbersStrip(opts.metrics ?? null, chrome);
 
   // DATE + READ TIME
   html += `<tr><td style="padding:20px 32px 0;text-align:center;"><p style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:${SLATE};text-transform:uppercase;letter-spacing:1px;">${issueTitle}</p><p style="margin:8px 0 0;font-family:Arial,sans-serif;font-size:12px;color:${SLATE};">${chrome.minRead(readingTime)} &middot; ${chrome.storiesScored(stories.length)}</p></td></tr>`;
@@ -608,11 +630,13 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
       )}${temp.move ? `<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:12px 0 0;border-top:1px solid rgba(13,115,119,0.2);"><p style="margin:0;font-family:Arial,sans-serif;font-size:14px;color:${TEAL};font-weight:bold;line-height:1.5;">${chrome.theMove} <span style="font-weight:normal;color:${CHARCOAL};">${mdBold(temp.move)}</span></p></td></tr></table>` : ""}</td></tr></table></td></tr>`;
   }
 
-  // OWNER'S MOVE OF THE WEEK
+  // OWNER'S MOVE OF THE WEEK — built here, emitted after the story cards so
+  // the cards lead the email.
+  let ownersMoveHtml = "";
   if (ownersMove) {
     const body = ownersMove.replace(/^##\s*.+\n?/, "").trim();
     if (body) {
-      html += `<tr><td style="padding:24px 32px 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="4" style="background:#1a6b5a;border-radius:2px;"></td><td style="padding:18px 20px;background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-left:none;border-radius:0 6px 6px 0;"><p style="margin:0 0 10px;font-family:Georgia,serif;font-size:18px;font-weight:bold;color:#1a6b5a;">${chrome.ownersMove}</p>${body
+      ownersMoveHtml = `<tr><td style="padding:24px 32px 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="4" style="background:#1a6b5a;border-radius:2px;"></td><td style="padding:18px 20px;background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-left:none;border-radius:0 6px 6px 0;"><p style="margin:0 0 10px;font-family:Georgia,serif;font-size:18px;font-weight:bold;color:#1a6b5a;">${chrome.ownersMove}</p>${body
         .split("\n\n")
         .filter(Boolean)
         .map(
@@ -623,23 +647,19 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
     }
   }
 
-  // STORY CARDS (5 max, both tiers) with breather interleaving
+  // STORY CARDS (top-scoring, both tiers) — lead the email
   html += `<tr><td style="padding:28px 32px 0;"><h2 style="margin:0 0 18px;font-family:Georgia,serif;font-size:22px;color:${NAVY};font-weight:bold;">${chrome.topStories}</h2><table width="100%" cellpadding="0" cellspacing="0" border="0">`;
 
-  let breatherIdx = 0;
-  topStories.forEach((s, i) => {
+  // Breather blocks are no longer interleaved into the email. buildBreatherBlock
+  // and the issues.breathers column are retained for the web issue page.
+  topStories.forEach((s) => {
     html += buildStoryRow(s, chrome);
-    if (
-      (i + 1) % breatherInterval === 0 &&
-      i < topStories.length - 1 &&
-      breatherIdx < validBreathers.length
-    ) {
-      html += buildBreatherBlock(validBreathers[breatherIdx], chrome);
-      breatherIdx++;
-    }
   });
 
   html += `</table></td></tr>`;
+
+  // OWNER'S MOVE — now lands after the cards.
+  html += ownersMoveHtml;
 
   // TIER-SPECIFIC CTA after story cards
   if (!canSeePro && remainingStories.length > 0) {
@@ -690,6 +710,12 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
   // THE QUIET SIGNAL (visible to ALL)
   if (quietSignal) {
     const cleanSignal = quietSignal.replace(/^##\s*.+\n?/, "").trim();
+    // The Thinking Question no longer gets its own block; when present it
+    // closes the Quiet Signal as a final italic line, with no heading.
+    const tqBody = (thinkingQuestion ?? "").replace(/^##\s*.+\n?/, "").trim();
+    const tqTail = tqBody
+      ? `<p style="margin:14px 0 0;font-family:Georgia,serif;font-size:16px;line-height:1.7;color:${NAVY};font-style:italic;">${mdBold(tqBody)}</p>`
+      : "";
     if (cleanSignal) {
       html += `<tr><td style="padding:28px 32px 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="4" style="background:${GOLD};border-radius:2px;"></td><td style="padding:18px 20px;background:#fdfcf9;border:1px solid rgba(196,154,48,0.2);border-left:none;border-radius:0 6px 6px 0;"><p style="margin:0 0 10px;font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:${GOLD};font-weight:700;">${chrome.quietSignal}</p>${cleanSignal
         .split("\n\n")
@@ -698,39 +724,17 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
           (p) =>
             `<p style="margin:0 0 10px;font-family:Georgia,serif;font-size:16px;line-height:1.75;color:${CHARCOAL};">${mdBold(p.trim())}</p>`,
         )
-        .join("")}</td></tr></table></td></tr>`;
+        .join("")}${tqTail}</td></tr></table></td></tr>`;
     }
   }
 
-  // THE THINKING QUESTION
-  if (thinkingQuestion) {
-    const tqBody = thinkingQuestion.replace(/^##\s*.+\n?/, "").trim();
-    if (tqBody) {
-      html += `<tr><td style="padding:28px 32px 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-radius:8px;"><tr><td style="padding:24px;text-align:center;"><p style="margin:0 0 10px;font-family:Georgia,serif;font-size:18px;font-weight:bold;color:#1a6b5a;">${chrome.thinkingQuestion}</p><p style="margin:0;font-family:Georgia,serif;font-size:17px;line-height:1.65;color:${NAVY};font-style:italic;">${mdBold(tqBody)}</p></td></tr></table></td></tr>`;
-    }
-  }
-
-  // BEFORE YOU GO
-  if (beforeYouGo) {
-    const bygBody = beforeYouGo.replace(/^##\s*.+\n?/, "").trim();
-    if (bygBody) {
-      html += `<tr><td style="padding:28px 32px 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-radius:8px;"><tr><td style="padding:24px;text-align:center;"><p style="margin:0 0 10px;font-family:Georgia,serif;font-size:18px;font-weight:bold;color:#1a6b5a;">${chrome.beforeYouGo}</p>${bygBody
-        .split("\n\n")
-        .filter(Boolean)
-        .map(
-          (p) =>
-            `<p style="margin:0 0 10px;font-family:Georgia,serif;font-size:16px;line-height:1.75;color:${CHARCOAL};font-style:italic;">${mdBold(p.trim())}</p>`,
-        )
-        .join("")}</td></tr></table></td></tr>`;
-    }
-  }
-
-  // WHO SHOULD READ THIS ISSUE?
-  const whoRows = buildWhoShouldRead(stories);
-  html += `<tr><td style="padding:28px 32px 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-radius:8px;"><tr><td style="padding:20px 24px;"><p style="margin:0 0 12px;font-family:Georgia,serif;font-size:18px;font-weight:bold;color:${TEAL};">${chrome.whoShouldRead}</p><table width="100%" cellpadding="0" cellspacing="0" border="0">${whoRows}</table></td></tr></table></td></tr>`;
+  // Before You Go and Who Should Read are no longer rendered in the email.
+  // buildWhoShouldRead and the issues.before_you_go column are retained for
+  // the web issue page.
+  void beforeYouGo;
 
   // CLOSING + VIEW ON WEB
-  html += `<tr><td style="padding:28px 32px 0;text-align:center;"><p style="margin:0 0 16px;font-family:Georgia,serif;font-size:15px;color:${SLATE};font-style:italic;">${chrome.closingLine}</p><a href="${issueUrl}" style="display:inline-block;background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};color:${TEAL};padding:10px 24px;border-radius:6px;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold;font-size:13px;">${chrome.viewOnWeb}</a></td></tr>`;
+  html += `<tr><td style="padding:28px 32px 0;text-align:center;"><p style="margin:0 0 16px;font-family:Georgia,serif;font-size:15px;color:${SLATE};font-style:italic;">${chrome.closingLine(stories.length)}</p><a href="${issueUrl}" style="display:inline-block;background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};color:${TEAL};padding:10px 24px;border-radius:6px;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold;font-size:13px;">${chrome.viewOnWeb}</a></td></tr>`;
 
   // THUNDERLOUD AD BANNER (free tier only)
   if (!canSeePro) {
