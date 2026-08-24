@@ -10,7 +10,7 @@ import {
 import { runAggregatorDryRun } from "@/lib/agents/aggregator-dryrun";
 import { runAggregatorWithFallback } from "@/lib/agents/aggregator-llm";
 
-export const maxDuration = 300;
+export const maxDuration = 800;
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");

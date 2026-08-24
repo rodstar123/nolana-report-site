@@ -15,7 +15,7 @@
   ],
   "functions": {
     "app/api/agents/*/route.ts": { "maxDuration": 120 },
-    "app/api/aggregator/route.ts": { "maxDuration": 300 },
+    "app/api/aggregator/route.ts": { "maxDuration": 800 },
     "app/api/supervisor/route.ts": { "maxDuration": 300 }
   }
 }
