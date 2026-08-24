@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendBreakingAlert } from "@/lib/alerts/breaking-news";
+import { isCronAuthorized } from "@/lib/cron-auth";
 
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  const isAuthorized = authHeader === `Bearer ${process.env.CRON_SECRET}`;
-  if (!isAuthorized) {
+  if (!isCronAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
