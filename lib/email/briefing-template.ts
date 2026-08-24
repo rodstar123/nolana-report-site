@@ -41,6 +41,20 @@ export interface BriefingEmailOptions {
   beforeYouGo?: string | null;
   breathers?: BreatherData[] | null;
   locale?: "en" | "es";
+  /** Live homepage snapshot metrics for the header numbers strip. */
+  metrics?: SnapshotMetricLike[] | null;
+  /** Clip-guard override; defaults to 5 cards. */
+  cardLimit?: number;
+}
+
+/** Shape of lib/snapshot.ts SnapshotMetric, kept local to avoid a server import. */
+export interface SnapshotMetricLike {
+  label: string;
+  value: number;
+  decimals: number;
+  prefix: string;
+  suffix: string;
+  live: boolean;
 }
 
 interface EmailChrome {
@@ -216,12 +230,32 @@ const CHROME_ES: EmailChrome = {
   adCta: "Agenda Tu Llamada Gratis →",
 };
 
-export function estimateReadingTime(stories: Story[]): number {
-  const totalWords = stories.reduce((sum, s) => {
-    const text = `${s.headline} ${s.summary} ${s.why_it_matters ?? ""}`;
-    return sum + text.split(/\s+/).length;
+/**
+ * Reading time for what the EMAIL actually renders — the carded stories plus
+ * whichever synthesis sections are present for this tier. Previously this
+ * summed all ~21 stories, so the badge described the full web issue (~7 min)
+ * rather than the email (~3 min).
+ */
+export function estimateReadingTime(
+  cardedStories: Story[],
+  sections: (string | null | undefined)[] = [],
+): number {
+  const storyWords = cardedStories.reduce((sum, s) => {
+    const text = [
+      s.headline,
+      s.signal ?? s.summary,
+      s.smart_move ?? "",
+      s.nolana_take ?? "",
+    ].join(" ");
+    return sum + text.split(/\s+/).filter(Boolean).length;
   }, 0);
-  return Math.max(3, Math.ceil(totalWords / 250));
+  const sectionWords = sections
+    .filter(Boolean)
+    .reduce(
+      (sum, md) => sum + String(md).split(/\s+/).filter(Boolean).length,
+      0,
+    );
+  return Math.max(3, Math.ceil((storyWords + sectionWords) / 250));
 }
 
 export function extractTemperatureLabel(md: string): string | null {
@@ -508,10 +542,30 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
   const locale = opts.locale ?? "en";
   const chrome = getChrome(locale);
   const canSeePro = tier === "pro" || tier === "intel";
-  const CARD_LIMIT = 5;
-  const topStories = stories.slice(0, CARD_LIMIT);
-  const remainingStories = stories.slice(CARD_LIMIT);
-  const readingTime = estimateReadingTime(stories);
+  const CARD_LIMIT = opts.cardLimit ?? 5;
+  // Cards are the highest-scoring stories, not the first N in section order.
+  // Same ranking the aggregator uses for is_free (aggregator.ts:1043-1046):
+  // score desc, ties broken by original position. Computed here rather than
+  // read from is_free so the email stays correct if the free set ever changes.
+  const rankedIdx = stories
+    .map((s, i) => ({ score: s.nolana_score ?? 0, i }))
+    .sort((a, b) => b.score - a.score || a.i - b.i)
+    .map((r) => r.i);
+  const topIdx = rankedIdx.slice(0, CARD_LIMIT);
+  const topIdxSet = new Set(topIdx);
+  const topStories = topIdx.map((i) => stories[i]);
+  // Everything not carded, back in original position order.
+  const remainingStories = stories.filter((_, i) => !topIdxSet.has(i));
+  // Only the sections this tier actually receives count toward the badge.
+  const readingTime = estimateReadingTime(topStories, [
+    opening,
+    businessTemperature,
+    ownersMove,
+    riskRadar,
+    quietSignal,
+    thinkingQuestion,
+    ...(canSeePro ? [valleyMoneyMap, threeMoves] : []),
+  ]);
   const localePrefix = locale === "es" ? "/es" : "";
   const issueUrl = `https://nolanareport.com${localePrefix}/issues/${issueSlug}`;
   const accountUrl = `https://nolanareport.com${localePrefix}/account`;
