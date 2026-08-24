@@ -9,12 +9,23 @@ import {
 } from "@/lib/agents/aggregator";
 import { runAggregatorDryRun } from "@/lib/agents/aggregator-dryrun";
 import { runAggregatorWithFallback } from "@/lib/agents/aggregator-llm";
-import { isCronAuthorized, cronAuthHeaders } from "@/lib/cron-auth";
+import {
+  isCronAuthorized,
+  isDryRunAuthorized,
+  cronAuthHeaders,
+} from "@/lib/cron-auth";
 
 export const maxDuration = 800;
 
 export async function GET(req: NextRequest) {
-  if (!isCronAuthorized(req)) {
+  // Two credentials, unequal in power. CRON_SECRET authorizes this route in
+  // full. DRYRUN_SECRET authorizes only `?dry_run=1`, and only into the
+  // dry-run branch below — see lib/cron-auth.ts for the split.
+  const wantsDryRun = req.nextUrl.searchParams.get("dry_run") === "1";
+  const cronAuthorized = isCronAuthorized(req);
+  const dryRunAuthorized = wantsDryRun && isDryRunAuthorized(req);
+
+  if (!cronAuthorized && !dryRunAuthorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -25,7 +36,13 @@ export async function GET(req: NextRequest) {
 
   // Dry-run A/B harness: writes to aggregator_drafts only, never
   // issues/stories. Production cron path below is untouched.
-  if (req.nextUrl.searchParams.get("dry_run") === "1") {
+  //
+  // `!cronAuthorized` is the forcing clause. It is logically redundant —
+  // dryRunAuthorized already implies wantsDryRun — and kept deliberately so
+  // the guarantee is provable from this line alone: a caller that did not
+  // present CRON_SECRET takes this branch and returns, whatever else it put
+  // in the query string. There is no parameter that walks it past here.
+  if (wantsDryRun || !cronAuthorized) {
     try {
       return await runAggregatorDryRun(req, supabase);
     } catch (err: unknown) {
