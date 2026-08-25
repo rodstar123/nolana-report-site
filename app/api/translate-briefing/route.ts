@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { cdtSlug } from "@/lib/cdt";
+import { isCronAuthorized } from "@/lib/cron-auth";
 
 export const maxDuration = 300;
 
@@ -58,11 +59,7 @@ interface TranslatedStory {
 }
 
 export async function GET(req: NextRequest) {
-  const cronHeader = req.headers.get("x-vercel-cron");
-  const authHeader = req.headers.get("authorization");
-  const isAuthorized =
-    authHeader === `Bearer ${process.env.CRON_SECRET}` || cronHeader === "1";
-  if (!isAuthorized) {
+  if (!isCronAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -115,11 +112,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const cronHeader = req.headers.get("x-vercel-cron");
-  const authHeader = req.headers.get("authorization");
-  const isAuthorized =
-    authHeader === `Bearer ${process.env.CRON_SECRET}` || cronHeader === "1";
-  if (!isAuthorized) {
+  if (!isCronAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

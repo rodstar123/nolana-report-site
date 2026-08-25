@@ -2,15 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendTelegram } from "@/lib/agents/alerter";
 import { cdtSlug, cdtDay, cdtStartOfDay } from "@/lib/cdt";
+import { isCronAuthorized } from "@/lib/cron-auth";
 
 export const maxDuration = 60;
 
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  const cronHeader = req.headers.get("x-vercel-cron");
-  const isAuthorized =
-    authHeader === `Bearer ${process.env.CRON_SECRET}` || cronHeader === "1";
-  if (!isAuthorized) {
+  if (!isCronAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

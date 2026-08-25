@@ -4,6 +4,7 @@ import { AGENT_NAME_TO_SLUG, type AgentName } from "@/lib/agents/types";
 import { fetchBridgeReading } from "@/lib/cbp";
 import { sendTelegram } from "@/lib/agents/alerter";
 import { cdtSlug, cdtDay, cdtStartOfDay } from "@/lib/cdt";
+import { isCronAuthorized } from "@/lib/cron-auth";
 
 export const maxDuration = 300;
 
@@ -33,11 +34,7 @@ function daysUntilNextMonday(now: Date): number {
 }
 
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  const cronHeader = req.headers.get("x-vercel-cron");
-  const isAuthorized =
-    authHeader === `Bearer ${process.env.CRON_SECRET}` || cronHeader === "1";
-  if (!isAuthorized) {
+  if (!isCronAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
