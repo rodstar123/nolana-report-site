@@ -295,6 +295,8 @@ Every story may appear ONCE as a story card. Beyond its card, a story may hold a
 
 That is five action slots per issue, and they MUST be filled by FIVE DIFFERENT stories. Never let the same story supply two action slots. Never let Owner's Move restate a line from 3 Moves, or the Temperature move restate either.
 
+An action slot never re-quotes or lightly rewords its story's SMART MOVE — the reader has already seen the card. The slot must EARN its space by adding what the card could not: a sharper deadline, a named office or contact, the next step after the card's move, or a combination across two or more stories. If you cannot say more than the card already said, fill the slot from a different story.
+
 The Quiet Signal MUST be built on a story ranked OUTSIDE the top 5 by NRI and NOT used in any action slot. That is what makes it quiet.
 
 Risk Radar and The Valley Money Map are inventories, not action slots. A top story may appear in each, but only in its own register: Risk Radar names the exposure and who carries it; the Money Map names where the money flows and who benefits. Neither restates the story's Smart Move or any action-slot sentence, and neither reuses a sentence from the Opening.
@@ -540,7 +542,7 @@ After all 5 story sections, write two Pro-gated sections:
 
 ## 3 Moves This Week
 
-[Exactly 3 cross-story actions. Each tagged by operator type. Each MUST clear the Move Bar.]
+[Exactly 3 actions. Each tagged by operator type. Each MUST clear the Move Bar. At least one of the three must combine two or more of this week's stories into a single move no individual card states. None of the three may restate a card's SMART MOVE.]
 
 Format:
 1. **If you [operator type]:** [specific action that clears the Move Bar]
