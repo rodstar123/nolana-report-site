@@ -542,7 +542,7 @@ After all 5 story sections, write two Pro-gated sections:
 
 ## 3 Moves This Week
 
-[Exactly 3 actions. Each tagged by operator type. Each MUST clear the Move Bar. At least one of the three must combine two or more of this week's stories into a single move no individual card states. None of the three may restate any card's SMART MOVE — reusing a card's move template against a different company also counts.]
+[Exactly 3 actions. Each tagged by operator type. Each MUST clear the Move Bar. At least one of the three must combine two or more of this week's stories into a single move whose ACTION no card in this issue states — a new deliverable, a new counterparty, or a new commercial term. If the only way to combine two stories is to repeat what one of their cards already says, combine different stories instead. None of the three may restate any card's SMART MOVE — reusing a card's move template against a different company also counts.]
 
 Format:
 1. **If you [operator type]:** [specific action that clears the Move Bar]
