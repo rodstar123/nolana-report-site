@@ -8,6 +8,7 @@ import {
   parseOpusOutput,
 } from "@/lib/agents/aggregator";
 import { anthropicDispatcher } from "@/lib/agents/anthropic-dispatcher";
+import { PRIMARY_MODEL } from "@/lib/agents/aggregator-llm";
 import { sendTelegram } from "@/lib/agents/alerter";
 
 // Structural mirror of aggregator.ts's (non-exported) RawItemRow — kept here
@@ -90,7 +91,12 @@ export async function runAggregatorDryRun(
   supabase: SupabaseClient,
 ): Promise<NextResponse> {
   const params = req.nextUrl.searchParams;
-  const model = params.get("model") ?? "claude-fable-5";
+  // Default to whatever the live Monday run uses, so an unparameterised dry
+  // run is a production-parity dry run. The previous hardcoded
+  // "claude-fable-5" silently outlived the 2026-06-14 hotfix that moved
+  // PRIMARY_MODEL off Fable — dry runs were still exercising the retired
+  // model while production had moved on.
+  const model = params.get("model") ?? PRIMARY_MODEL;
   if (!ALLOWED_MODELS.has(model)) {
     return NextResponse.json(
       {
@@ -179,6 +185,7 @@ export async function runAggregatorDryRun(
   }
 
   const llmJson = (await llmRes.json()) as {
+    model?: string;
     content?: Array<{ type?: string; text?: string }>;
     usage?: { input_tokens?: number; output_tokens?: number };
     stop_reason?: string;
@@ -193,6 +200,12 @@ export async function runAggregatorDryRun(
     dedup_stats: { urlDedupCount, jaccardDedupCount, reroutedCount },
     usage: llmJson.usage ?? null,
     stop_reason: llmJson.stop_reason ?? null,
+    // What the API says actually served the request, as opposed to the
+    // `model` column, which only records what we asked for. These can differ
+    // (aliasing, server-side substitution), and without this a draft row
+    // cannot answer "which model wrote this?" after the fact.
+    requested_model: model,
+    served_model: llmJson.model ?? null,
   };
 
   // Fable can return stop_reason "refusal" — log it, store the evidence,
@@ -269,7 +282,7 @@ export async function runAggregatorDryRun(
   }
 
   await sendTelegram(
-    `🧪 Aggregator dry run complete — <b>${model}</b>\n` +
+    `🧪 Aggregator dry run complete — requested <b>${model}</b>, served <b>${llmJson.model ?? "unknown"}</b>\n` +
       `Pool ${poolItems.length} → ${kept.length} after dedup · ${parsed?.stories.length ?? 0} stories parsed\n` +
       `Failed sections: ${failedSections.length ? failedSections.join(", ") : "none"}\n` +
       `Draft ${draft.id} · no production writes`,
@@ -279,6 +292,7 @@ export async function runAggregatorDryRun(
     ok: true,
     dryRun: true,
     model,
+    servedModel: llmJson.model ?? null,
     draftId: draft.id,
     poolSize: poolItems.length,
     afterDedup: kept.length,
