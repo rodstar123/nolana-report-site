@@ -295,7 +295,7 @@ Every story may appear ONCE as a story card. Beyond its card, a story may hold a
 
 That is five action slots per issue, and they MUST be filled by FIVE DIFFERENT stories. Never let the same story supply two action slots. Never let Owner's Move restate a line from 3 Moves, or the Temperature move restate either.
 
-An action slot never re-quotes or lightly rewords ANY story's SMART MOVE in this issue — its own or another's. Same audience + same action + same rationale with only the company name changed counts as a re-quote. The reader has already seen the card. The slot must EARN its space by adding what the card could not: a sharper deadline, a named office or contact, the next step after the card's move, or a combination across two or more stories. If you cannot say more than the card already said, fill the slot from a different story.
+Action slots are filled ONLY from stories ranked OUTSIDE the top 5 by NRI. The top 5 deliver their actions through their own SMART MOVE cards; the action slots exist to surface the week's remaining opportunities the cards don't cover. Never fill an action slot from a top-5 story, and never reuse another card's move template (same audience + same artifact + same rationale with only the company swapped).
 
 The Quiet Signal MUST be built on a story ranked OUTSIDE the top 5 by NRI and NOT used in any action slot. That is what makes it quiet.
 
@@ -436,7 +436,7 @@ Write a section headed:
 
 ## This Week's Business Temperature: [2–4 word label]
 
-[2–3 sentences: the strategic read on the week. Where money is moving vs. where pressure is building. End with exactly one line starting with "**The move:**" — this line must clear the Move Bar.]
+[2–3 sentences: the strategic read on the week. Where money is moving vs. where pressure is building. End with exactly one line starting with "**The move:**" — this line must clear the Move Bar and must be built on a story outside the top 5 by NRI.]
 
 Example:
 ## This Week's Business Temperature: Opportunity Rising, Pressure Building
@@ -491,7 +491,7 @@ Use the rocket emoji prefix on the headline for any story where instantAlerted=t
 
 ## Owner's Move of the Week
 
-[One practical recommendation pulled from this week's strongest stories. A specific action, for a specific type of operator, with a specific deadline or trigger. 3-4 sentences. This is the single most valuable paragraph in the briefing.
+[One practical recommendation built on a story outside the top 5 by NRI. A specific action, for a specific type of operator, with a specific deadline or trigger. 3-4 sentences. This is the single most valuable paragraph in the briefing.
 
 Rules:
 - Must name a SPECIFIC type of operator (not "business owners" — say "commercial painters," "sign vendors," "freight brokers")
@@ -542,7 +542,7 @@ After all 5 story sections, write two Pro-gated sections:
 
 ## 3 Moves This Week
 
-[Exactly 3 actions. Each tagged by operator type. Each MUST clear the Move Bar. At least one of the three must combine two or more of this week's stories into a single move whose ACTION no card in this issue states — a new deliverable, a new counterparty, or a new commercial term. If the only way to combine two stories is to repeat what one of their cards already says, combine different stories instead. None of the three may restate any card's SMART MOVE — reusing a card's move template against a different company also counts.]
+[Exactly 3 actions, each from stories outside the top 5 by NRI. Each tagged by operator type. Each MUST clear the Move Bar. At least one must combine two or more stories into a single move whose action no card in this issue states.]
 
 Format:
 1. **If you [operator type]:** [specific action that clears the Move Bar]
@@ -607,7 +607,7 @@ This section is shown FREE to all readers. It replaces the old "That's this week
 4. Dedup: No two stories describe the same event.
 5. Content originality: No 3+ consecutive words copied from any source headline or snippet.
 6. Section order: Headline → Opening → Business Temperature → 5 Story Sections → Owner's Move of the Week → Risk Radar → Valley Money Map (PRO) → 3 Moves (PRO) → The Quiet Signal → The Thinking Question → Before You Go.
-7. One Story, One Home: the five action slots (Temperature move, Owner's Move, 3 Moves) come from five different stories; The Quiet Signal is a story outside the top 5 by NRI and outside every action slot; no event is underlined in more than two places outside its card and the Opening.`;
+7. One Story, One Home: the five action slots (Temperature move, Owner's Move, 3 Moves) come from five different stories, every one of them ranked OUTSIDE the top 5 by NRI, and none reuses another card's move template; The Quiet Signal is a story outside the top 5 by NRI and outside every action slot; no event is underlined in more than two places outside its card and the Opening.`;
 
 const SECTION_HEADERS = [
   "New Business Pulse",
