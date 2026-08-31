@@ -353,33 +353,47 @@ export async function GET(req: NextRequest) {
     if (isMonday && now.getUTCHours() >= 15) {
       const { data: todayIssue } = await supabase
         .from("issues")
-        .select("id")
+        .select("id, title_es, opening_es")
         .eq("slug", dateStr)
         .maybeSingle();
 
       if (todayIssue) {
-        const [emailLogResult, emailLogEsResult, subscriberResult] =
-          await Promise.all([
-            supabase
-              .from("email_log")
-              .select("resend_id", { count: "exact" })
-              .eq("issue_id", todayIssue.id)
-              .eq("email_type", "briefing"),
-            supabase
-              .from("email_log")
-              .select("resend_id", { count: "exact" })
-              .eq("issue_id", todayIssue.id)
-              .eq("email_type", "briefing_es"),
-            supabase
-              .from("subscribers")
-              .select("*", { count: "exact", head: true })
-              .eq("email_verified", true)
-              .eq("unsubscribed", false),
-          ]);
+        const [
+          emailLogResult,
+          emailLogEsResult,
+          subscriberResult,
+          esEligibleResult,
+        ] = await Promise.all([
+          supabase
+            .from("email_log")
+            .select("resend_id", { count: "exact" })
+            .eq("issue_id", todayIssue.id)
+            .eq("email_type", "briefing"),
+          supabase
+            .from("email_log")
+            .select("resend_id", { count: "exact" })
+            .eq("issue_id", todayIssue.id)
+            .eq("email_type", "briefing_es"),
+          supabase
+            .from("subscribers")
+            .select("*", { count: "exact", head: true })
+            .eq("email_verified", true)
+            .eq("unsubscribed", false),
+          supabase
+            .from("subscribers")
+            .select("*", { count: "exact", head: true })
+            .eq("email_verified", true)
+            .eq("unsubscribed", false)
+            .in("language_preference", ["es", "both"]),
+        ]);
 
         const delivered = emailLogResult.count ?? 0;
         const deliveredEs = emailLogEsResult.count ?? 0;
         const totalSubs = subscriberResult.count ?? 0;
+        const esEligible = esEligibleResult.count ?? 0;
+        const hasEsTranslation = !!(
+          todayIssue.title_es && todayIssue.opening_es
+        );
 
         // Check Resend for bounces/suppressions — sample up to 10 to stay under rate limits
         let bounced = 0;
@@ -421,6 +435,13 @@ export async function GET(req: NextRequest) {
         );
         if (deliveredEs > 0) {
           lines.push(`🇪🇸 Spanish edition: ${deliveredEs} emails delivered`);
+        } else if (hasEsTranslation && esEligible > 0) {
+          // Silence here used to be indistinguishable from "no ES subscribers".
+          // If a translation exists and people are waiting for it, a zero is a
+          // finding, not a non-event.
+          lines.push(
+            `⚠️ ES briefing NOT delivered to ${esEligible} eligible subscriber${esEligible === 1 ? "" : "s"} — translation exists but email_log shows 0 Spanish sends. Confirm against Resend before resending.`,
+          );
         }
         lines.push(
           `👥 Confirmed subscribers: ${totalSubs} | EN: ${delivered} | ES: ${deliveredEs}`,

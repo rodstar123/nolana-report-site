@@ -300,6 +300,10 @@ export async function GET(req: NextRequest) {
   const results = {
     sent: 0,
     failed: 0,
+    // Resend accepted the message but the email_log row did not persist. This
+    // is not a delivery failure — it is a blindness failure, and it is counted
+    // separately so the two are never confused again.
+    logFailures: 0,
     locale: sendLocale,
     errors: [] as string[],
   };
@@ -334,12 +338,19 @@ export async function GET(req: NextRequest) {
         results.errors.push(`${sub.email}: ${error.message}`);
       } else {
         results.sent++;
-        await supabase.from("email_log").insert({
+        const { error: logError } = await supabase.from("email_log").insert({
           subscriber_id: sub.id,
           issue_id: issue.id,
           email_type: emailType,
           resend_id: data?.id,
         });
+        if (logError) {
+          results.logFailures++;
+          // subscriber id, never the address
+          console.error(
+            `[send-briefing] email_log insert FAILED (${logError.code ?? "no code"}): ${logError.message} — type=${emailType} subscriber=${sub.id}`,
+          );
+        }
       }
     } catch (err: unknown) {
       results.failed++;
@@ -348,6 +359,14 @@ export async function GET(req: NextRequest) {
       );
     }
     await new Promise((r) => setTimeout(r, 250));
+  }
+
+  // A send that cannot be logged is a send nobody can verify later. Alert on
+  // it here rather than letting email_log quietly under-report delivery.
+  if (results.logFailures > 0) {
+    await sendTelegram(
+      `⚠️ Nolana ${issue.slug} (${sendLocale}): ${results.logFailures} of ${results.sent} sends were delivered but NOT written to email_log. Delivery counts for this locale are understated — check Resend, not the DB.`,
+    );
   }
 
   // Warm ISR cache for the locale
@@ -366,14 +385,28 @@ export async function GET(req: NextRequest) {
   if (sendLocale === "en" && hasSpanishTranslation) {
     const esUrl = `${baseUrl}/api/send-briefing?lang=es`;
     try {
-      await fetch(esUrl, {
+      // Status is checked: an unauthorized or failed ES pass used to return
+      // here indistinguishably from success, which is how a broken Spanish
+      // edition could go unnoticed for weeks.
+      const esRes = await fetch(esUrl, {
         headers: {
           "Content-Type": "application/json",
           ...cronAuthHeaders(),
         },
       });
+      if (!esRes.ok) {
+        console.error(
+          `[send-briefing] ES trigger returned ${esRes.status} ${esRes.statusText}`,
+        );
+        await sendTelegram(
+          `⚠️ Nolana ES briefing trigger returned <b>${esRes.status}</b> for ${issue.slug} — the Spanish edition likely did NOT go out.`,
+        );
+      }
     } catch (err) {
-      console.warn("[send-briefing] ES trigger failed (non-blocking):", err);
+      console.error("[send-briefing] ES trigger failed (non-blocking):", err);
+      await sendTelegram(
+        `⚠️ Nolana ES briefing trigger threw for ${issue.slug} — the Spanish edition likely did NOT go out.`,
+      );
     }
   }
 
