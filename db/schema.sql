@@ -18,6 +18,12 @@ CREATE TABLE subscribers (
   referred_by UUID REFERENCES subscribers(id),
   email_verified BOOLEAN DEFAULT false,
   unsubscribed BOOLEAN DEFAULT false,
+  -- Set when the provider proves the address is unreachable (suppression,
+  -- hard bounce, spam complaint). Kept separate from `unsubscribed` because
+  -- the subscriber never asked to leave — this is our delivery problem, not
+  -- their stated intent. Null it out to put the address back in the send.
+  undeliverable_at TIMESTAMPTZ,
+  undeliverable_reason TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -26,6 +32,8 @@ CREATE INDEX idx_subscribers_email ON subscribers(email);
 CREATE INDEX idx_subscribers_stripe_customer ON subscribers(stripe_customer_id);
 CREATE INDEX idx_subscribers_stripe_sub ON subscribers(stripe_subscription_id);
 CREATE INDEX idx_subscribers_tier ON subscribers(tier);
+CREATE INDEX idx_subscribers_undeliverable ON subscribers(undeliverable_at)
+  WHERE undeliverable_at IS NOT NULL;
 
 -- ----
 

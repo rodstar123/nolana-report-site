@@ -247,12 +247,17 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // Fetch subscribers filtered by language preference
+  // Fetch subscribers filtered by language preference.
+  // undeliverable_at excludes addresses the provider has proven unreachable
+  // (suppression, hard bounce, complaint). Sending to them delivers nothing
+  // and costs sender reputation every week — see the undeliverable_at column
+  // comment in db/schema.sql.
   const { data: subscribers } = await supabase
     .from("subscribers")
     .select("*")
     .eq("unsubscribed", false)
-    .eq("email_verified", true);
+    .eq("email_verified", true)
+    .is("undeliverable_at", null);
 
   if (!subscribers?.length) {
     return NextResponse.json({

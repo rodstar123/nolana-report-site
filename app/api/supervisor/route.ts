@@ -378,12 +378,14 @@ export async function GET(req: NextRequest) {
             .from("subscribers")
             .select("*", { count: "exact", head: true })
             .eq("email_verified", true)
-            .eq("unsubscribed", false),
+            .eq("unsubscribed", false)
+            .is("undeliverable_at", null),
           supabase
             .from("subscribers")
             .select("*", { count: "exact", head: true })
             .eq("email_verified", true)
             .eq("unsubscribed", false)
+            .is("undeliverable_at", null)
             .in("language_preference", ["es", "both"]),
         ]);
 
@@ -395,38 +397,63 @@ export async function GET(req: NextRequest) {
           todayIssue.title_es && todayIssue.opening_es
         );
 
-        // Check Resend for bounces/suppressions — sample up to 10 to stay under rate limits
-        let bounced = 0;
-        let suppressed = 0;
+        // Outcomes come from ONE Resend list call rather than per-message
+        // lookups: a Monday send is ~40 messages and the list returns 100 per
+        // page with last_event already on it, so three pages cover any
+        // realistic week for the price of three requests. This replaces a
+        // 10-message sample that was scaled up to an estimate — reach is
+        // reported as a count now, never an extrapolation.
+        const idsFor = (rows: { resend_id: string | null }[] | null) =>
+          (rows ?? []).map((r) => r.resend_id).filter((v): v is string => !!v);
+        const enIds = idsFor(emailLogResult.data);
+        const esIds = idsFor(emailLogEsResult.data);
+
+        const outcomes = new Map<string, string>();
+        let outcomesAvailable = false;
         const resendKey = process.env.RESEND_API_KEY;
-        if (resendKey && emailLogResult.data) {
-          const resendIds = emailLogResult.data
-            .map((r: { resend_id: string | null }) => r.resend_id)
-            .filter(Boolean) as string[];
-          const sampleSize = Math.min(resendIds.length, 10);
-          const sample = resendIds.slice(0, sampleSize);
-          const checks = sample.map(async (id: string) => {
-            try {
-              const res = await fetch(`https://api.resend.com/emails/${id}`, {
+        if (resendKey && enIds.length + esIds.length > 0) {
+          try {
+            let cursor: string | null = null;
+            for (let page = 0; page < 3; page++) {
+              const url: string =
+                "https://api.resend.com/emails?limit=100" +
+                (cursor ? `&after=${cursor}` : "");
+              const res = await fetch(url, {
                 headers: { Authorization: `Bearer ${resendKey}` },
               });
-              if (!res.ok) return null;
-              return (await res.json()) as { last_event?: string };
-            } catch {
-              return null;
+              if (!res.ok) break;
+              const body = (await res.json()) as {
+                data?: { id: string; last_event?: string }[];
+                has_more?: boolean;
+              };
+              const batch = body.data ?? [];
+              if (batch.length === 0) break;
+              outcomesAvailable = true;
+              for (const m of batch) {
+                outcomes.set(m.id, m.last_event ?? "unknown");
+              }
+              // Stop as soon as every id we care about is resolved
+              const pending = enIds
+                .concat(esIds)
+                .some((id) => !outcomes.has(id));
+              if (!pending || !body.has_more) break;
+              cursor = batch[batch.length - 1].id;
             }
-          });
-          const statuses = await Promise.all(checks);
-          for (const s of statuses) {
-            if (!s) continue;
-            if (s.last_event === "bounced") bounced++;
-            if (s.last_event === "complained") suppressed++;
+          } catch (e) {
+            console.warn("[supervisor] Resend outcome lookup failed:", e);
           }
-          if (sampleSize < resendIds.length) {
-            const scale = resendIds.length / sampleSize;
-            bounced = Math.round(bounced * scale);
-            suppressed = Math.round(suppressed * scale);
-          }
+        }
+
+        const countDelivered = (ids: string[]) =>
+          ids.filter((id) => outcomes.get(id) === "delivered").length;
+        const enDelivered = countDelivered(enIds);
+        const esDelivered = countDelivered(esIds);
+        let bounced = 0;
+        let suppressed = 0;
+        for (const id of enIds) {
+          const ev = outcomes.get(id);
+          if (ev === "bounced") bounced++;
+          if (ev === "suppressed" || ev === "complained") suppressed++;
         }
 
         const notSent = totalSubs - delivered;
@@ -441,6 +468,20 @@ export async function GET(req: NextRequest) {
           // finding, not a non-event.
           lines.push(
             `⚠️ ES briefing NOT delivered to ${esEligible} eligible subscriber${esEligible === 1 ? "" : "s"} — translation exists but email_log shows 0 Spanish sends. Confirm against Resend before resending.`,
+          );
+        }
+        // Reach is the number that matters: sends are what we attempted,
+        // delivered is what actually arrived. Reporting only sends is how 8
+        // dead addresses sat in the "confirmed subscribers" line for months.
+        const totalSent = delivered + deliveredEs;
+        if (outcomesAvailable) {
+          const totalDelivered = enDelivered + esDelivered;
+          lines.push(
+            `📈 Reach: ${totalDelivered} delivered of ${totalSent} sent (EN ${enDelivered}/${delivered}, ES ${esDelivered}/${deliveredEs})`,
+          );
+        } else {
+          lines.push(
+            `📈 Reach: ${totalSent} sent (EN ${delivered}, ES ${deliveredEs}) — delivery outcomes unavailable, counts are sends not confirmed deliveries`,
           );
         }
         lines.push(
