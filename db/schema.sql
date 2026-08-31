@@ -75,7 +75,11 @@ CREATE TABLE email_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   subscriber_id UUID NOT NULL REFERENCES subscribers(id),
   issue_id UUID REFERENCES issues(id),
-  email_type TEXT NOT NULL CHECK (email_type IN ('briefing', 'welcome', 'upgrade', 'digest')),
+  -- 'briefing_es' is the Spanish pass of the Monday briefing. It was missing
+  -- here from 2026-06-08 (bilingual delivery shipped) to 2026-08-31, so every
+  -- ES log insert failed the check silently while the emails themselves sent
+  -- fine — see supabase/migrations/20260831000001_email_log_allow_briefing_es.sql
+  email_type TEXT NOT NULL CHECK (email_type IN ('briefing', 'briefing_es', 'welcome', 'upgrade', 'digest')),
   sent_at TIMESTAMPTZ DEFAULT now(),
   resend_id TEXT
 );
