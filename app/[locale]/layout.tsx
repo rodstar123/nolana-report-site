@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "../globals.css";
-import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
@@ -274,23 +273,6 @@ export default async function LocaleLayout({
             <main aria-label="Main content">{children}</main>
           </LenisProvider>
         </NextIntlClientProvider>
-        {/*
-         * Google's Subscribe-with-Google publisher library — what renders the
-         * "Add to Preferred Sources" buttons (components/PreferredSourceButton).
-         * Declared once here so a page carrying more than one button still
-         * requests the script a single time.
-         *
-         * lazyOnload, NOT afterInteractive: `afterInteractive` also emits a
-         * <link rel="preload"> for the script in the head, which fetches ~138KB
-         * of third-party JavaScript from another origin at HIGH priority while
-         * the hero and fonts are still in flight. That cost 956 Sharp 24 points
-         * of mobile Lighthouse and 2.7s of LCP before it was caught. Nothing is
-         * lost by waiting — every button is below the fold.
-         */}
-        <Script
-          src="https://news.google.com/swg/js/v1/publisher.js"
-          strategy="lazyOnload"
-        />
       </body>
     </html>
   );
