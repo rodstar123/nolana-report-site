@@ -3,6 +3,10 @@ import { createClient } from "@supabase/supabase-js";
 import { cdtSlug } from "@/lib/cdt";
 import { isCronAuthorized } from "@/lib/cron-auth";
 import { sendTelegram } from "@/lib/agents/alerter";
+import {
+  runChunkedTranslation,
+  CHROME_SPLIT_TRIGGER_CHARS,
+} from "@/lib/translation/chunked";
 
 export const maxDuration = 300;
 
@@ -27,6 +31,9 @@ interface FailureContext {
     | "anthropic_http"
     | "parse_failed"
     | "db_write_failed"
+    // One or more chunks failed in a chunked run; the failing chunk_keys are
+    // named in the message so a retry re-runs only those.
+    | "chunk_failed"
     | "exception";
   message: string;
   /** Characters of English source sent to the model; 0 before the payload exists. */
@@ -200,10 +207,16 @@ export async function POST(req: NextRequest) {
 
   let slug: string;
   let backfill = false;
+  let mode: string | null = null;
+  let forceFailKeys: string[] | undefined;
   try {
     const body = await req.json();
     slug = body.slug || cdtSlug();
     backfill = body.backfill === true;
+    mode = typeof body.mode === "string" ? body.mode : null;
+    forceFailKeys = Array.isArray(body.force_fail_keys)
+      ? body.force_fail_keys.map(String)
+      : undefined;
   } catch {
     slug = cdtSlug();
   }
@@ -214,6 +227,104 @@ export async function POST(req: NextRequest) {
   const runStartedIso = new Date().toISOString();
   let sourceChars = 0;
   let storyCount = 0;
+
+  // Chunked is the default. The single-call implementation below stays
+  // reachable for one Monday as a rollback: set TRANSLATION_MODE=legacy in
+  // Vercel and redeploy, or pass {"mode":"legacy"} for a one-off. It is the
+  // path that times out past ~34k source chars, so it is a fallback, not a
+  // choice.
+  const effectiveMode = mode ?? process.env.TRANSLATION_MODE ?? "chunked";
+
+  if (effectiveMode !== "legacy") {
+    if (
+      !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      !process.env.SUPABASE_SERVICE_ROLE_KEY
+    ) {
+      return NextResponse.json(
+        { error: "Missing Supabase configuration" },
+        { status: 500 },
+      );
+    }
+    const db = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+    );
+
+    const result = await runChunkedTranslation({
+      supabase: db,
+      slug,
+      forceFailKeys,
+    });
+
+    if (result.ok) {
+      await db.from("agent_logs").insert({
+        agent: "translator",
+        run_started_at: runStartedIso,
+        run_finished_at: new Date().toISOString(),
+        items_fetched: result.totalChunks,
+        items_ingested: result.storiesUpdated,
+        tokens_used: result.outcomes.reduce((a, o) => a + o.outputTokens, 0),
+        errors: [],
+      });
+
+      // Chrome is the long pole of a chunked run and grows independently of
+      // story count. Past the trigger it should be split narrative/structured.
+      if (result.chromeSplitAdvised) {
+        await sendTelegram(
+          `⚠️ <b>Chrome chunk over ${CHROME_SPLIT_TRIGGER_CHARS} chars</b> on ${slug} ` +
+            `(${result.chromeChars.toLocaleString()}).\nThis is the agreed trigger to split it ` +
+            `into narrative + structured halves — the single chrome call is what bounds the run.`,
+        );
+      }
+
+      return NextResponse.json({
+        ok: true,
+        mode: "chunked",
+        slug,
+        runId: result.runId,
+        durationMs: result.durationMs,
+        totalChunks: result.totalChunks,
+        ranChunks: result.ranChunks,
+        skippedChunks: result.skippedChunks,
+        storiesUpdated: result.storiesUpdated,
+        chromeChars: result.chromeChars,
+        chromeSplitAdvised: result.chromeSplitAdvised,
+      });
+    }
+
+    await recordFailure(db, {
+      slug,
+      runStartedIso,
+      startedAt,
+      status: 502,
+      errorClass: result.error ? "db_write_failed" : "chunk_failed",
+      message:
+        result.error ??
+        `${result.failed.length}/${result.totalChunks} chunks failed: ` +
+          result.failed
+            .map((f) => `${f.chunkKey}(${f.errorClass})`)
+            .join(", ")
+            .slice(0, 300),
+      sourceChars: result.chromeChars,
+      storyCount: result.totalChunks,
+    });
+
+    return NextResponse.json(
+      {
+        ok: false,
+        mode: "chunked",
+        slug,
+        runId: result.runId,
+        durationMs: result.durationMs,
+        published: result.published,
+        // Naming the failures is what makes the retry cheap: only these re-run.
+        failed: result.failed,
+        totalChunks: result.totalChunks,
+        error: result.error,
+      },
+      { status: 502 },
+    );
+  }
 
   try {
     if (
