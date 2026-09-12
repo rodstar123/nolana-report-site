@@ -41,6 +41,59 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No published issue" }, { status: 404 });
   }
 
+  // STALENESS GUARD — refuse to mail anything older than 6 days.
+  //
+  // This route always sends "the latest published issue", which is only ever
+  // the right thing when the aggregator has just published one. If a Monday
+  // aggregator fails, the newest issue is last week's, and this route would
+  // happily mail it: to any subscriber with no email_log row for it (6 were
+  // pending for 2026-09-07 on 2026-09-12), and then — because the EN pass
+  // chains into the ES pass whenever a translation exists — to every Spanish
+  // subscriber as well. Both would receive a week-old briefing as if it were
+  // this week's.
+  //
+  // 6 days is chosen against the Monday→Monday cadence: the current week's
+  // issue is hours old when the 15:00 UTC cron fires, and last week's is 7
+  // days old, so the boundary cannot catch a legitimate send. A re-run later
+  // in the same week still works.
+  //
+  // This is an elapsed duration between two instants, not a calendar date, so
+  // the project's CDT rule does not apply — no timezone enters the comparison.
+  //
+  // Applies to the test_email path too: a "send" is a send. If an old issue
+  // ever genuinely needs mailing, that should be a deliberate code change, not
+  // a flag someone can pass.
+  const MAX_ISSUE_AGE_DAYS = 6;
+  const publishedAt = issue.published_at
+    ? new Date(issue.published_at).getTime()
+    : null;
+  const ageDays =
+    publishedAt === null ? null : (Date.now() - publishedAt) / 86_400_000;
+
+  if (ageDays !== null && ageDays > MAX_ISSUE_AGE_DAYS) {
+    // Refusing means NOBODY got a briefing. That has to be loud, or this guard
+    // just converts one silent failure into another.
+    await sendTelegram(
+      `🛑 <b>Briefing send REFUSED — issue too old</b>\n` +
+        `Issue: ${issue.slug} (${ageDays.toFixed(1)} days old, limit ${MAX_ISSUE_AGE_DAYS})\n` +
+        `Locale: ${sendLocale}\n\n` +
+        `The latest published issue is stale, which almost always means the ` +
+        `aggregator did not publish this week. NO email was sent. Nobody ` +
+        `received a week-old briefing either.`,
+    );
+    return NextResponse.json(
+      {
+        error: "Issue too old to send",
+        slug: issue.slug,
+        age_days: Number(ageDays.toFixed(2)),
+        max_age_days: MAX_ISSUE_AGE_DAYS,
+        locale: sendLocale,
+        sent: 0,
+      },
+      { status: 409 },
+    );
+  }
+
   const { data: stories } = await supabase
     .from("stories")
     .select("*")
