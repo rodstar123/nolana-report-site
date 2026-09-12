@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import SignupForm from "./SignupForm";
+import PreferredSourceButton from "./PreferredSourceButton";
 
 interface FreeFooterProps {
   variant: "free";
@@ -21,8 +22,26 @@ interface ProFooterProps {
 type Props = FreeFooterProps | ProFooterProps;
 
 export function IssueFooter(props: Props) {
-  if (props.variant === "free") return <FreeConversion {...props} />;
-  return <ProActions {...props} />;
+  return (
+    <>
+      {props.variant === "free" ? (
+        <FreeConversion {...props} />
+      ) : (
+        <ProActions {...props} />
+      )}
+      {/*
+       * Rendered here rather than inside either variant so an issue page gets
+       * exactly one button whichever conversion block it shows.
+       *
+       * "auto", not "dark": this sits on the issue page's own background, which
+       * DOES follow the site's light/dark mode, so no fixed theme is right for
+       * both. See PreferredSourceButton for the caveat about a manual toggle.
+       */}
+      <div className="-mt-2 mb-12 flex justify-center">
+        <PreferredSourceButton theme="auto" />
+      </div>
+    </>
+  );
 }
 
 function FreeConversion({

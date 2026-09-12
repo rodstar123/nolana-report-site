@@ -99,6 +99,12 @@ interface EmailChrome {
   footerAddress: string;
   manageSubscription: string;
   unsubscribe: string;
+  /**
+   * Google Preferred Sources. An email client cannot run Google's publisher.js,
+   * so the in-page button has no equivalent here — this deeplink is Google's
+   * supported fallback and is the only way the ask reaches an inbox reader.
+   */
+  preferredSource: string;
   thisTimeLast: string;
   valleyVsNational: string;
   sectionLabels: Record<string, string>;
@@ -155,6 +161,7 @@ const CHROME_EN: EmailChrome = {
   footerAddress: "315 W Nolana Ave Suite G, McAllen TX 78504",
   manageSubscription: "Manage subscription",
   unsubscribe: "Unsubscribe",
+  preferredSource: "Add us as a preferred source on Google",
   thisTimeLast: "↩ This Time Last Year",
   valleyVsNational: "\u{1F4CD} Valley vs. National",
   sectionLabels: {
@@ -218,6 +225,7 @@ const CHROME_ES: EmailChrome = {
   footerAddress: "315 W Nolana Ave Suite G, McAllen TX 78504",
   manageSubscription: "Administrar suscripción",
   unsubscribe: "Cancelar suscripción",
+  preferredSource: "Agréganos como fuente preferida en Google",
   thisTimeLast: "↩ El Año Pasado por Estas Fechas",
   valleyVsNational: "\u{1F4CD} Valle vs. Nacional",
   sectionLabels: {
@@ -331,6 +339,14 @@ const GOLD = "#c49a30";
 const CHARCOAL = "#333333";
 const SLATE = "#64748b";
 const WARM_WHITE = "#faf8f5";
+/**
+ * Google's own deeplink for adding a site to a reader's preferred sources.
+ * The in-page button is a script widget, which no email client will run, so
+ * this link is the email-side equivalent. Verified 2026-09-12: resolves 200
+ * with no redirect. The `q` is the bare domain, not a URL.
+ */
+const PREFERRED_SOURCE_URL =
+  "https://www.google.com/preferences/source?q=nolanareport.com";
 const CREAM_BORDER = "#e5e0d8";
 const PAGE_BG = "#EDE8E0";
 const CARD_BG = "#FFFFFF";
@@ -784,7 +800,7 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
   }
 
   // FOOTER
-  html += `<tr><td style="padding:28px 32px;"><hr style="border:none;border-top:1px solid ${CREAM_BORDER};margin:0 0 20px;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="text-align:center;font-family:Arial,sans-serif;font-size:12px;color:#999;line-height:1.6;"><p style="margin:0;">${chrome.footerPublisher}</p><p style="margin:4px 0 0;">${chrome.footerAddress}</p><p style="margin:12px 0 0;"><a href="${issueUrl}" style="color:${TEAL};text-decoration:none;">${chrome.viewOnWeb}</a> &nbsp;&middot;&nbsp; <a href="${accountUrl}" style="color:${TEAL};text-decoration:none;">${chrome.manageSubscription}</a> &nbsp;&middot;&nbsp; <a href="${accountUrl}" style="color:#999;text-decoration:none;">${chrome.unsubscribe}</a></p></td></tr></table></td></tr>`;
+  html += `<tr><td style="padding:28px 32px;"><hr style="border:none;border-top:1px solid ${CREAM_BORDER};margin:0 0 20px;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="text-align:center;font-family:Arial,sans-serif;font-size:12px;color:#999;line-height:1.6;"><p style="margin:0;">${chrome.footerPublisher}</p><p style="margin:4px 0 0;">${chrome.footerAddress}</p><p style="margin:14px 0 0;"><a href="${PREFERRED_SOURCE_URL}" style="color:${TEAL};text-decoration:none;font-weight:bold;">${chrome.preferredSource}</a></p><p style="margin:12px 0 0;"><a href="${issueUrl}" style="color:${TEAL};text-decoration:none;">${chrome.viewOnWeb}</a> &nbsp;&middot;&nbsp; <a href="${accountUrl}" style="color:${TEAL};text-decoration:none;">${chrome.manageSubscription}</a> &nbsp;&middot;&nbsp; <a href="${accountUrl}" style="color:#999;text-decoration:none;">${chrome.unsubscribe}</a></p></td></tr></table></td></tr>`;
 
   html += `</table></td></tr></table></body></html>`;
 
