@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { PUBLISHER, PUBLISHER_URL } from "@/lib/constants";
 import SignupForm from "./SignupForm";
 import NBCBanner from "./NBCBanner";
+import PreferredSourceButton from "./PreferredSourceButton";
 
 export default async function Footer() {
   const year = new Date().getFullYear();
@@ -155,6 +156,14 @@ export default async function Footer() {
                 {PUBLISHER}
               </a>
             </p>
+            {/*
+             * "dark", not "auto": this footer's background is the fixed inline
+             * #0f1722→#0a1221 gradient above, which does NOT follow the site's
+             * light/dark toggle — so the surface under this button is dark for
+             * every reader, and a theme that tracked the colour scheme would be
+             * wrong half the time.
+             */}
+            <PreferredSourceButton theme="dark" className="mt-5" />
           </div>
 
           <div>
