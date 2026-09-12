@@ -71,6 +71,8 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|auth|_next/static|_next/image|favicon\\.ico|icon\\.(?:png|svg)|apple-icon\\.png|images|feed\\.xml|fonts|llms\\.txt|sitemap|robots\\.txt).*)",
+    // `go` is excluded like `api`: /go/* are counted outbound redirects, not
+    // pages, so next-intl must not try to give them a locale prefix.
+    "/((?!api|auth|go|_next/static|_next/image|favicon\\.ico|icon\\.(?:png|svg)|apple-icon\\.png|images|feed\\.xml|fonts|llms\\.txt|sitemap|robots\\.txt).*)",
   ],
 };

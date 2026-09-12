@@ -235,7 +235,9 @@ const CHROME_ES: EmailChrome = {
   // tú, because this briefing is tú throughout — "Desbloquea Pro", "Cancela
   // cuando quieras", "Tu reporte completo", "Antes de Irte". Mixing the two
   // registers in one email reads as two different people talking.
-  preferredSourceHeading: "Ve el Reporte primero en Google.",
+  // "Mira", not the literal tú of "Vea" ("Ve"), which collides with the tú
+  // imperative of ir — Noe's call 2026-09-12.
+  preferredSourceHeading: "Mira el Reporte primero en Google.",
   preferredSourceBody:
     "Agrega The Nolana Report como fuente preferida y nuestros informes aparecerán más arriba en tus resultados de Google y en Noticias destacadas. Un toque y listo.",
   preferredSourceCta: "Agregar a fuentes preferidas",
@@ -353,24 +355,18 @@ const CHARCOAL = "#333333";
 const SLATE = "#64748b";
 const WARM_WHITE = "#faf8f5";
 /**
- * Google's own deeplink for adding a site to a reader's preferred sources.
- * The in-page button is a script widget, which no email client will run, so
- * this link is the email-side equivalent. Verified 2026-09-12: resolves 200
- * with no redirect, with and without the utm params. The `q` is the bare
- * domain, not a URL.
+ * Our own counted redirect, NOT google.com directly — see
+ * app/go/preferred-source/route.ts. The in-page widget is a script Google runs,
+ * which no email client will execute, so a link is the email-side equivalent.
  *
- * CAVEAT on the utm params: they do NOT make these clicks visible in our GA4.
- * utm tags are read by the ANALYTICS OF THE DESTINATION SITE, and the
- * destination here is google.com — our property never sees the hit, because the
- * reader never lands on nolanareport.com. They are carried because they were
- * asked for and are harmless (Google ignores unknown query params), but the
- * only ways to actually count these clicks are Resend's click tracking on the
- * outbound link, or pointing the button at a /go/preferred-source redirect on
- * our own domain that records the hit and then 302s to Google.
+ * It points at our origin because that is the only way the click can be
+ * counted: utm params on a google.com URL are read by GOOGLE's analytics, never
+ * ours, since the reader never lands on nolanareport.com. The utm params that
+ * used to be here are gone for that reason. Absolute URL, because an email has
+ * no origin to resolve a relative path against.
  */
 const PREFERRED_SOURCE_URL =
-  "https://www.google.com/preferences/source?q=nolanareport.com" +
-  "&utm_source=newsletter&utm_medium=email&utm_campaign=preferred_source";
+  "https://nolanareport.com/go/preferred-source?src=email";
 const CREAM_BORDER = "#e5e0d8";
 const PAGE_BG = "#EDE8E0";
 const CARD_BG = "#FFFFFF";
