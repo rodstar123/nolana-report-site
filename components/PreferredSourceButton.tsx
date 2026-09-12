@@ -4,40 +4,63 @@ import { useEffect, useRef } from "react";
 
 const PUBLISHER_JS = "https://news.google.com/swg/js/v1/publisher.js";
 
-/**
- * In-flight execution of publisher.js, so two buttons entering the viewport
- * together share one injection instead of racing.
- */
-let running: Promise<void> | null = null;
+interface PreferredSourceApi {
+  init: (options?: Record<string, unknown>) => void;
+}
 
 /**
- * Execute Google's publisher.js.
- *
- * A FRESH <script> element every time, deliberately. The library self-starts:
- * on execution it calls its own `init()`, which scans for
- * `[google-add-preferred-source-btn]:not([data-initialized])` and upgrades what
- * it finds at that instant. It runs that scan ONCE and exposes no global to
- * re-run it — the module body ends with `t.preferredSource = …` where `t` is a
- * throwaway object, so nothing reaches `window`. A button mounted later by a
- * client-side navigation therefore cannot be picked up by the copy already on
- * the page; re-executing is the only way to initialize it. The file is in the
- * HTTP cache by then, so a repeat execution costs no network.
+ * Google installs `window.PREFERRED_SOURCE` as a queue: a plain ARRAY before the
+ * library arrives, which its bootstrap drains, and afterwards an OBJECT whose
+ * `push()` invokes the callback immediately with the live api.
  */
-function runPublisherJs(): Promise<void> {
-  if (running) return running;
-  running = new Promise<void>((resolve) => {
-    const el = document.createElement("script");
-    el.src = PUBLISHER_JS;
-    el.async = true;
-    const done = () => {
-      running = null;
-      resolve();
-    };
-    el.onload = done;
-    el.onerror = done; // a blocked or failed load must not wedge later buttons
-    document.head.appendChild(el);
-  });
-  return running;
+type PreferredSourceQueue =
+  | Array<(api: PreferredSourceApi) => void>
+  | { push: (...fns: Array<(api: PreferredSourceApi) => void>) => void };
+
+declare global {
+  interface Window {
+    PREFERRED_SOURCE?: PreferredSourceQueue;
+  }
+}
+
+/** The script only ever needs to be fetched once per document. */
+let scriptRequested = false;
+
+/**
+ * Ask Google's library to scan for (and upgrade) any button not yet initialized,
+ * loading it first if this is the first button to need it.
+ *
+ * Re-injecting the <script> does NOT work and must not be attempted. The library
+ * guards its own bootstrap: it reads `self.PREFERRED_SOURCE` and, finding the
+ * object it installed on a previous execution, returns a NO-OP api without ever
+ * calling `init()`. So a second copy of the file — even cache-busted, so it
+ * genuinely re-downloads and re-executes — initializes nothing. Verified against
+ * a live page: both a same-src re-append and a `?_=<ts>` variant left a freshly
+ * added button at `data-initialized` false.
+ *
+ * The queue below is the supported route and is correct in both states. Before
+ * load, `PREFERRED_SOURCE` is an array we append to and the bootstrap drains on
+ * arrival. After load, it is an object whose `push()` runs the callback straight
+ * away. Either way `init()` runs and picks up
+ * `[google-add-preferred-source-btn]:not([data-initialized])` — which is what a
+ * button mounted by a client-side navigation needs, since the copy already on
+ * the page scanned the DOM long before that button existed.
+ */
+function ensurePreferredSource(): void {
+  const queue: PreferredSourceQueue = (window.PREFERRED_SOURCE ??= []);
+  queue.push((api) => api.init());
+
+  if (scriptRequested) return;
+  scriptRequested = true;
+
+  const el = document.createElement("script");
+  el.src = PUBLISHER_JS;
+  el.async = true;
+  // A blocked or failed load must not permanently wedge later buttons.
+  el.onerror = () => {
+    scriptRequested = false;
+  };
+  document.head.appendChild(el);
 }
 
 /**
@@ -94,7 +117,7 @@ export default function PreferredSourceButton({
 
     // Older browsers without IntersectionObserver just load it right away.
     if (typeof IntersectionObserver === "undefined") {
-      void runPublisherJs();
+      ensurePreferredSource();
       return;
     }
 
@@ -103,7 +126,7 @@ export default function PreferredSourceButton({
         if (!entries.some((entry) => entry.isIntersecting)) return;
         observer.disconnect();
         if (node.hasAttribute("data-initialized")) return;
-        void runPublisherJs();
+        ensurePreferredSource();
       },
       // Start the fetch a little before the button is actually on screen so it
       // has arrived by the time the reader gets there.
