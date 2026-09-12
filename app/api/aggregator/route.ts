@@ -9,6 +9,7 @@ import {
 } from "@/lib/agents/aggregator";
 import { runAggregatorDryRun } from "@/lib/agents/aggregator-dryrun";
 import { runAggregatorWithFallback } from "@/lib/agents/aggregator-llm";
+import { sendTelegram } from "@/lib/agents/alerter";
 import {
   isCronAuthorized,
   isDryRunAuthorized,
@@ -209,9 +210,27 @@ Rules: Be specific (real numbers, cities, industries from the stories above). 1-
       // Non-fatal — page will still build on first visitor click
     }
 
-    // Trigger Spanish translation pass (non-blocking — English goes out regardless)
+    // Spanish translation pass. English ships regardless, but a failure here is
+    // NOT silent any more.
+    //
+    // This used to `await fetch(...)` inside a try/catch and check nothing.
+    // fetch only rejects on a network error, so a 502/500/401/404 — or the 504
+    // Vercel returns when translate-briefing hits its 300s ceiling — resolved
+    // normally, the catch never fired, and the aggregator still reported
+    // ok: true. That is why 2026-09-07, -08-10, -08-03 and -07-27 shipped with
+    // no Spanish and nothing anywhere said why.
+    //
+    // The status check is also the ONLY way a translator timeout can ever be
+    // observed: when the function is killed at 300s no code inside it runs, so
+    // it cannot log its own death. The caller sees the 504.
+    let translation: {
+      ok: boolean;
+      status: number | null;
+      error: string | null;
+    } = { ok: false, status: null, error: null };
+
     try {
-      await fetch(`${baseUrl}/api/translate-briefing`, {
+      const tRes = await fetch(`${baseUrl}/api/translate-briefing`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -219,15 +238,56 @@ Rules: Be specific (real numbers, cities, industries from the stories above). 1-
         },
         body: JSON.stringify({ slug }),
       });
+      if (tRes.ok) {
+        translation = { ok: true, status: tRes.status, error: null };
+      } else {
+        const body = await tRes.text().catch(() => "");
+        translation = {
+          ok: false,
+          status: tRes.status,
+          error: body.slice(0, 300),
+        };
+      }
     } catch (translationErr) {
-      console.warn(
-        "[aggregator] Spanish translation failed (non-blocking):",
-        translationErr,
+      translation = {
+        ok: false,
+        status: null,
+        error:
+          translationErr instanceof Error
+            ? translationErr.message
+            : "network error",
+      };
+    }
+
+    if (!translation.ok) {
+      console.error(
+        "[aggregator] Spanish translation FAILED:",
+        translation.status,
+        translation.error,
+      );
+      // A 504 here is the timeout signature — translate-briefing cannot report
+      // its own kill, so this alert is the only notice anyone gets.
+      await sendTelegram(
+        `🔴 <b>Spanish translation FAILED</b> (seen by aggregator)\n` +
+          `Issue: ${slug}\n` +
+          `HTTP ${translation.status ?? "network error"}` +
+          (translation.status === 504
+            ? " — <b>504 = translate-briefing hit its 300s maxDuration</b>"
+            : "") +
+          `\n\n${translation.error ?? ""}\n\n` +
+          `English briefing is unaffected. Spanish subscribers get NOTHING this week.`,
       );
     }
 
     return NextResponse.json({
-      ok: true,
+      // NOT unconditionally true any more. The English briefing succeeding is
+      // not the whole job — if the Spanish pass failed, this run is degraded
+      // and must say so, or the failure goes unnoticed exactly as it did for
+      // four issues. `degraded` names what survived, so a red ok is never
+      // mistaken for "no briefing went out".
+      ok: translation.ok,
+      degraded: translation.ok ? null : "spanish_translation_failed",
+      translation,
       poolSize: poolItems.length,
       afterDedup: kept.length,
       urlDedupCount,

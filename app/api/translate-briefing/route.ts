@@ -2,8 +2,90 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { cdtSlug } from "@/lib/cdt";
 import { isCronAuthorized } from "@/lib/cron-auth";
+import { sendTelegram } from "@/lib/agents/alerter";
 
 export const maxDuration = 300;
+
+/**
+ * The route creates its Supabase client untyped, so the logger takes it loosely
+ * rather than fighting the generated table types for a single insert.
+ */
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+type Db = any;
+
+interface FailureContext {
+  slug: string;
+  runStartedIso: string;
+  startedAt: number;
+  /** HTTP status this route is about to return. */
+  status: number;
+  /** Stable, greppable bucket — not the raw message. */
+  errorClass:
+    | "config_missing"
+    | "issue_not_found"
+    | "stories_fetch_failed"
+    | "anthropic_http"
+    | "parse_failed"
+    | "db_write_failed"
+    | "exception";
+  message: string;
+  /** Characters of English source sent to the model; 0 before the payload exists. */
+  sourceChars: number;
+  storyCount: number;
+}
+
+/**
+ * Record a translation failure where somebody will actually see it.
+ *
+ * Before this existed, a failed run left NO trace anywhere: the agent_logs
+ * insert sat on the success path only, and the aggregator never checked the
+ * response status — so four issues (2026-09-07, -08-10, -08-03, -07-27) shipped
+ * with no Spanish and nothing in any log said why.
+ *
+ * IMPORTANT LIMIT: this cannot catch a maxDuration timeout. When the 300s
+ * ceiling kills the function no code here runs at all. That case is caught by
+ * the CALLER — the aggregator now checks res.ok and alerts on the 504.
+ */
+async function recordFailure(
+  db: Db | null,
+  ctx: FailureContext,
+): Promise<void> {
+  const durationMs = Date.now() - ctx.startedAt;
+  const detail = {
+    slug: ctx.slug,
+    status: ctx.status,
+    error_class: ctx.errorClass,
+    message: ctx.message.slice(0, 500),
+    duration_ms: durationMs,
+    source_chars: ctx.sourceChars,
+  };
+
+  if (db) {
+    try {
+      await db.from("agent_logs").insert({
+        agent: "translator",
+        run_started_at: ctx.runStartedIso,
+        run_finished_at: new Date().toISOString(),
+        items_fetched: ctx.storyCount,
+        items_ingested: 0,
+        tokens_used: 0,
+        errors: [detail],
+      });
+    } catch {
+      // Logging must never mask the original failure.
+    }
+  }
+
+  await sendTelegram(
+    `🔴 <b>Spanish translation FAILED</b>\n` +
+      `Issue: ${ctx.slug}\n` +
+      `Class: ${ctx.errorClass} (HTTP ${ctx.status})\n` +
+      `Duration: ${(durationMs / 1000).toFixed(1)}s\n` +
+      `Source: ${ctx.sourceChars.toLocaleString()} chars · ${ctx.storyCount} stories\n\n` +
+      `${ctx.message.slice(0, 300)}\n\n` +
+      `The English briefing is unaffected. Spanish subscribers get NOTHING this week.`,
+  );
+}
 
 const TRANSLATION_SYSTEM_PROMPT = `You are the Spanish voice of The Nolana Report, a weekly business intelligence briefing for the Rio Grande Valley.
 
@@ -126,11 +208,28 @@ export async function POST(req: NextRequest) {
     slug = cdtSlug();
   }
 
+  // Timing and volume are captured for every outcome — they are the evidence
+  // for whether a run died on the 300s ceiling or on something else.
+  const startedAt = Date.now();
+  const runStartedIso = new Date().toISOString();
+  let sourceChars = 0;
+  let storyCount = 0;
+
   try {
     if (
       !process.env.NEXT_PUBLIC_SUPABASE_URL ||
       !process.env.SUPABASE_SERVICE_ROLE_KEY
     ) {
+      await recordFailure(null, {
+        slug,
+        runStartedIso,
+        startedAt,
+        status: 500,
+        errorClass: "config_missing",
+        message: "Missing Supabase configuration",
+        sourceChars,
+        storyCount,
+      });
       return NextResponse.json(
         { error: "Missing Supabase configuration" },
         { status: 500 },
@@ -148,6 +247,16 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (issueErr || !issue) {
+      await recordFailure(supabase, {
+        slug,
+        runStartedIso,
+        startedAt,
+        status: 404,
+        errorClass: "issue_not_found",
+        message: issueErr?.message ?? `Issue not found for slug ${slug}`,
+        sourceChars,
+        storyCount,
+      });
       return NextResponse.json(
         { error: `Issue not found for slug ${slug}` },
         { status: 404 },
@@ -161,6 +270,16 @@ export async function POST(req: NextRequest) {
       .order("position", { ascending: true });
 
     if (storiesErr) {
+      await recordFailure(supabase, {
+        slug,
+        runStartedIso,
+        startedAt,
+        status: 500,
+        errorClass: "stories_fetch_failed",
+        message: storiesErr.message,
+        sourceChars,
+        storyCount,
+      });
       return NextResponse.json(
         { error: `Failed to fetch stories: ${storiesErr.message}` },
         { status: 500 },
@@ -233,6 +352,11 @@ export async function POST(req: NextRequest) {
       stories: storiesPayload,
     };
 
+    // The real source volume actually sent to the model — the number that
+    // separates the runs that finish from the ones that do not.
+    sourceChars = JSON.stringify(payload).length;
+    storyCount = storiesPayload.length;
+
     const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -255,6 +379,16 @@ export async function POST(req: NextRequest) {
 
     if (!anthropicRes.ok) {
       const errText = await anthropicRes.text();
+      await recordFailure(supabase, {
+        slug,
+        runStartedIso,
+        startedAt,
+        status: 502,
+        errorClass: "anthropic_http",
+        message: `Anthropic ${anthropicRes.status}: ${errText.slice(0, 300)}`,
+        sourceChars,
+        storyCount,
+      });
       return NextResponse.json(
         { error: `Anthropic ${anthropicRes.status}: ${errText.slice(0, 300)}` },
         { status: 502 },
@@ -264,6 +398,9 @@ export async function POST(req: NextRequest) {
     const anthropicJson = (await anthropicRes.json()) as {
       content?: Array<{ type?: string; text?: string }>;
       usage?: { input_tokens?: number; output_tokens?: number };
+      // Recorded on a parse failure: "max_tokens" means the reply was cut off
+      // mid-JSON, which is a different defect from the model returning prose.
+      stop_reason?: string;
     };
     const textBlock = (anthropicJson.content ?? []).find(
       (b) => b.type === "text",
@@ -275,9 +412,24 @@ export async function POST(req: NextRequest) {
       const jsonMatch = rawText.match(/\{[\s\S]*\}/);
       translated = JSON.parse(jsonMatch ? jsonMatch[0] : rawText);
     } catch {
+      const outTokens = anthropicJson.usage?.output_tokens ?? 0;
+      await recordFailure(supabase, {
+        slug,
+        runStartedIso,
+        startedAt,
+        status: 502,
+        errorClass: "parse_failed",
+        message:
+          `stop_reason=${anthropicJson.stop_reason ?? "unknown"} ` +
+          `output_tokens=${outTokens} raw_len=${rawText.length} :: ${rawText.slice(0, 200)}`,
+        sourceChars,
+        storyCount,
+      });
       return NextResponse.json(
         {
           error: "Failed to parse translation JSON",
+          stop_reason: anthropicJson.stop_reason ?? null,
+          output_tokens: outTokens,
           raw: rawText.slice(0, 500),
         },
         { status: 502 },
@@ -371,9 +523,12 @@ export async function POST(req: NextRequest) {
       (anthropicJson.usage?.input_tokens ?? 0) +
       (anthropicJson.usage?.output_tokens ?? 0);
 
+    // run_started_at is the REAL start, not "now". It used to be set to the
+    // same instant as run_finished_at, so every historical translator row
+    // reports a zero-length run and the duration evidence was lost.
     await supabase.from("agent_logs").insert({
       agent: "translator",
-      run_started_at: new Date().toISOString(),
+      run_started_at: runStartedIso,
       run_finished_at: new Date().toISOString(),
       items_fetched: (stories ?? []).length,
       items_ingested: storiesUpdated,
@@ -393,6 +548,32 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("[translate-briefing] error:", message);
+    // Best-effort: build a client just for the log, since the failure may have
+    // happened before or after the one in scope above.
+    let db: Db = null;
+    try {
+      if (
+        process.env.NEXT_PUBLIC_SUPABASE_URL &&
+        process.env.SUPABASE_SERVICE_ROLE_KEY
+      ) {
+        db = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+          process.env.SUPABASE_SERVICE_ROLE_KEY,
+        );
+      }
+    } catch {
+      db = null;
+    }
+    await recordFailure(db, {
+      slug,
+      runStartedIso,
+      startedAt,
+      status: 500,
+      errorClass: "exception",
+      message,
+      sourceChars,
+      storyCount,
+    });
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
