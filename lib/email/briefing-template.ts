@@ -100,11 +100,14 @@ interface EmailChrome {
   manageSubscription: string;
   unsubscribe: string;
   /**
-   * Google Preferred Sources. An email client cannot run Google's publisher.js,
-   * so the in-page button has no equivalent here — this deeplink is Google's
-   * supported fallback and is the only way the ask reaches an inbox reader.
+   * Google Preferred Sources card, shown in every issue directly above the
+   * footer. An email client cannot run Google's publisher.js, so the in-page
+   * button has no equivalent here — the deeplink is Google's supported fallback
+   * and the only way this ask reaches an inbox reader.
    */
-  preferredSource: string;
+  preferredSourceHeading: string;
+  preferredSourceBody: string;
+  preferredSourceCta: string;
   thisTimeLast: string;
   valleyVsNational: string;
   sectionLabels: Record<string, string>;
@@ -161,7 +164,10 @@ const CHROME_EN: EmailChrome = {
   footerAddress: "315 W Nolana Ave Suite G, McAllen TX 78504",
   manageSubscription: "Manage subscription",
   unsubscribe: "Unsubscribe",
-  preferredSource: "Add us as a preferred source on Google",
+  preferredSourceHeading: "See the Report first on Google.",
+  preferredSourceBody:
+    "Add The Nolana Report as a Preferred Source and our briefings show up higher in your Google results and Top Stories. One tap, done.",
+  preferredSourceCta: "Add to Preferred Sources",
   thisTimeLast: "↩ This Time Last Year",
   valleyVsNational: "\u{1F4CD} Valley vs. National",
   sectionLabels: {
@@ -225,7 +231,14 @@ const CHROME_ES: EmailChrome = {
   footerAddress: "315 W Nolana Ave Suite G, McAllen TX 78504",
   manageSubscription: "Administrar suscripción",
   unsubscribe: "Cancelar suscripción",
-  preferredSource: "Agréganos como fuente preferida en Google",
+  // Converted from the supplied usted copy ("Vea… Agregue… sus resultados") to
+  // tú, because this briefing is tú throughout — "Desbloquea Pro", "Cancela
+  // cuando quieras", "Tu reporte completo", "Antes de Irte". Mixing the two
+  // registers in one email reads as two different people talking.
+  preferredSourceHeading: "Ve el Reporte primero en Google.",
+  preferredSourceBody:
+    "Agrega The Nolana Report como fuente preferida y nuestros informes aparecerán más arriba en tus resultados de Google y en Noticias destacadas. Un toque y listo.",
+  preferredSourceCta: "Agregar a fuentes preferidas",
   thisTimeLast: "↩ El Año Pasado por Estas Fechas",
   valleyVsNational: "\u{1F4CD} Valle vs. Nacional",
   sectionLabels: {
@@ -343,10 +356,21 @@ const WARM_WHITE = "#faf8f5";
  * Google's own deeplink for adding a site to a reader's preferred sources.
  * The in-page button is a script widget, which no email client will run, so
  * this link is the email-side equivalent. Verified 2026-09-12: resolves 200
- * with no redirect. The `q` is the bare domain, not a URL.
+ * with no redirect, with and without the utm params. The `q` is the bare
+ * domain, not a URL.
+ *
+ * CAVEAT on the utm params: they do NOT make these clicks visible in our GA4.
+ * utm tags are read by the ANALYTICS OF THE DESTINATION SITE, and the
+ * destination here is google.com — our property never sees the hit, because the
+ * reader never lands on nolanareport.com. They are carried because they were
+ * asked for and are harmless (Google ignores unknown query params), but the
+ * only ways to actually count these clicks are Resend's click tracking on the
+ * outbound link, or pointing the button at a /go/preferred-source redirect on
+ * our own domain that records the hit and then 302s to Google.
  */
 const PREFERRED_SOURCE_URL =
-  "https://www.google.com/preferences/source?q=nolanareport.com";
+  "https://www.google.com/preferences/source?q=nolanareport.com" +
+  "&utm_source=newsletter&utm_medium=email&utm_campaign=preferred_source";
 const CREAM_BORDER = "#e5e0d8";
 const PAGE_BG = "#EDE8E0";
 const CARD_BG = "#FFFFFF";
@@ -799,8 +823,15 @@ export function buildBriefingEmail(opts: BriefingEmailOptions): string {
     html += `<tr><td style="padding:28px 32px 0;"><p style="margin:0 0 8px;text-align:center;font-family:Arial,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#D4A853;">${chrome.adLabel}</p><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${TL_DARK};border:1px solid ${TL_BORDER};border-radius:12px;overflow:hidden;"><tr><td width="60%" valign="middle" style="padding:24px;"><p style="margin:0 0 10px;font-family:Arial,sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:3px;font-weight:bold;color:${TL_GREEN};">THUNDERLOUD</p><p style="margin:0 0 10px;font-family:Georgia,serif;font-size:20px;font-weight:bold;color:#ffffff;line-height:1.3;">${chrome.adHeadline}</p><p style="margin:0 0 16px;font-family:Arial,sans-serif;font-size:13px;color:${TL_MUTED};line-height:1.5;">${chrome.adSubtext}</p><a href="https://thunderloud.com" style="display:inline-block;background:${TL_GREEN};color:#000000;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;padding:10px 20px;border-radius:6px;text-decoration:none;">${chrome.adCta}</a></td><td width="40%" valign="middle" style="padding:0;"><img src="${TL_IMG}" alt="ThunderLoud" width="216" style="display:block;width:100%;height:100%;object-fit:cover;" /></td></tr></table></td></tr>`;
   }
 
+  // GOOGLE PREFERRED SOURCES — every issue, both locales, directly above the
+  // footer. It sits after the last content section (and after the ad slot) so
+  // it is in the reader's path on the way out without competing with the lead
+  // story. Not gated on tier: a free reader's Google results are worth as much
+  // as a Pro one's.
+  html += `<tr><td style="padding:28px 32px 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARM_WHITE};border:1px solid ${CREAM_BORDER};border-radius:10px;"><tr><td style="padding:24px;text-align:center;"><p style="margin:0 0 8px;font-family:Georgia,serif;font-size:20px;font-weight:bold;color:${NAVY};">${chrome.preferredSourceHeading}</p><p style="margin:0 0 18px;font-family:Arial,sans-serif;font-size:14px;color:${CHARCOAL};line-height:1.6;">${chrome.preferredSourceBody}</p><!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${PREFERRED_SOURCE_URL}" style="height:48px;v-text-anchor:middle;width:280px;" arcsize="17%" strokecolor="${TEAL}" fillcolor="${TEAL}"><w:anchorlock/><center style="color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">${chrome.preferredSourceCta}</center></v:roundrect><![endif]--><!--[if !mso]><!--><a href="${PREFERRED_SOURCE_URL}" style="display:inline-block;background:${TEAL};color:#ffffff;padding:14px 32px;border-radius:8px;text-decoration:none;font-family:Arial,sans-serif;font-weight:bold;font-size:15px;line-height:1;">${chrome.preferredSourceCta}</a><!--<![endif]--></td></tr></table></td></tr>`;
+
   // FOOTER
-  html += `<tr><td style="padding:28px 32px;"><hr style="border:none;border-top:1px solid ${CREAM_BORDER};margin:0 0 20px;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="text-align:center;font-family:Arial,sans-serif;font-size:12px;color:#999;line-height:1.6;"><p style="margin:0;">${chrome.footerPublisher}</p><p style="margin:4px 0 0;">${chrome.footerAddress}</p><p style="margin:14px 0 0;"><a href="${PREFERRED_SOURCE_URL}" style="color:${TEAL};text-decoration:none;font-weight:bold;">${chrome.preferredSource}</a></p><p style="margin:12px 0 0;"><a href="${issueUrl}" style="color:${TEAL};text-decoration:none;">${chrome.viewOnWeb}</a> &nbsp;&middot;&nbsp; <a href="${accountUrl}" style="color:${TEAL};text-decoration:none;">${chrome.manageSubscription}</a> &nbsp;&middot;&nbsp; <a href="${accountUrl}" style="color:#999;text-decoration:none;">${chrome.unsubscribe}</a></p></td></tr></table></td></tr>`;
+  html += `<tr><td style="padding:28px 32px;"><hr style="border:none;border-top:1px solid ${CREAM_BORDER};margin:0 0 20px;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="text-align:center;font-family:Arial,sans-serif;font-size:12px;color:#999;line-height:1.6;"><p style="margin:0;">${chrome.footerPublisher}</p><p style="margin:4px 0 0;">${chrome.footerAddress}</p><p style="margin:12px 0 0;"><a href="${issueUrl}" style="color:${TEAL};text-decoration:none;">${chrome.viewOnWeb}</a> &nbsp;&middot;&nbsp; <a href="${accountUrl}" style="color:${TEAL};text-decoration:none;">${chrome.manageSubscription}</a> &nbsp;&middot;&nbsp; <a href="${accountUrl}" style="color:#999;text-decoration:none;">${chrome.unsubscribe}</a></p></td></tr></table></td></tr>`;
 
   html += `</table></td></tr></table></body></html>`;
 
