@@ -92,7 +92,40 @@ Brand nouns (The Nolana Report, SmartBook, Money Map, Nolana Take, NRI) are neve
 
 Keep dollar amounts, dates, entity names, company names and program names exactly as they appear. Preserve markdown formatting, including **bold** and table pipes.
 
-Return ONLY valid JSON matching the requested shape. No markdown fences. No preamble. No commentary.`;
+Return the result by calling the emit_translation tool, with the source's own keys preserved exactly.`;
+
+/**
+ * Output is taken through a tool call, not parsed out of a text reply.
+ *
+ * Asking for "only valid JSON" in prose does not survive contact with real
+ * copy: validation on 2026-07-27 produced
+ *   "nolana_take":"...salir a decir "quédense tranquilos", lo mejor es..."
+ * — unescaped straight quotes inside a string value, invalid at char 916, with
+ * stop_reason=end_turn. The model had finished cleanly; the format was just
+ * wrong. A tool schema makes well-formed JSON the API's problem instead of a
+ * regex's.
+ *
+ * The schema is deliberately GENERIC — an open object rather than the specific
+ * keys of each chunk. Anthropic caches the prompt prefix in the order
+ * tools → system → messages, so a per-chunk tool schema would change the very
+ * first cached block and miss the cache on all ~29 calls. Keeping tools and
+ * system byte-identical, and putting the per-chunk key list in the user
+ * message, is what lets the cache actually hit.
+ */
+const EMIT_TOOL = {
+  name: "emit_translation",
+  description:
+    "Return the Spanish translation as an object keyed exactly like the source. Strings stay strings; arrays stay arrays of the same length and shape.",
+  input_schema: {
+    type: "object" as const,
+    // No wrapper key and no `required`: the model returns the source's own keys
+    // directly. An earlier version nested them under `fields`, which the model
+    // ignored — it called the tool correctly (stop_reason=tool_use) but put the
+    // keys at the top level, so the extractor found nothing. Matching what it
+    // actually does beats insisting on a wrapper it has no reason to honour.
+    additionalProperties: true,
+  },
+};
 
 export interface ChunkSpec {
   chunkKey: string;
@@ -195,10 +228,7 @@ async function translateChunk(
   apiKey: string,
 ): Promise<{ outcome: ChunkOutcome; payload: Record<string, unknown> | null }> {
   const started = Date.now();
-  const shape =
-    spec.chunkKind === "chrome"
-      ? `an object with exactly these keys: ${Object.keys(spec.source).join(", ")}`
-      : `an object with exactly these keys: ${Object.keys(spec.source).join(", ")}`;
+  const shape = `an object with exactly these keys: ${Object.keys(spec.source).join(", ")}`;
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -220,12 +250,14 @@ async function translateChunk(
             cache_control: { type: "ephemeral" },
           },
         ],
+        tools: [EMIT_TOOL],
+        tool_choice: { type: "tool", name: EMIT_TOOL.name },
         messages: [
           {
             role: "user",
             content:
-              `Translate every value in this JSON to RGV Spanish. Return ${shape}. ` +
-              `Preserve every key exactly.\n\n` +
+              `Translate every value below into RGV Spanish and return ${shape} ` +
+              `inside "fields". Preserve every key exactly.\n\n` +
               JSON.stringify(spec.source, null, 2),
           },
         ],
@@ -248,18 +280,39 @@ async function translateChunk(
     }
 
     const json = (await res.json()) as {
-      content?: Array<{ type?: string; text?: string }>;
+      content?: Array<{
+        type?: string;
+        text?: string;
+        name?: string;
+        input?: { fields?: Record<string, unknown> };
+      }>;
       usage?: { output_tokens?: number };
       stop_reason?: string;
     };
-    const raw = (json.content ?? []).find((b) => b.type === "text")?.text ?? "";
     const outputTokens = json.usage?.output_tokens ?? 0;
 
-    let parsed: Record<string, unknown>;
-    try {
-      const m = raw.match(/\{[\s\S]*\}/);
-      parsed = JSON.parse(m ? m[0] : raw);
-    } catch {
+    const toolBlock = (json.content ?? []).find(
+      (b) => b.type === "tool_use" && b.name === EMIT_TOOL.name,
+    );
+    const input = toolBlock?.input;
+    // Accept either shape: the keys directly on `input` (what the model does),
+    // or nested under `fields` if it ever wraps them.
+    const fields =
+      input && typeof input.fields === "object" && input.fields !== null
+        ? (input.fields as Record<string, unknown>)
+        : (input as Record<string, unknown> | undefined);
+
+    // The only remaining failure here is the model declining to call the tool
+    // at all, or truncating mid-call. stop_reason names which — "max_tokens"
+    // is a truncation and means the per-chunk ceiling was too low for this
+    // card, which is a different fix from a refusal.
+    if (
+      !fields ||
+      typeof fields !== "object" ||
+      Object.keys(fields).length === 0
+    ) {
+      const textBlock =
+        (json.content ?? []).find((b) => b.type === "text")?.text ?? "";
       return {
         outcome: {
           chunkKey: spec.chunkKey,
@@ -267,9 +320,10 @@ async function translateChunk(
           durationMs: Date.now() - started,
           outputTokens,
           errorClass: "parse_failed",
-          // stop_reason distinguishes a truncated reply from the model simply
-          // returning prose — the ceilings above are what make this cheap.
-          message: `stop_reason=${json.stop_reason ?? "unknown"} raw_len=${raw.length} :: ${raw.slice(0, 150)}`,
+          message:
+            `stop_reason=${json.stop_reason ?? "unknown"} ` +
+            `tool_block=${toolBlock ? "yes" : "no"} ` +
+            `input_keys=[${input ? Object.keys(input).join(",") : ""}] :: ${textBlock.slice(0, 300)}`,
         },
         payload: null,
       };
@@ -282,7 +336,7 @@ async function translateChunk(
         durationMs: Date.now() - started,
         outputTokens,
       },
-      payload: parsed,
+      payload: fields,
     };
   } catch (err) {
     return {
