@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { cdtSlug } from "@/lib/cdt";
 import { isCronAuthorized } from "@/lib/cron-auth";
 import { selectStory } from "@/lib/social/select-story";
 import { generatePosts, countHashtags } from "@/lib/social/generate-posts";
@@ -27,14 +28,14 @@ export const maxDuration = 120;
 export const dynamic = "force-dynamic";
 
 /** Named so a failure message says which leg broke, not just that one did. */
-type Stage = "select" | "generate" | "persist" | "telegram";
+type Stage = "guard" | "select" | "generate" | "persist" | "telegram";
 
 export async function GET(req: NextRequest) {
   if (!isCronAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let stage: Stage = "select";
+  let stage: Stage = "guard";
   const startedAt = Date.now();
 
   try {
@@ -44,6 +45,44 @@ export async function GET(req: NextRequest) {
     );
 
     const issueId = req.nextUrl.searchParams.get("issue_id") ?? undefined;
+
+    /**
+     * Monday guard: the cron fires 45 minutes after the aggregator, so if the
+     * aggregator failed there is no new issue and the route would otherwise
+     * happily regenerate copy for LAST week's briefing and mail it out as this
+     * week's. Slug is the CDT date (never raw UTC — see CLAUDE.md), matching
+     * how the aggregator names the issue it writes.
+     *
+     * Skipped entirely when ?issue_id= is given: that parameter IS the manual
+     * override, and a deliberate rerun of a back issue must not be blocked by
+     * today's publish state.
+     */
+    if (!issueId) {
+      const today = cdtSlug();
+      const { data: todayIssue, error: guardErr } = await supabase
+        .from("issues")
+        .select("id")
+        .eq("is_published", true)
+        .eq("slug", today)
+        .maybeSingle();
+
+      if (guardErr) throw new Error(`guard issue lookup: ${guardErr.message}`);
+
+      if (!todayIssue) {
+        await sendSocialTelegram(
+          "Social posts skipped — no issue published today",
+        );
+        return NextResponse.json({
+          ok: true,
+          skipped: true,
+          reason: "no_issue_published_today",
+          date: today,
+          durationMs: Date.now() - startedAt,
+        });
+      }
+    }
+
+    stage = "select";
     const selection = await selectStory(supabase, issueId);
 
     stage = "generate";
