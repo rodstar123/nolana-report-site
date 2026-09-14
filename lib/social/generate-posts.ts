@@ -119,6 +119,8 @@ REPORTED FACTS vs OUR RECOMMENDATION — the card is split into two labelled blo
 smart_move is the newsletter's advice. You may phrase it as advice ("if you're a subcontractor, now is the time to…") but never as a reported fact or with words like "reportedly", "are being assembled", "are forming".
 Only the REPORTED FACTS block may be stated as fact. Do not attribute the recommendation to the source publication.
 
+TENSE FIDELITY — applies to English and Spanish equally: Preserve the status of every event exactly as the card states it. A first reading, proposal, vote pending, or "could/would" outcome must stay conditional or in-progress in the post — never rendered as completed. Do not assert market conditions (prices, availability, demand) as fact unless the card states them as fact.
+
 VOICE:
 - Direct, concrete, Morning Brew register. Never corporate, never breathless.
 - No emoji unless the platform brief asks for one. It does not.
