@@ -50,6 +50,11 @@ export async function GET(req: NextRequest) {
     const generated = await generatePosts(selection);
 
     stage = "persist";
+    // updated_at is set explicitly on every upsert. created_at keeps the
+    // first-run value (ON CONFLICT DO UPDATE never touches a column the write
+    // does not name), so the pair tells you when copy was first generated AND
+    // when it was last regenerated.
+    const now = new Date().toISOString();
     const rows = generated.posts.map((p) => ({
       issue_id: selection.issue.id,
       story_title: selection.story.headline,
@@ -58,6 +63,7 @@ export async function GET(req: NextRequest) {
       body: p.body,
       link: p.link,
       model: generated.model,
+      updated_at: now,
     }));
 
     const { error: upsertErr } = await supabase
@@ -89,14 +95,17 @@ export async function GET(req: NextRequest) {
         lang: p.lang,
         words: p.words,
         chars: p.chars,
+        charsAdjusted: p.charsAdjusted,
         limit: p.limitLabel,
         withinLimit: p.withinLimit,
+        brandMentions: p.brandMentions,
         attempts: p.attempts,
         hashtags: countHashtags(p.body),
         link: p.link,
       })),
       violations: generated.violations,
       missing: generated.missing,
+      brandIssues: generated.brandIssues,
       model: generated.model,
       modelCalls: generated.calls,
       inputTokens: generated.inputTokens,
@@ -134,6 +143,11 @@ function buildTelegramMessage(
   if (generated.missing.length > 0) {
     lines.push(
       `⚠️ Not returned by the model: ${escapeHtml(generated.missing.join(", "))}`,
+    );
+  }
+  if (generated.brandIssues.length > 0) {
+    lines.push(
+      `⚠️ Brand mention: ${escapeHtml(generated.brandIssues.join("; "))}`,
     );
   }
 

@@ -46,7 +46,7 @@ export const POST_SPECS: PostSpec[] = [
     min: 60,
     max: 120,
     brief:
-      "60-120 words. Written for an RGV business-owner group. Lead with the concrete fact, one sentence on why it matters to a local owner, end with the link line. No hashtags.",
+      "60-120 words. Written for an RGV business-owner group. Lead with the concrete fact, one sentence on why it matters to a local owner, end with the link line. No hashtags. The link line is phrased exactly as: Full breakdown in this week's Nolana Report: {link}",
   },
   {
     platform: "facebook",
@@ -56,7 +56,7 @@ export const POST_SPECS: PostSpec[] = [
     min: 60,
     max: 120,
     brief:
-      "60-120 words. Same brief as the English Facebook post, in natural RGV Spanish. This is NOT a translation of the English post — write it fresh from the Spanish card fields. No code-switching: do not mix English words into the Spanish sentences beyond proper nouns and the glossary terms. No hashtags.",
+      '60-120 words. Same brief as the English Facebook post, in natural RGV Spanish. This is NOT a translation of the English post — write it fresh from the Spanish card fields. No code-switching: do not mix English words into the Spanish sentences beyond proper nouns and the glossary terms. No hashtags. The link line is natural Spanish and must contain the brand name exactly as "Nolana Report" — for example: El desglose completo en el Nolana Report de esta semana: {link}',
   },
   {
     platform: "linkedin",
@@ -66,7 +66,7 @@ export const POST_SPECS: PostSpec[] = [
     min: 80,
     max: 150,
     brief:
-      "80-150 words. Slightly more analytical than the Facebook post. One line break between ideas. Max 3 hashtags at the end.",
+      "80-150 words. Slightly more analytical than the Facebook post. One line break between ideas. Max 3 hashtags at the end. The link line is phrased exactly as: Full breakdown in this week's Nolana Report: {link}",
   },
   {
     platform: "reddit",
@@ -76,7 +76,7 @@ export const POST_SPECS: PostSpec[] = [
     min: 50,
     max: 100,
     brief:
-      "50-100 words, plain and non-promotional, for r/RGV. Cite the original source by name. The link line goes last and is phrased exactly as: I write a weekly roundup on this if useful: {link}",
+      "50-100 words, plain and non-promotional, for r/RGV. Cite the original source by name. The link line goes last and is phrased exactly as: I write a weekly RGV roundup, the Nolana Report, if useful: {link}",
   },
   {
     platform: "x",
@@ -84,8 +84,9 @@ export const POST_SPECS: PostSpec[] = [
     label: "X (EN)",
     unit: "chars",
     min: 0,
-    max: 260,
-    brief: "260 characters or fewer, including the link.",
+    max: 270,
+    brief:
+      '270 characters or fewer in total, where the URL counts as 23 characters no matter how long it looks (X shortens every link to t.co). Put "Nolana Report:" immediately before the link.',
   },
   {
     platform: "x",
@@ -93,9 +94,9 @@ export const POST_SPECS: PostSpec[] = [
     label: "X (ES)",
     unit: "chars",
     min: 0,
-    max: 260,
+    max: 270,
     brief:
-      "260 characters or fewer, including the link. Natural RGV Spanish written fresh from the Spanish card fields, not a translation of the English post.",
+      '270 characters or fewer in total, where the URL counts as 23 characters no matter how long it looks (X shortens every link to t.co). Natural RGV Spanish written fresh from the Spanish card fields, not a translation of the English post. Put "Nolana Report:" immediately before the link.',
   },
 ];
 
@@ -111,6 +112,12 @@ The link line uses the exact URL passed in; never alter it.
 Output only JSON: { "posts": [ { "platform": "", "lang": "", "body": "" }, ... ] }.
 
 That JSON is returned by calling the emit_posts tool. Do not write it into a text reply.
+
+BRAND: every post contains the exact phrase "Nolana Report" exactly once, in the link line. Never "the Nolana", "Nolana report", "NolanaReport", or any other variant.
+
+REPORTED FACTS vs OUR RECOMMENDATION — the card is split into two labelled blocks and they are not interchangeable.
+smart_move is the newsletter's advice. You may phrase it as advice ("if you're a subcontractor, now is the time to…") but never as a reported fact or with words like "reportedly", "are being assembled", "are forming".
+Only the REPORTED FACTS block may be stated as fact. Do not attribute the recommendation to the source publication.
 
 VOICE:
 - Direct, concrete, Morning Brew register. Never corporate, never breathless.
@@ -164,9 +171,18 @@ export interface GeneratedPost {
   body: string;
   link: string;
   words: number;
+  /** Literal length of the body as written. */
   chars: number;
+  /**
+   * Length as X actually counts it: every URL is rewritten to a t.co link of
+   * fixed width regardless of the original, so a 110-char UTM'd URL costs 23.
+   * Equals `chars` on platforms that do not shorten.
+   */
+  charsAdjusted: number;
   limitLabel: string;
   withinLimit: boolean;
+  /** Occurrences of the exact phrase "Nolana Report" — must be exactly 1. */
+  brandMentions: number;
   attempts: number;
 }
 
@@ -177,6 +193,8 @@ export interface GenerationResult {
   violations: string[];
   /** Requested but never returned by the model. */
   missing: string[];
+  /** Posts whose "Nolana Report" mention is missing or duplicated. */
+  brandIssues: string[];
   inputTokens: number;
   outputTokens: number;
   calls: number;
@@ -199,18 +217,33 @@ export function buildLink(
 
 function limitLabel(spec: PostSpec): string {
   return spec.unit === "chars"
-    ? `<= ${spec.max} chars`
+    ? `<= ${spec.max} chars (t.co-adjusted)`
     : `${spec.min}-${spec.max} words`;
 }
 
-function measure(spec: PostSpec, body: string) {
+/**
+ * X rewrites every URL to a t.co link of fixed width, so the real cost of the
+ * link is TCO_LENGTH no matter how long the UTM'd URL looks. Counting the raw
+ * URL made the budget ~85 characters tighter than X's own, which is why the
+ * first dry run produced a post pinned to exactly its ceiling.
+ */
+export const TCO_LENGTH = 23;
+
+export function tcoLength(body: string, link: string): number {
+  if (!link || !body.includes(link)) return body.length;
+  return body.length - link.length + TCO_LENGTH;
+}
+
+function measure(spec: PostSpec, body: string, link: string) {
   const words = countWords(body);
   const chars = body.length;
+  const charsAdjusted =
+    spec.unit === "chars" ? tcoLength(body, link) : body.length;
   const withinLimit =
     spec.unit === "chars"
-      ? chars <= spec.max
+      ? charsAdjusted <= spec.max
       : words >= spec.min && words <= spec.max;
-  return { words, chars, withinLimit };
+  return { words, chars, charsAdjusted, withinLimit };
 }
 
 /** Hashtag count, reported for LinkedIn. Not a retry trigger — length is. */
@@ -218,23 +251,53 @@ export function countHashtags(body: string): number {
   return (body.match(/(?:^|\s)#[^\s#]+/g) ?? []).length;
 }
 
-function cardFields(sel: StorySelection, lang: Lang): Record<string, string> {
+/**
+ * Occurrences of the exact brand phrase. Case-sensitive on purpose: "Nolana
+ * report" is a brand error, not a match. Counted and reported rather than
+ * retried — length is the only retry trigger, and a missing mention is one word
+ * for Noe to add, not a reason to burn another generation.
+ */
+export function countBrandMentions(body: string): number {
+  return (body.match(/Nolana Report/g) ?? []).length;
+}
+
+/**
+ * The card, split into what may be stated as fact and what may only be stated
+ * as advice.
+ *
+ * smart_move is the newsletter's own recommendation. Handed to the model in one
+ * undifferentiated blob it gets laundered into reportage — the first dry run
+ * produced "subcontractor lists are reportedly being put together now" in a
+ * Reddit post, attributing our advice to Valley Business Report. Two labelled
+ * blocks, and a matching rule in the system prompt, are what separate them.
+ */
+function cardBlocks(
+  sel: StorySelection,
+  lang: Lang,
+): { facts: Record<string, string>; recommendation: Record<string, string> } {
   const s = sel.story;
   const pick = (en: string | null, es: string | null): string | null =>
     lang === "es" && es && es.trim() ? es : en;
 
-  const out: Record<string, string> = {};
-  const add = (k: string, v: string | null | undefined) => {
-    if (v && v.trim()) out[k] = v.trim();
+  const facts: Record<string, string> = {};
+  const recommendation: Record<string, string> = {};
+  const add = (
+    target: Record<string, string>,
+    k: string,
+    v: string | null | undefined,
+  ) => {
+    if (v && v.trim()) target[k] = v.trim();
   };
 
-  add("headline", pick(s.headline, s.headline_es));
-  add("summary", pick(s.summary, s.summary_es));
-  add("why_it_matters", pick(s.why_it_matters, s.why_it_matters_es));
-  add("smart_move", pick(s.smart_move, s.smart_move_es));
-  add("source_name", s.source_name);
-  add("source_url", s.source_url);
-  return out;
+  add(facts, "headline", pick(s.headline, s.headline_es));
+  add(facts, "summary", pick(s.summary, s.summary_es));
+  add(facts, "why_it_matters", pick(s.why_it_matters, s.why_it_matters_es));
+  add(facts, "source_name", s.source_name);
+  add(facts, "source_url", s.source_url);
+
+  add(recommendation, "smart_move", pick(s.smart_move, s.smart_move_es));
+
+  return { facts, recommendation };
 }
 
 function buildUserMessage(
@@ -243,16 +306,22 @@ function buildUserMessage(
   links: Map<string, string>,
   retryNote?: string,
 ): string {
-  const byLang = new Map<Lang, Record<string, string>>();
+  const byLang = new Map<Lang, ReturnType<typeof cardBlocks>>();
   for (const spec of specs) {
     if (!byLang.has(spec.lang))
-      byLang.set(spec.lang, cardFields(sel, spec.lang));
+      byLang.set(spec.lang, cardBlocks(sel, spec.lang));
   }
 
-  const cardBlocks = Array.from(byLang.entries())
+  const cards = Array.from(byLang.entries())
     .map(
-      ([lang, fields]) =>
-        `STORY CARD (${lang.toUpperCase()}):\n${JSON.stringify(fields, null, 2)}`,
+      ([lang, block]) =>
+        `STORY CARD (${lang.toUpperCase()})\n\n` +
+        `REPORTED FACTS — these may be stated as fact:\n` +
+        `${JSON.stringify(block.facts, null, 2)}\n\n` +
+        `OUR RECOMMENDATION — this is the Nolana Report's own advice, not reporting. ` +
+        `Phrase it as advice or leave it out. Never as something that is happening, ` +
+        `and never attributed to source_name:\n` +
+        `${JSON.stringify(block.recommendation, null, 2)}`,
     )
     .join("\n\n");
 
@@ -269,7 +338,7 @@ function buildUserMessage(
     .join("\n");
 
   return (
-    `${cardBlocks}\n\n` +
+    `${cards}\n\n` +
     `The summary field is the story's single fact. Do not treat any other field as a second, independent fact.\n\n` +
     `WRITE THESE POSTS:\n${requests}\n\n` +
     (retryNote ? `${retryNote}\n\n` : "") +
@@ -395,9 +464,11 @@ export async function generatePosts(
   const posts: GeneratedPost[] = [];
   const missing: string[] = [];
   const violations: string[] = [];
+  const brandIssues: string[] = [];
 
   for (const spec of specs) {
     const k = key(spec.platform, spec.lang);
+    const link = links.get(k) ?? "";
     let body = bodies.get(k);
     let attempts = 1;
 
@@ -406,11 +477,13 @@ export async function generatePosts(
       continue;
     }
 
-    let m = measure(spec, body);
+    let m = measure(spec, body, link);
 
     if (!m.withinLimit) {
       const was =
-        spec.unit === "chars" ? `${m.chars} chars` : `${m.words} words`;
+        spec.unit === "chars"
+          ? `${m.charsAdjusted} chars (t.co-adjusted)`
+          : `${m.words} words`;
       const note =
         `RETRY: your previous ${spec.platform} (${spec.lang}) post was ${was}, ` +
         `outside the required ${limitLabel(spec)}. Rewrite ONLY that post so it fits. ` +
@@ -430,7 +503,7 @@ export async function generatePosts(
         );
         if (retried?.body) {
           const retriedBody = retried.body.trim();
-          const rm = measure(spec, retriedBody);
+          const rm = measure(spec, retriedBody, link);
           // Keep the retry only if it is an improvement; a worse second draft
           // should not replace a near-miss first one.
           if (rm.withinLimit || !m.withinLimit) {
@@ -447,11 +520,20 @@ export async function generatePosts(
 
       if (!m.withinLimit) {
         const now =
-          spec.unit === "chars" ? `${m.chars} chars` : `${m.words} words`;
+          spec.unit === "chars"
+            ? `${m.charsAdjusted} chars (t.co-adjusted)`
+            : `${m.words} words`;
         violations.push(
           `${spec.platform}/${spec.lang}: ${now} (limit ${limitLabel(spec)})`,
         );
       }
+    }
+
+    const brandMentions = countBrandMentions(body);
+    if (brandMentions !== 1) {
+      brandIssues.push(
+        `${spec.platform}/${spec.lang}: "Nolana Report" x${brandMentions}`,
+      );
     }
 
     posts.push({
@@ -459,11 +541,13 @@ export async function generatePosts(
       lang: spec.lang,
       label: spec.label,
       body,
-      link: links.get(k) ?? "",
+      link,
       words: m.words,
       chars: m.chars,
+      charsAdjusted: m.charsAdjusted,
       limitLabel: limitLabel(spec),
       withinLimit: m.withinLimit,
+      brandMentions,
       attempts,
     });
   }
@@ -473,6 +557,7 @@ export async function generatePosts(
     model: MODEL,
     violations,
     missing,
+    brandIssues,
     inputTokens,
     outputTokens,
     calls,
